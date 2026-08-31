@@ -44,6 +44,9 @@ test("checked launch packets are frozen without absorbing unrelated work", async
   git(root, "commit", "-m", "Initialize campaign");
 
   expect(await requireCleanContractWorkspace(root)).toBe(true);
+  const nested = join(root, "nested-campaign");
+  mkdirSync(nested);
+  expect(await requireCleanContractWorkspace(nested)).toBe(false);
   mkdirSync(join(root, "packets", "launch"), { recursive: true });
   writeFileSync(join(root, "packets", "launch", "checked.md"), "checked contract\n");
   const commit = await freezeResearchLaunchPackets(root, ["packets/launch/checked.md"], true);

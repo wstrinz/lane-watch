@@ -307,6 +307,31 @@ defaults cannot reconstruct a launch contract. Historical requests and runs
 remain readable from their durable records, but missing structured authority
 must go back through planning and the human gate.
 
+### Campaign interpretation and Research Atlas
+
+The project page places a persistent interpretation layer between packet intake
+and the operational campaign line. Its director deck answers three distinct
+questions: the campaign's North Star, the current quest, and the human decision
+that is actually available now. A change ledger and scope/watchout rail keep the
+latest evidence from silently becoming a broader conclusion than its receipt
+supports.
+
+The Research Atlas renders the same read model as three connected strategy
+tracks: global coverage, positive supply, and candidate decision. Claims,
+checked proposals, and historical runs appear as typed stations. Selecting a
+station opens its evidence, scope, expected unlocks, and educational context;
+the Object Codex explains the mathematical objects and proof machinery without
+asserting new campaign facts.
+
+Interpretation is deliberately not authority. Visible status words preserve the
+boundary: `SUPPORTED` means supported only within displayed evidence and scope;
+`PROPOSED` is a checked or suggested next move that has not run; `UNMEASURED`
+marks a missing measurement; and `BLOCKED` records a refutation, stop condition,
+or unresolved blocker. Only durable receipts, checked plans, schedules, and
+existing human gates may change campaign state. Historical run strategy is read
+from its immutable confirmed schedule when available, so a newer plan cannot
+retroactively reclassify old work.
+
 ## Run locally
 
 ```powershell

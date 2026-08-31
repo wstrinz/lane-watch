@@ -793,8 +793,8 @@ function gitStatusPath(line: string): string {
 }
 
 export async function requireCleanContractWorkspace(projectRoot: string): Promise<boolean> {
-  const repository = await runGit(projectRoot, ["rev-parse", "--is-inside-work-tree"]);
-  if (repository.exitCode !== 0 || repository.stdout !== "true") return false;
+  const repository = await runGit(projectRoot, ["rev-parse", "--show-toplevel"]);
+  if (repository.exitCode !== 0 || resolve(repository.stdout) !== resolve(projectRoot)) return false;
   const status = await runGit(projectRoot, ["status", "--porcelain=v1", "--untracked-files=all"]);
   if (status.exitCode !== 0) throw new Error(`Could not inspect the campaign worktree before compiling launch contracts: ${status.stderr || status.stdout}`);
   if (status.stdout) {

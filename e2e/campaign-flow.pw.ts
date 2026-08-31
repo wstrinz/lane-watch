@@ -26,7 +26,24 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(inbox).toContainText("STAGED FOR REVIEW");
   await expect(inbox).toContainText("READY FOR SEMANTIC REVIEW");
   await expect(inbox.locator(".packet-list li")).toHaveCount(5);
-  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v101.png` });
+  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v103.png` });
+  const interpretation = page.getByRole("region", { name: "Campaign interpretation and research atlas" });
+  await expect(interpretation).toBeVisible();
+  await expect(interpretation.locator(".director-card")).toHaveCount(3);
+  await expect(interpretation).toContainText("Understand the mission before choosing the move");
+  await expect(interpretation).toContainText("RESEARCH ATLAS");
+  await expect(interpretation.locator(".atlas-track")).toHaveCount(3);
+  await expect(interpretation.locator(".atlas-station").first()).toBeVisible();
+  await expect(interpretation.locator(".object-codex button").first()).toBeVisible();
+  await interpretation.locator(".object-codex button").first().click();
+  await expect(interpretation.locator(".atlas-inspector")).toContainText("Educational context only");
+  const nextAction = page.locator("#next-action");
+  await expect(nextAction).toBeVisible();
+  await expect(nextAction).toContainText(/CURRENT GROUNDING|Choose the campaign direction|operator|wave|lane/i);
+  await page.setViewportSize({ width: 1440, height: 2200 });
+  await page.locator(".topbar,#next-action").evaluateAll((elements) => elements.forEach((element) => element.remove()));
+  await interpretation.screenshot({ path: `${outputRoot}/campaign-interpretation-atlas-desktop-v103.png` });
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await expect(page.locator("#evidence-workspace")).not.toHaveAttribute("open", "");
   await expect(page.locator("#strategy-workspaces")).not.toHaveAttribute("open", "");
   await expect(page.locator("#system-workspace")).not.toHaveAttribute("open", "");
@@ -92,15 +109,12 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
     const loopElement = document.querySelector("#loop-control");
     return Boolean(loopElement && (element.compareDocumentPosition(loopElement) & Node.DOCUMENT_POSITION_FOLLOWING));
   })).toBe(true);
-  const nextAction = page.locator("#next-action");
-  await expect(nextAction).toBeVisible();
-  await expect(nextAction).toContainText(/CURRENT GROUNDING|Choose the campaign direction|operator|wave|lane/i);
   await expect(map.getByRole("button", { name: /Packet inbox/ })).toBeVisible();
   await expect(map.locator(".journey-stop")).toHaveCount(5);
   await expect(map.locator(".journey-branch")).toHaveCount(3);
   await map.locator(".journey-stop.current").click();
   await expect(map.locator(".flow-inspector")).not.toHaveClass(/empty/);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v101.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v103.png` });
   const historyResponse = page.waitForResponse((response) => /\/api\/workflow-history\?/.test(response.url()) && response.ok());
   await map.getByRole("button", { name: "Replay", exact: true }).click();
   await historyResponse;
@@ -164,10 +178,10 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeVisible();
   await openWorkspace(page, "#evidence-workspace");
   await expect(page.locator("#observer-lanes")).toBeVisible();
-  await expect(page.locator('script[src="/ui.js?v=101"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/styles.css?v=101"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/ui.css?v=101"]')).toHaveCount(1);
-  expect(await page.evaluate(() => fetch("/sw.js?v=101", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v101")))).toBe(true);
+  await expect(page.locator('script[src="/ui.js?v=103"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/styles.css?v=103"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/ui.css?v=103"]')).toHaveCount(1);
+  expect(await page.evaluate(() => fetch("/sw.js?v=103", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v103")))).toBe(true);
   expect(legacyRequests).toEqual([]);
 
   const readModel = await page.evaluate(async () => {
@@ -258,7 +272,7 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeInViewport();
   const railButtons = page.locator("#next-action .rail-actions button");
   if (await railButtons.count()) await expect(railButtons.first()).toBeInViewport();
-  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v101-mobile-ready.png`, fullPage: true });
+  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v103-mobile-ready.png`, fullPage: true });
 });
 
 test("campaign map and redirect intake are workable on mobile", async ({ page }) => {
@@ -345,7 +359,7 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
   await map.screenshot({ path: `${outputRoot}/campaign-flow-xyflow-replay-mobile-v78.png` });
   await map.getByRole("button", { name: "Workflow" }).click();
   await expect(map.locator(".journey-stop")).toHaveCount(5);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v101.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v103.png` });
   await page.locator("#loop-control").screenshot({ path: `${outputRoot}/campaign-loop-svelte-mobile-v73.png` });
 });
 

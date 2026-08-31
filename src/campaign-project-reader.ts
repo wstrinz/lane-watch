@@ -213,9 +213,17 @@ export class CampaignProjectReader {
           const liveLane = lanes.find((lane) => lane.task === run.task_id || lane.id === run.lane_id || lane.jobId === run.job_id);
           const request = researchRequests.find((candidate) => candidate.request_id === run.request_id);
           const plannedLane = (Array.isArray(researchPlanResponse.lanes) ? researchPlanResponse.lanes : []).find((lane: any) => lane?.requestId === run.request_id);
+          const scheduledMember = (Array.isArray(researchSchedule?.members) ? researchSchedule.members : []).find((member: any) => member?.runId === run.run_id || member?.requestId === run.request_id);
+          const inferredStrategy = this.port.inferStrategy(run.task_id, request?.question || "");
+          const frozenScheduleStrategy = scheduledMember ? {
+            ...inferredStrategy,
+            trackId: scheduledMember.trackId || inferredStrategy.trackId,
+            workKind: scheduledMember.workKind || inferredStrategy.workKind,
+            expectedDelta: scheduledMember.expectedDelta || inferredStrategy.expectedDelta,
+          } : null;
           return {
             id: run.run_id, requestId: run.request_id, waveId: run.wave_id, taskId: run.task_id,
-            strategy: plannedLane?.strategy || this.port.inferStrategy(run.task_id, request?.question || ""),
+            strategy: frozenScheduleStrategy || plannedLane?.strategy || inferredStrategy,
             status: run.status, profile: run.profile, host: run.host, model: run.model, effort: run.effort, fanout: run.fanout,
             packetPath: run.packet_path, baseRef: run.base_ref, laneId: run.lane_id, jobId: run.job_id, worktree: run.worktree,
             evidencePath: run.evidence_path, evidenceSha256: run.evidence_sha256,

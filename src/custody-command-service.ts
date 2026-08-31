@@ -163,7 +163,8 @@ export class CustodyCommandService {
     const sourceRoot = this.port.projectRoot(projectId);
     const repository = await runGit(sourceRoot, ["rev-parse", "--show-toplevel"]);
     const head = await runGit(sourceRoot, ["rev-parse", "HEAD"]);
-    const executableWorkspace = repository.exitCode === 0 && Boolean(repository.stdout) && head.exitCode === 0 && /^[0-9a-f]{40}$/i.test(head.stdout);
+    const exactRepositoryRoot = repository.exitCode === 0 && Boolean(repository.stdout) && resolve(repository.stdout) === resolve(sourceRoot);
+    const executableWorkspace = exactRepositoryRoot && head.exitCode === 0 && /^[0-9a-f]{40}$/i.test(head.stdout);
     const repositoryRoot = executableWorkspace ? resolve(repository.stdout) : "";
     if (executableWorkspace && !within(repositoryRoot, sourceRoot)) throw new Error("Campaign workspace is outside its resolved Git repository");
     const projectRelativePath = executableWorkspace ? (relative(repositoryRoot, sourceRoot).replace(/\\/g, "/") || ".") : ".";

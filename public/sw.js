@@ -1,5 +1,5 @@
-const CACHE = "lane-watch-v101";
-const APP_SHELL = ["/", "/styles.css?v=101", "/ui.css?v=101", "/ui.js?v=101", "/manifest.webmanifest?v=65", "/icon.svg"];
+const CACHE = "lane-watch-v103";
+const APP_SHELL = ["/", "/styles.css?v=103", "/ui.css?v=103", "/ui.js?v=103", "/manifest.webmanifest?v=65", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));

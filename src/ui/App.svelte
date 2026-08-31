@@ -3,6 +3,7 @@
   import ObserverDashboard from "./ObserverDashboard.svelte";
   import PrimaryActionRail from "./PrimaryActionRail.svelte";
   import PacketInbox from "./PacketInbox.svelte";
+  import CampaignInterpretation from "./CampaignInterpretation.svelte";
   import ExternalPerspective from "./ExternalPerspective.svelte";
   import CoordinatorConsole from "./CoordinatorConsole.svelte";
   import CampaignSettings from "./CampaignSettings.svelte";
@@ -46,6 +47,7 @@
     </section>
   {:else}
     <PacketInbox />
+    <CampaignInterpretation />
     <CampaignFlow />
     <LoopControl />
     <OperatorGate />

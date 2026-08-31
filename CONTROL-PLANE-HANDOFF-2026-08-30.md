@@ -56,12 +56,17 @@ architecture and should not be used as descriptions of present capability.
 > The operator explicitly approved and applied the received DKC redirect. Its
 > four questions then completed a second read-only Sol lane-plan check. CFG23 is
 > checked plan was explicitly approved and all four contracts were staged.
-> CFG23 is now version 172 at `RESEARCH_READY`, with one confirmed schedule and
-> zero active runs. The frozen schedule selects only the asymmetric supply lab
-> and defers the other three contracts under the token envelope. Do not click
-> **Dispatch 1-lane wave** without a fresh explicit operator decision on this
-> exact digest. Redirect launch is transactionally claimed before the
-> first async boundary, preventing duplicate Sol turns.
+> CFG23 is now version 180 at `RESEARCH_REVIEW`, with a drafted eight-record
+> checked plan and zero active actions or controlled research runs. Five records
+> are explicit drops; the three surviving revisions are the asymmetric intake
+> replay/reconciliation, BS12 row-41 frontier work, and the twelfth-type supply
+> scout. Do not approve, schedule, or dispatch that plan without a fresh explicit
+> operator decision. The v103 UI now includes a persistent Campaign
+> Interpretation deck and Research Atlas, with typed evidence semantics and an
+> explicit interpretation-is-not-authority boundary. Historical run strategy is
+> restored from immutable confirmed schedules rather than recomputed from the
+> current plan. Redirect launch remains transactionally claimed before the first
+> async boundary, preventing duplicate Sol turns.
 > Preserve all human gates. Test with `bun run check` and Playwright on localhost
 > and the tailnet URL; do not mutate CFG23 merely to exercise UI.
 
@@ -91,10 +96,51 @@ two-stage recovery protocol aligned only the historical phase boundary after
 an exact human choice; it did not infer a worker result or repair accounting.
 Runtime and operator-documentation
 hardening, the P2 program-level mechanization boundary, and explicit access-map
-activation are complete. The remaining live CFG23 transition is the separately
-human-reviewed direction decision over the old synthesis versus the completed
-packet-grounded redirect proposal; Mac command authority remains deferred. No
-automatic control-plane mutation is the next step.
+activation are complete. The remaining live CFG23 transition is the explicit
+human review of the three surviving revised lanes in the current checked plan;
+Mac command authority remains deferred. No automatic control-plane mutation is
+the next step.
+
+## Continuation checkpoint — 2026-08-31 15:36 CDT
+
+The interpretation/education layer is deployed without consuming a campaign
+gate:
+
+- CFG23 remains version `180` at `RESEARCH_REVIEW`; the plan is `drafted`, with
+  zero queued/running actions and zero active controlled research runs;
+- the director deck now presents North Star → Current Quest → Human Decision,
+  followed by a bounded change ledger, progress/scope rail, and explicit
+  watchouts;
+- the Research Atlas presents coverage, supply, and decision as connected track
+  rows with selectable claim/proposal stations, plus an Object Codex for the
+  relevant configurations, orientations, automorphism groups, reduced slack,
+  liftability deletion, V4/C2, and proof-object concepts;
+- `SUPPORTED`, `PROPOSED`, `UNMEASURED`, and `BLOCKED` are distinct visible
+  semantics. The inspector links interpretation back to exact evidence, scope,
+  expected unlocks, and metrics and states that interpretation is not authority;
+- current-plan precedence prevents a stale synthesis from becoming the headline
+  during review, and explicit `DROP` records do not appear as proposed moves;
+- historical run strategy now resolves against immutable confirmed schedule
+  membership first. The completed asymmetric laboratory therefore remains a
+  `supply` experiment with its original expected delta even while the current
+  plan changes;
+- exact-root Git checks now prevent a nested non-repository campaign fixture (or
+  campaign directory) from inheriting repository authority from Lane Watch's
+  parent checkout. The same boundary protects custody execution;
+- the Lane Watch directory is now its own local Git repository on `main`.
+  Baseline commit `c513a15` records the pre-interpretation control plane. A
+  GitHub remote still requires re-authenticating `gh`; no credential was written
+  into the repository;
+- PWA shell/cache v103 is live on supervised Bun 1.3.14 PID `36960`.
+  `bun run check` passes 154 tests / 835 assertions, TypeScript, and Svelte with
+  zero errors or warnings. The five-scenario campaign Playwright suite and the
+  separate all-jobs overview scenario pass against the restarted listener;
+- visual proof is under `live-proofs/2026-08-31-v103/`, especially
+  `campaign-interpretation-atlas-desktop-v103.png`.
+
+The next campaign mutation remains the explicit review decision over the three
+surviving revised lanes. UI iteration can continue safely against fixtures and
+read-only live projections without approving that plan.
 
 ## Continuation checkpoint — 2026-08-31 11:06 CDT
 
