@@ -1,0 +1,48 @@
+.campaign-map { margin: 10px 0 18px; padding: 13px; border: 1px solid #3a5747; border-radius: 15px; background: linear-gradient(145deg, rgba(17, 29, 22, .96), rgba(12, 20, 16, .96)); color: #e7eee9; scroll-margin-top: 110px; }
+.campaign-map-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 10px; }
+.campaign-map-heading p { margin: 0; color: #71d6a0; font: 760 .57rem/1.2 ui-monospace, monospace; letter-spacing: .11em; }
+.campaign-map-heading h2 { margin: 3px 0 0; font-size: .98rem; }
+.campaign-map-heading span { display: block; margin-top: 4px; color: #91a497; font-size: .62rem; }
+.campaign-map-tabs { display: flex; gap: 5px; }
+.campaign-map-tabs button { min-height: 34px; padding: 0 10px; border: 1px solid #405c4b; border-radius: 8px; background: #142119; color: #a9baae; cursor: pointer; }
+.campaign-map-tabs button.active { border-color: #71d6a0; background: #24412f; color: #e4f5e9; }
+.campaign-map-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; min-height: 470px; overflow: hidden; border: 1px solid #2d4437; border-radius: 11px; background: #0b120e; }
+.campaign-flow-canvas { min-width: 0; height: 470px; }
+.campaign-flow-node { width: 210px !important; padding: 11px !important; border: 1px solid #466251 !important; border-radius: 11px !important; background: linear-gradient(145deg, #1b2920, #111a15) !important; color: #dce7df !important; font-size: .7rem !important; box-shadow: 0 8px 18px rgba(0, 0, 0, .22) !important; }
+.campaign-flow-node.current { border-color: #71d6a0 !important; box-shadow: 0 0 0 2px rgba(113, 214, 160, .13), 0 10px 22px rgba(0, 0, 0, .25) !important; }
+.campaign-flow-node.history-node { width: 190px !important; }
+.campaign-node-label { display: grid; gap: 4px; text-align: left; }
+.campaign-node-label span { color: #87a892; font-size: .48rem; font-weight: 780; letter-spacing: .07em; text-transform: uppercase; }
+.campaign-node-label strong { color: #dde8e0; font-size: .68rem; line-height: 1.25; }
+.campaign-node-label small { color: #7f9386; font-size: .52rem; text-transform: lowercase; }
+.campaign-flow-node.current .campaign-node-label span, .campaign-flow-node.current .campaign-node-label small { color: #71d6a0; }
+.react-flow__controls { overflow: hidden; border: 1px solid #3a5142; border-radius: 7px; box-shadow: none; }
+.react-flow__controls-button { border-color: #304337 !important; background: #17231c !important; fill: #bdd0c2 !important; }
+.react-flow__minimap { border: 1px solid #344b3d; border-radius: 7px; background: #101a14 !important; }
+.flow-inspector { min-width: 0; padding: 12px; overflow: auto; border-left: 1px solid #2d4437; background: #101913; }
+.flow-inspector.empty { display: grid; place-items: center; color: #718579; font-size: .66rem; line-height: 1.5; text-align: center; }
+.flow-inspector-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.flow-inspector-heading > div { display: grid; gap: 3px; min-width: 0; }
+.flow-inspector-heading span { color: #71d6a0; font-size: .52rem; font-weight: 780; letter-spacing: .06em; }
+.flow-inspector-heading strong { color: #e0e9e3; font-size: .72rem; }
+.flow-inspector-heading button { width: 27px; height: 27px; border: 1px solid #405749; border-radius: 50%; background: transparent; color: #a9b9ae; cursor: pointer; }
+.flow-inspector > p { color: #9caea1; font-size: .62rem; line-height: 1.45; }
+.flow-inspector details { margin-top: 10px; border-top: 1px solid #2d4437; }
+.flow-inspector summary { display: flex; justify-content: space-between; gap: 8px; padding-top: 8px; color: #b4c5b8; cursor: pointer; font-size: .59rem; }
+.flow-inspector pre { max-height: 260px; overflow: auto; padding: 8px; border-radius: 7px; background: #090e0b; color: #a9bbae; font: .55rem/1.4 ui-monospace, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.flow-inspector ol { display: grid; gap: 5px; margin: 8px 0 0; padding: 0; list-style: none; }
+.flow-inspector li { display: grid; gap: 2px; padding: 6px; border-radius: 6px; background: #0c130f; }
+.flow-inspector li span { color: #718579; font-size: .51rem; }
+.flow-inspector li strong { color: #b9c8bd; font-size: .58rem; }
+
+@media (max-width: 700px) {
+  .campaign-map-heading { align-items: stretch; flex-direction: column; }
+  .campaign-map-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+  .campaign-map-tabs button { width: 100%; min-height: 42px; }
+  .campaign-map-layout { grid-template-columns: 1fr; }
+  .campaign-flow-canvas { height: 390px; }
+  .campaign-flow-node, .campaign-flow-node.history-node { width: 135px !important; padding: 8px !important; }
+  .campaign-node-label strong { font-size: .6rem; }
+  .flow-inspector { min-height: 96px; max-height: 280px; border-top: 1px solid #2d4437; border-left: 0; }
+  .react-flow__minimap { display: none; }
+}

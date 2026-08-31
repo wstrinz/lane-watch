@@ -1,0 +1,19 @@
+{
+  "state": "working",
+  "detail": "checking the final symbolic identity",
+  "tempo": "active",
+  "inFlight": {
+    "tasks": 1,
+    "queued": 0
+  },
+  "fan": [
+    {
+      "id": "shell-1",
+      "kind": "shell",
+      "label": "python verify.py --focused",
+      "startedAt": 1787602000000
+    }
+  ],
+  "tokens": 12345,
+  "updatedAt": "2026-08-24T20:05:00Z"
+}

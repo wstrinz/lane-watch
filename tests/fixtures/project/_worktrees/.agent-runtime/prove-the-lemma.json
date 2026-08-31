@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "taskId": "prove-the-lemma",
+  "laneId": "LSA",
+  "sessionName": "LSA-prove-the-lemma",
+  "model": "sonnet",
+  "effort": "high",
+  "branch": "agent/local-sonnet/prove-the-lemma",
+  "worktree": "C:\\research\\prove-the-lemma",
+  "latestJobId": "abcd1234",
+  "latestSessionId": "abcd1234-session",
+  "lifecycleStatus": "active",
+  "launchedAt": "2026-08-24T20:00:00Z",
+  "updatedAt": "2026-08-24T20:00:01Z"
+}

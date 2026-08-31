@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Lane Watch",
+  "short_name": "Lanes",
+  "description": "Tailnet-only monitor for Claude research agent lanes",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101613",
+  "theme_color": "#101613",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

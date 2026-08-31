@@ -1,0 +1,13 @@
+{
+  "users": {
+    "wstrinz@github": {
+      "role": "operator",
+      "projects": [
+        "*"
+      ],
+      "mutableProjects": [
+        "cfg23"
+      ]
+    }
+  }
+}

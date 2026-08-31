@@ -1,0 +1,9 @@
+{
+  "projects": [
+    {
+      "id": "demo",
+      "path": "../project",
+      "local_agent_coordinator": "tools/local_agent_coord.ps1"
+    }
+  ]
+}
