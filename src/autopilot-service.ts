@@ -3,6 +3,7 @@ import { waveAccounting } from "./wave";
 import { WaveRepository } from "./wave-repository";
 import { WaveScheduleRepository } from "./wave-schedule-repository";
 import type { ObserverSnapshot } from "./types";
+import type { AutopilotStartReadiness } from "./autopilot-readiness";
 
 export interface LoopRunRow {
   loop_id: string;
@@ -50,6 +51,7 @@ interface AutopilotPort {
   project(projectId: string): { current_phase: string; version: number };
   observer(): ObserverSnapshot | null;
   nextDispatchTarget(projectId: string): string;
+  startReadiness(projectId: string): AutopilotStartReadiness;
   enqueueAction(input: {
     projectId: string;
     type: string;
@@ -128,6 +130,8 @@ export class AutopilotService {
     if (this.activeLoop(projectId)) throw new Error("A one-loop run is already active for this project");
     const project = this.port.project(projectId);
     if (["BLOCKED", "NEXT_WAVE_READY"].includes(project.current_phase)) throw new Error(`A one-loop run cannot start from ${project.current_phase}; resolve or adopt that boundary first`);
+    const readiness = this.port.startReadiness(projectId);
+    if (!readiness.canStart) throw new Error(`A one-loop run cannot start safely. ${readiness.blocker}`);
     const loopId = crypto.randomUUID();
     const stamp = this.port.now();
     const decisionCrossed = project.current_phase === "DECISION_REQUIRED" ? 0 : 1;

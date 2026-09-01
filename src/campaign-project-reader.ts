@@ -24,6 +24,7 @@ export interface CampaignProjectReaderPort {
   latestLoop(projectId: string): any | null;
   activeLoop(projectId: string): any | null;
   loopSnapshot(row: any | null): Record<string, unknown> | null;
+  loopStartReadiness(projectId: string): Record<string, any>;
   researchSchedule(projectId: string, waveId: string): Record<string, any> | null;
   actionSnapshot(row: any): Record<string, unknown>;
   liveTurn(projectId: string): any | null;
@@ -101,6 +102,8 @@ export class CampaignProjectReader {
       const synthesis = wave ? this.port.queryOne<any>("SELECT status, response_json, updated_at FROM campaign_syntheses WHERE wave_id = $wave", { $wave: wave.wave_id }) : null;
       const triage = wave ? this.port.queryOne<any>("SELECT * FROM campaign_wave_triages WHERE wave_id = $wave", { $wave: wave.wave_id }) : null;
       const loop = this.port.latestLoop(definition.id);
+      const activeLoop = this.port.activeLoop(definition.id);
+      const loopStart = this.port.loopStartReadiness(definition.id);
       const strategy = this.domains.strategySnapshot(definition.id);
       const custody = this.domains.custodySnapshot(definition.id);
       const resources = this.domains.resourceSnapshot(definition.id);
@@ -126,7 +129,8 @@ export class CampaignProjectReader {
         custody,
         resources,
         loop: this.port.loopSnapshot(loop),
-        canStartLoop: !this.port.activeLoop(definition.id) && !["BLOCKED", "NEXT_WAVE_READY"].includes(row.current_phase),
+        loopStart: activeLoop ? { ...loopStart, canStart: false, code: "ACTIVE_LOOP", blocker: "A one-loop run is already active for this project." } : loopStart,
+        canStartLoop: !activeLoop && Boolean(loopStart.canStart),
         externalInputs: redirects.map((input) => ({
           id: input.input_id, waveId: input.wave_id, title: input.title, content: input.content, sourceUrl: input.source_url,
           inputDigest: input.input_digest, status: input.status, threadId: input.thread_id, turnId: input.turn_id,

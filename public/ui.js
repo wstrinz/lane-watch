@@ -55,8 +55,8 @@ function d(e, t) {
 }
 var f, p, m, h, g, _, v, y, b, x, S, C, w = t((() => {
 	f = Array.isArray, p = Array.prototype.indexOf, m = Array.prototype.includes, h = Array.from, g = Object.defineProperty, _ = Object.getOwnPropertyDescriptor, v = Object.getOwnPropertyDescriptors, y = Object.prototype, b = Array.prototype, x = Object.getPrototypeOf, S = Object.isExtensible, C = () => {};
-})), T, E, D, O, k, A, j, ee, te, M, ne, re, ie, ae, oe, se, ce, le, ue, de, fe, pe, me, he, ge, _e, ve = t((() => {
-	T = 1 << 24, E = 1024, D = 2048, O = 4096, k = 8192, A = 16384, j = 32768, ee = 1 << 25, te = 65536, M = 1 << 19, ne = 1 << 20, re = 1 << 25, ie = 65536, ae = 1 << 21, oe = 1 << 22, se = 1 << 23, ce = Symbol("$state"), le = Symbol("legacy props"), ue = Symbol(""), de = Symbol("attributes"), fe = Symbol("class"), pe = Symbol("style"), me = Symbol("text"), he = Symbol("form reset"), ge = new class extends Error {
+})), T, E, D, O, k, A, j, ee, M, te, ne, re, ie, ae, oe, se, ce, le, ue, de, fe, pe, me, he, ge, _e, ve = t((() => {
+	T = 1 << 24, E = 1024, D = 2048, O = 4096, k = 8192, A = 16384, j = 32768, ee = 1 << 25, M = 65536, te = 1 << 19, ne = 1 << 20, re = 1 << 25, ie = 65536, ae = 1 << 21, oe = 1 << 22, se = 1 << 23, ce = Symbol("$state"), le = Symbol("legacy props"), ue = Symbol(""), de = Symbol("attributes"), fe = Symbol("class"), pe = Symbol("style"), me = Symbol("text"), he = Symbol("form reset"), ge = new class extends Error {
 		name = "StaleReactionError";
 		message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
 	}(), _e = !!globalThis.document?.contentType && /* @__PURE__ */ globalThis.document.contentType.includes("xml");
@@ -529,7 +529,7 @@ function fn(e, t, n, r) {
 	new mn(e, t, n, r);
 }
 var pn, mn, hn = t((() => {
-	ve(), Le(), wt(), Mt(), ri(), Ii(), Ze(), kt(), Ne(), He(), i(), $n(), lr(), dt(), dn(), Or(), zt(), pn = te | M, mn = class {
+	ve(), Le(), wt(), Mt(), ri(), Ii(), Ze(), kt(), Ne(), He(), i(), $n(), lr(), dt(), dn(), Or(), zt(), pn = M | te, mn = class {
 		parent;
 		is_pending = !1;
 		transform_error;
@@ -755,7 +755,7 @@ var bn = t((() => {
 /*#__NO_SIDE_EFFECTS__*/
 function xn(e) {
 	var t = 2 | D;
-	return Oi !== null && (Oi.f |= M), {
+	return Oi !== null && (Oi.f |= te), {
 		ctx: Ct,
 		deps: null,
 		effects: null,
@@ -1518,7 +1518,7 @@ function jr(e, t) {
 		} catch (e) {
 			throw Yr(r), e;
 		}
-		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= te));
+		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= M));
 	}
 	if (i !== null && (i.parent = n, n !== null && Ar(i, n), Ei !== null && Ei.f & 2 && !(e & 64))) {
 		var a = Ei;
@@ -1549,14 +1549,14 @@ function Ir(e) {
 }
 function Lr(e) {
 	Zn.ensure();
-	let t = jr(64 | M, e);
+	let t = jr(64 | te, e);
 	return () => {
 		Yr(t);
 	};
 }
 function Rr(e) {
 	Zn.ensure();
-	let t = jr(64 | M, e);
+	let t = jr(64 | te, e);
 	return (e = {}) => new Promise((n) => {
 		e.outro ? Qr(t, () => {
 			Yr(t), n(void 0);
@@ -1595,7 +1595,7 @@ function Br() {
 	});
 }
 function Vr(e) {
-	return jr(oe | M, e);
+	return jr(oe | te, e);
 }
 function Hr(e, t = 0) {
 	return jr(8 | t, e);
@@ -1614,7 +1614,7 @@ function Wr(e, t = 0) {
 	return jr(T | t, e);
 }
 function Gr(e) {
-	return jr(32 | M, e);
+	return jr(32 | te, e);
 }
 function Kr(e) {
 	var t = e.teardown;
@@ -2227,7 +2227,7 @@ w(), ri(), lr(), Ze(), kt(), wt(), $n(), bn(), ve(), Ze(), ri();
 function J(e, t, n = !1) {
 	var r;
 	Ye && (r = Xe, Ge());
-	var i = new pa(e), a = n ? te : 0;
+	var i = new pa(e), a = n ? M : 0;
 	function o(e, t) {
 		if (Ye) {
 			var n = Je(r);
@@ -2434,7 +2434,7 @@ function Ea(e, t, ...n) {
 	Ur(() => {
 		let e = t() ?? null;
 		r.ensure(e, e && ((t) => e(t, ...n)));
-	}, te);
+	}, M);
 }
 ve(), ri(), Ze(), Le();
 function Da(e, t, n) {
@@ -2449,7 +2449,7 @@ function Da(e, t, n) {
 			return;
 		}
 		i.ensure(e, e && ((t) => n(t, e)));
-	}, te);
+	}, M);
 }
 w(), w(), ri(), Ii(), ve(), kt(), ln(), Ze(), Or(), ri(), Ii(), wt(), ve(), Ze(), Or(), ri(), ve(), ri(), Or(), Ii(), ri(), tt(), Ii();
 function Oa(e, t, n) {
@@ -3494,11 +3494,11 @@ function Ds(e, t) {
 			error: "Alert setup failed"
 		}[r()]);
 	}), Br(), vo();
-	var ee = Es(), te = R(ee), M = L(te);
+	var ee = Es(), M = R(ee), te = L(M);
 	let ne;
-	var re = L(M), ie = L(re, !0);
-	N(re), Ke(), N(M);
-	var ae = z(M, 2);
+	var re = L(te), ie = L(re, !0);
+	N(re), Ke(), N(te);
+	var ae = z(te, 2);
 	let oe;
 	var se = L(ae), ce = L(se, !0);
 	N(se), Ke(), N(ae);
@@ -3509,8 +3509,8 @@ function Ds(e, t) {
 	var pe = z(le, 2);
 	let me;
 	var he = L(pe), ge = L(he, !0);
-	N(he), Ke(), N(pe), N(te);
-	var _e = z(te, 2), ve = L(_e);
+	N(he), Ke(), N(pe), N(M);
+	var _e = z(M, 2), ve = L(_e);
 	Y(ve, 4, () => [
 		["active", "Live"],
 		["running", "Running"],
@@ -3588,11 +3588,11 @@ function Ds(e, t) {
 		J(O, (e) => {
 			H(t), U(() => H(t).tokens != null) && e(A);
 		}), N(m);
-		var j = z(m, 2), ee = L(j), te = L(ee, !0);
+		var j = z(m, 2), ee = L(j), M = L(ee, !0);
 		N(ee);
-		var M = z(ee), ne = L(M);
-		N(M), N(j), N(n), V((e, r, i) => {
-			X(n, 1, `lane-card ${H(t), U(() => H(t).severity) ?? ""}`), Z(n, "aria-label", (H(t), U(() => `Open ${H(t).task} details`))), q(a, (H(t), U(() => H(t).lane))), q(s, (H(t), U(() => H(t).status))), q(l, (H(t), U(() => H(t).task))), q(d, (H(t), U(() => H(t).detail || H(t).output || (H(t).severity === "complete" ? "Coordinator completion recorded." : "No current detail reported.")))), q(g, (H(t), U(() => H(t).model))), q(b, (H(t), U(() => H(t).project))), q(S, (H(t), U(() => H(t).host === "macbook" ? "Mac" : "Windows"))), X(C, 1, `meta-chip ownership-chip ${e ?? ""}`), q(w, r), q(te, (H(t), U(() => H(t).jobId || "no job"))), q(ne, `updated ${i ?? ""}`);
+		var te = z(ee), ne = L(te);
+		N(te), N(j), N(n), V((e, r, i) => {
+			X(n, 1, `lane-card ${H(t), U(() => H(t).severity) ?? ""}`), Z(n, "aria-label", (H(t), U(() => `Open ${H(t).task} details`))), q(a, (H(t), U(() => H(t).lane))), q(s, (H(t), U(() => H(t).status))), q(l, (H(t), U(() => H(t).task))), q(d, (H(t), U(() => H(t).detail || H(t).output || (H(t).severity === "complete" ? "Coordinator completion recorded." : "No current detail reported.")))), q(g, (H(t), U(() => H(t).model))), q(b, (H(t), U(() => H(t).project))), q(S, (H(t), U(() => H(t).host === "macbook" ? "Mac" : "Windows"))), X(C, 1, `meta-chip ownership-chip ${e ?? ""}`), q(w, r), q(M, (H(t), U(() => H(t).jobId || "no job"))), q(ne, `updated ${i ?? ""}`);
 		}, [
 			() => (H(t), U(() => D(H(t)).origin)),
 			() => (H(t), U(() => D(H(t)).label)),
@@ -3671,7 +3671,7 @@ function Ds(e, t) {
 		J(O, (e) => {
 			H(f), U(() => H(f).output) && e(k);
 		});
-		var A = z(O, 2), ee = z(L(A)), te = L(ee), M = z(te, 2, !0), ne = z(M, 2, !0);
+		var A = z(O, 2), ee = z(L(A)), M = L(ee), te = z(M, 2, !0), ne = z(te, 2, !0);
 		N(ee), N(A);
 		var re = z(A, 2), ie = (e) => {
 			var t = Cs(), n = z(L(t)), r = L(n, !0);
@@ -3702,14 +3702,14 @@ function Ds(e, t) {
 		J(re, (e) => {
 			H(ae) ? e(ie) : H(se) && e(oe, 1);
 		}), N(l), N(t), V(() => {
-			q(a, `${H(f), U(() => H(f).lane) ?? ""} · ${H(f), U(() => H(f).project) ?? ""} · ${H(f), U(() => H(f).host === "macbook" ? "Mac" : "Windows") ?? ""}`), q(s, (H(f), U(() => H(f).task))), q(_, (H(f), U(() => H(f).detail || "No current detail reported."))), q(te, `Job ${H(f), U(() => H(f).jobId || "—") ?? ""}`), q(M, (H(f), U(() => H(f).branch || "No branch recorded"))), q(ne, (H(f), U(() => H(f).worktree || "No worktree recorded")));
+			q(a, `${H(f), U(() => H(f).lane) ?? ""} · ${H(f), U(() => H(f).project) ?? ""} · ${H(f), U(() => H(f).host === "macbook" ? "Mac" : "Windows") ?? ""}`), q(s, (H(f), U(() => H(f).task))), q(_, (H(f), U(() => H(f).detail || "No current detail reported."))), q(M, `Job ${H(f), U(() => H(f).jobId || "—") ?? ""}`), q(te, (H(f), U(() => H(f).branch || "No branch recorded"))), q(ne, (H(f), U(() => H(f).worktree || "No worktree recorded")));
 		}), W("click", c, () => H(v).close()), K(e, t);
 	};
 	J(Pe, (e) => {
 		H(f) && e(Fe);
 	}), N(Ne), ho(Ne, (e) => I(v, e), () => H(v)), V((e) => {
-		ne = X(M, 1, "summary-card working", null, ne, { selected: H(h) === "running" }), q(ie, (H(l), U(() => H(l).working))), oe = X(ae, 1, "summary-card idle", null, oe, { selected: H(h) === "running" }), q(ce, (H(l), U(() => H(l).idle))), ue = X(le, 1, "summary-card attention", null, ue, { selected: H(h) === "attention" }), q(fe, (H(l), U(() => H(l).attention))), me = X(pe, 1, "summary-card complete", null, me, { selected: H(h) === "recent" }), q(ge, (H(l), U(() => H(l).complete))), we !== (we = (n(), U(() => n().selectedProject))) && (Se.value = (Se.__value = (n(), U(() => n().selectedProject))) ?? "", Ba(Se, (n(), U(() => n().selectedProject)))), Ee = X(Te, 1, "outline-button", null, Ee, { enabled: r() === "enabled" }), Te.disabled = e, q(De, H(m));
-	}, [() => (r(), U(() => ["loading", "unsupported"].includes(r())))]), W("click", M, () => I(h, "running")), W("click", ae, () => I(h, "running")), W("click", le, () => I(h, "attention")), W("click", pe, () => I(h, "recent")), so(xe, () => H(g), (e) => I(g, e)), W("change", Se, (e) => No(e.currentTarget.value)), W("click", Te, function(...e) {
+		ne = X(te, 1, "summary-card working", null, ne, { selected: H(h) === "running" }), q(ie, (H(l), U(() => H(l).working))), oe = X(ae, 1, "summary-card idle", null, oe, { selected: H(h) === "running" }), q(ce, (H(l), U(() => H(l).idle))), ue = X(le, 1, "summary-card attention", null, ue, { selected: H(h) === "attention" }), q(fe, (H(l), U(() => H(l).attention))), me = X(pe, 1, "summary-card complete", null, me, { selected: H(h) === "recent" }), q(ge, (H(l), U(() => H(l).complete))), we !== (we = (n(), U(() => n().selectedProject))) && (Se.value = (Se.__value = (n(), U(() => n().selectedProject))) ?? "", Ba(Se, (n(), U(() => n().selectedProject)))), Ee = X(Te, 1, "outline-button", null, Ee, { enabled: r() === "enabled" }), Te.disabled = e, q(De, H(m));
+	}, [() => (r(), U(() => ["loading", "unsupported"].includes(r())))]), W("click", te, () => I(h, "running")), W("click", ae, () => I(h, "running")), W("click", le, () => I(h, "attention")), W("click", pe, () => I(h, "recent")), so(xe, () => H(g), (e) => I(g, e)), W("change", Se, (e) => No(e.currentTarget.value)), W("click", Te, function(...e) {
 		os?.apply(this, e);
 	}), Xi("close", Ne, A), K(e, ee), xt(), a();
 }
@@ -4089,12 +4089,12 @@ function Ws(e, t) {
 		J(j, (e) => {
 			H(c) && e(ee);
 		});
-		var te = z(j, 2), M = (e) => {
+		var M = z(j, 2), te = (e) => {
 			var t = ks(), n = z(L(t)), r = L(n);
 			N(n), N(t), V((e) => q(r, `${e ?? ""} · ${H(l), U(() => H(l).controlState.observation.active) ?? ""} active`), [() => (H(l), U(() => v[H(l).controlState.observation.phase] || H(l).controlState.observation.phase?.toLowerCase().replaceAll("_", " ")))]), K(e, t);
 		};
-		J(te, (e) => {
-			H(l), U(() => H(l).controlState?.observation) && e(M);
+		J(M, (e) => {
+			H(l), U(() => H(l).controlState?.observation) && e(te);
 		}), N(n);
 		var ne = z(n, 2);
 		Y(ne, 5, () => (H(a), U(() => H(a).actions)), _a, (e, t) => {
@@ -4171,14 +4171,14 @@ function Ws(e, t) {
 				A.value = A.__value = "ALIGN_WORKFLOW_TO_WAVE";
 				var j = z(A);
 				j.value = j.__value = "APPLY_VALIDATED_PROJECTION_REPAIR", N(D), N(E);
-				var ee = z(E, 2), te = z(L(ee));
-				tn(te), N(ee);
-				var M = z(ee, 2), ne = L(M);
-				$a(ne), Ke(), N(M);
-				var re = z(M, 4), ie = L(re, !0);
+				var ee = z(E, 2), M = z(L(ee));
+				tn(M), N(ee);
+				var te = z(ee, 2), ne = L(te);
+				$a(ne), Ke(), N(te);
+				var re = z(te, 4), ie = L(re, !0);
 				N(re), N(t), V((e) => {
 					q(a, (H(l), U(() => H(l).recoveryReport.snapshot?.project?.phase))), q(c, (H(l), U(() => H(l).recoveryReport.snapshot?.wave?.phase))), q(p, `${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.accounted) ?? ""}/${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.total) ?? ""}`), q(y, (H(l), U(() => H(l).recoveryReport.snapshot?.controlState?.recovery?.activeExecution || 0))), q(S, (H(l), U(() => H(l).recoveryReport.reportDigest))), q(T, (H(l), U(() => H(l).recoveryReport.snapshot?.projectionRepair?.summary))), j.disabled = (H(l), U(() => !H(l).recoveryReport.snapshot?.choices?.applyProjectionRepair)), re.disabled = e, q(ie, H(u) === "campaign.recovery.apply" ? "Revalidating…" : "Apply selected recovery");
-				}, [() => (H(g), H(u), U(() => !H(g) || !!H(u)))]), Ha(D, () => H(m), (e) => I(m, e)), so(te, () => H(h), (e) => I(h, e)), co(ne, () => H(g), (e) => I(g, e)), W("click", re, w), K(e, t);
+				}, [() => (H(g), H(u), U(() => !H(g) || !!H(u)))]), Ha(D, () => H(m), (e) => I(m, e)), so(M, () => H(h), (e) => I(h, e)), co(ne, () => H(g), (e) => I(g, e)), W("click", re, w), K(e, t);
 			}, s = (e) => {
 				K(e, Rs());
 			};
@@ -4290,9 +4290,9 @@ function Ys(e, t) {
 		let k;
 		var A = L(O), j = L(A, !0);
 		N(A);
-		var ee = z(A, 2), te = L(ee, !0);
+		var ee = z(A, 2), M = L(ee, !0);
 		N(ee), N(O), N(t), V(() => {
-			i = X(r, 1, "", null, i, { hold: H(o) }), q(l, H(s)), q(_, H(c)), q(y, H(u) ? "Copied" : "Copy full path"), q(w, `${H(a), U(() => H(a).length) ?? ""}/5 bounded slots`), k = X(O, 1, "", null, k, { hold: H(o) }), q(j, H(o) ? "RECEIVE-ONLY BOUNDARY" : "READY FOR SEMANTIC REVIEW"), q(te, H(o) ? "CFG23 can receive and hash the packet now, but recovery must be resolved before it can become a checked plan." : "The packet is visible to the next bounded Sol planning turn; launch gates remain separate.");
+			i = X(r, 1, "", null, i, { hold: H(o) }), q(l, H(s)), q(_, H(c)), q(y, H(u) ? "Copied" : "Copy full path"), q(w, `${H(a), U(() => H(a).length) ?? ""}/5 bounded slots`), k = X(O, 1, "", null, k, { hold: H(o) }), q(j, H(o) ? "RECEIVE-ONLY BOUNDARY" : "READY FOR SEMANTIC REVIEW"), q(M, H(o) ? "CFG23 can receive and hash the packet now, but recovery must be resolved before it can become a checked plan." : "The packet is visible to the next bounded Sol planning turn; launch gates remain separate.");
 		}), W("click", v, p), K(e, t);
 	};
 	J(h, (e) => {
@@ -4568,9 +4568,9 @@ function bc(e, t) {
 		N(k);
 		var j = z(k, 2), ee = L(j, !0);
 		N(j);
-		var te = z(j, 2), M = L(te, !0);
-		N(te);
-		var ne = z(te, 2), re = L(ne, !0);
+		var M = z(j, 2), te = L(M, !0);
+		N(M);
+		var ne = z(M, 2), re = L(ne, !0);
 		N(ne), N(O), N(o);
 		var ie = z(o, 2), ae = (e) => {
 			var t = sc(), n = L(t), r = L(n), i = z(L(r)), a = L(i);
@@ -4741,7 +4741,7 @@ function bc(e, t) {
 		J(we, (e) => {
 			H(a) && e(Te);
 		}), Ke(2), N(oe), N(t), V((e, t, n, o) => {
-			X(r, 1, `source-${H(s), U(() => H(s).source) ?? ""}`), q(i, e), X(c, 1, `director-card objective state-${t ?? ""}`), q(u, (H(s), U(() => H(s).objective.kicker))), q(m, (H(s), U(() => H(s).objective.title))), q(g, (H(s), U(() => H(s).objective.summary))), q(v, (H(s), U(() => H(s).objective.state))), X(y, 1, `director-card quest state-${n ?? ""}`), q(x, (H(s), U(() => H(s).quest.kicker))), q(C, (H(s), U(() => H(s).quest.title))), q(T, (H(s), U(() => H(s).quest.why))), q(D, (H(s), U(() => H(s).quest.state))), X(O, 1, `director-card decision state-${o ?? ""}`), q(A, (H(s), U(() => H(s).decision.kicker))), q(ee, (H(s), U(() => H(s).decision.title))), q(M, (H(s), U(() => H(s).decision.summary))), q(re, (H(s), U(() => H(s).decision.state))), ue = X(le, 1, "", null, ue, { chosen: H(a)?.id === H(s).objective.id }), q(fe, (H(s), U(() => H(s).objective.title))), me = X(pe, 1, "", null, me, { chosen: H(a)?.id === H(s).quest.id }), q(ge, (H(s), U(() => H(s).quest.title))), ve = X(_e, 1, "", null, ve, { chosen: H(a)?.id === H(s).decision.id }), q(be, (H(s), U(() => H(s).decision.title)));
+			X(r, 1, `source-${H(s), U(() => H(s).source) ?? ""}`), q(i, e), X(c, 1, `director-card objective state-${t ?? ""}`), q(u, (H(s), U(() => H(s).objective.kicker))), q(m, (H(s), U(() => H(s).objective.title))), q(g, (H(s), U(() => H(s).objective.summary))), q(v, (H(s), U(() => H(s).objective.state))), X(y, 1, `director-card quest state-${n ?? ""}`), q(x, (H(s), U(() => H(s).quest.kicker))), q(C, (H(s), U(() => H(s).quest.title))), q(T, (H(s), U(() => H(s).quest.why))), q(D, (H(s), U(() => H(s).quest.state))), X(O, 1, `director-card decision state-${o ?? ""}`), q(A, (H(s), U(() => H(s).decision.kicker))), q(ee, (H(s), U(() => H(s).decision.title))), q(te, (H(s), U(() => H(s).decision.summary))), q(re, (H(s), U(() => H(s).decision.state))), ue = X(le, 1, "", null, ue, { chosen: H(a)?.id === H(s).objective.id }), q(fe, (H(s), U(() => H(s).objective.title))), me = X(pe, 1, "", null, me, { chosen: H(a)?.id === H(s).quest.id }), q(ge, (H(s), U(() => H(s).quest.title))), ve = X(_e, 1, "", null, ve, { chosen: H(a)?.id === H(s).decision.id }), q(be, (H(s), U(() => H(s).decision.title)));
 		}, [
 			() => (H(s), U(() => H(s).source.replaceAll("-", " "))),
 			() => (H(s), U(() => H(s).objective.state.toLowerCase())),
@@ -4873,7 +4873,7 @@ function Mc(e, t) {
 		tn(k);
 		var A = z(k, 2), j = z(L(A)), ee = L(j, !0);
 		N(j), N(A), N(d);
-		var te = z(d, 2), M = (e) => {
+		var M = z(d, 2), te = (e) => {
 			var t = Dc(), n = L(t), r = L(n), i = L(r), a = L(i);
 			N(i);
 			var l = z(i), u = L(l, !0);
@@ -4931,10 +4931,10 @@ function Mc(e, t) {
 				q(a, `${H(o), U(() => H(o).status) ?? ""} · ${e ?? ""}`), q(u, (H(o), U(() => H(o).title))), q(_, t);
 			}, [() => (H(o), U(() => C(H(o).updatedAt))), () => (H(s), H(o), U(() => H(s).summary || (H(o).status === "drafting" ? "Sol is comparing this input against the current evidence, plan, and campaign assumptions." : S(H(o).content, 360))))]), K(e, t);
 		};
-		J(te, (e) => {
-			H(o) && e(M);
+		J(M, (e) => {
+			H(o) && e(te);
 		});
-		var ne = z(te, 2), re = (e) => {
+		var ne = z(M, 2), re = (e) => {
 			var t = kc(), n = L(t), r = z(L(n)), i = L(r, !0);
 			N(r), N(n), Y(z(n), 1, () => (H(a), U(() => H(a).slice(1))), _a, (e, t) => {
 				var n = Oc(), r = L(n), i = L(r, !0);
@@ -5239,9 +5239,9 @@ function rl(e, t) {
 		A.value = A.__value = "bounded", N(E);
 		var j;
 		Va(E), N(T);
-		var ee = z(T, 2), te = L(ee), M = z(L(te)), ne = L(M, !0);
-		N(M), N(te);
-		var re = z(te, 2), ie = (e) => {
+		var ee = z(T, 2), M = L(ee), te = z(L(M)), ne = L(te, !0);
+		N(te), N(M);
+		var re = z(M, 2), ie = (e) => {
 			var t = Zc(), n = L(t, !0);
 			N(t), V(() => q(n, H(p))), K(e, t);
 		}, ae = (e) => {
@@ -9048,22 +9048,22 @@ var r_ = () => !0;
 function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i, edgeUpdaterType: a, isTarget: o, domNode: s, nodeLookup: c, lib: l, autoPanOnConnect: u, flowId: d, panBy: f, cancelConnection: p, onConnectStart: m, onConnect: h, onConnectEnd: g, isValidConnection: _ = r_, onReconnectEnd: v, updateConnection: y, getTransform: b, getFromHandle: x, autoPanSpeed: S, dragThreshold: C = 1, handleDomNode: w }) {
 	let T = Zh(e.target), E = 0, D, { x: O, y: k } = tg(e), A = t_(a, w), j = s?.getBoundingClientRect(), ee = !1;
 	if (!j || !A) return;
-	let te = e_(i, A, r, c, t);
-	if (!te) return;
-	let M = tg(e, j), ne = !1, re = null, ie = !1, ae = null;
+	let M = e_(i, A, r, c, t);
+	if (!M) return;
+	let te = tg(e, j), ne = !1, re = null, ie = !1, ae = null;
 	function oe() {
 		if (!u || !j) return;
-		let [e, t] = xh(M, j, S);
+		let [e, t] = xh(te, j, S);
 		f({
 			x: e,
 			y: t
 		}), E = requestAnimationFrame(oe);
 	}
 	let se = {
-		...te,
+		...M,
 		nodeId: i,
 		type: A,
-		position: te.position
+		position: M.position
 	}, ce = c.get(i), le = {
 		inProgress: !0,
 		isValid: null,
@@ -9071,11 +9071,11 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 		fromHandle: se,
 		fromPosition: se.position,
 		fromNode: ce,
-		to: M,
+		to: te,
 		toHandle: null,
 		toPosition: ih[se.position],
 		toNode: null,
-		pointer: M
+		pointer: te
 	};
 	function ue() {
 		ee = !0, y(le), m?.(e, {
@@ -9096,7 +9096,7 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 			return;
 		}
 		let a = b();
-		M = tg(e, j), D = $g(Ph(M, a, !1, [1, 1]), n, c, se), ne ||= (oe(), !0);
+		te = tg(e, j), D = $g(Ph(te, a, !1, [1, 1]), n, c, se), ne ||= (oe(), !0);
 		let s = a_(e, {
 			handle: D,
 			connectionMode: t,
@@ -9117,11 +9117,11 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 			to: s.toHandle && ie ? Fh({
 				x: s.toHandle.x,
 				y: s.toHandle.y
-			}, a) : M,
+			}, a) : te,
 			toHandle: s.toHandle,
 			toPosition: ie && s.toHandle ? s.toHandle.position : ih[se.position],
 			toNode: s.toHandle ? c.get(s.toHandle.nodeId) : null,
-			pointer: M
+			pointer: te
 		};
 		y(p), le = p;
 	}
@@ -9334,7 +9334,7 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			onTransformChange: T
 		});
 		f.on("zoom", ee);
-		let te = y_({
+		let M = y_({
 			zoomPanValues: l,
 			panOnDrag: u,
 			panOnScroll: i,
@@ -9342,8 +9342,8 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			onPanZoomEnd: s,
 			onDraggingChange: c
 		});
-		f.on("end", te);
-		let M = b_({
+		f.on("end", M);
+		let te = b_({
 			panActivationKeyPressed: S,
 			zoomActivationKeyPressed: C,
 			panOnDrag: u,
@@ -9357,7 +9357,7 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			lib: w,
 			connectionInProgress: E
 		});
-		f.filter(M), x ? p.on("dblclick.zoom", h) : p.on("dblclick.zoom", null);
+		f.filter(te), x ? p.on("dblclick.zoom", h) : p.on("dblclick.zoom", null);
 	}
 	function v() {
 		f.on("zoom", null);
@@ -11332,13 +11332,13 @@ function zv(e, t) {
 	}), !0).width), b = /* @__PURE__ */ P(() => l(t.node.measured, () => ({
 		width: 0,
 		height: 0
-	}), !0).height), x = /* @__PURE__ */ P(() => t.node.initialWidth), S = /* @__PURE__ */ P(() => t.node.initialHeight), C = /* @__PURE__ */ P(() => t.node.width), w = /* @__PURE__ */ P(() => t.node.height), T = /* @__PURE__ */ P(() => t.node.dragHandle), E = /* @__PURE__ */ P(() => l(t.node.internals.z, 0)), D = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.x), O = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.y), k = /* @__PURE__ */ P(() => t.node.internals.userNode), { id: A } = t.node, j = /* @__PURE__ */ P(() => H(a) ?? n().nodesDraggable), ee = /* @__PURE__ */ P(() => H(o) ?? n().elementsSelectable), te = /* @__PURE__ */ P(() => H(c) ?? n().nodesConnectable), M = /* @__PURE__ */ P(() => Uh(t.node)), ne = /* @__PURE__ */ P(() => !!t.node.internals.handleBounds), re = /* @__PURE__ */ P(() => H(M) && H(ne)), ie = /* @__PURE__ */ P(() => H(u) ?? n().nodesFocusable);
+	}), !0).height), x = /* @__PURE__ */ P(() => t.node.initialWidth), S = /* @__PURE__ */ P(() => t.node.initialHeight), C = /* @__PURE__ */ P(() => t.node.width), w = /* @__PURE__ */ P(() => t.node.height), T = /* @__PURE__ */ P(() => t.node.dragHandle), E = /* @__PURE__ */ P(() => l(t.node.internals.z, 0)), D = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.x), O = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.y), k = /* @__PURE__ */ P(() => t.node.internals.userNode), { id: A } = t.node, j = /* @__PURE__ */ P(() => H(a) ?? n().nodesDraggable), ee = /* @__PURE__ */ P(() => H(o) ?? n().elementsSelectable), M = /* @__PURE__ */ P(() => H(c) ?? n().nodesConnectable), te = /* @__PURE__ */ P(() => Uh(t.node)), ne = /* @__PURE__ */ P(() => !!t.node.internals.handleBounds), re = /* @__PURE__ */ P(() => H(te) && H(ne)), ie = /* @__PURE__ */ P(() => H(u) ?? n().nodesFocusable);
 	function ae(e) {
 		return n().parentLookup.has(e);
 	}
 	let oe = /* @__PURE__ */ P(() => ae(A)), se = /* @__PURE__ */ tr(null), ce = null, le = H(h), ue = H(_), de = H(v), fe = /* @__PURE__ */ P(() => n().nodeTypes[H(h)] ?? I_), pe = /* @__PURE__ */ P(() => n().ariaLabelConfig);
 	D_(A), k_({ get value() {
-		return H(te);
+		return H(M);
 	} });
 	let me = /* @__PURE__ */ P(() => {
 		let e = H(y) === void 0 ? H(C) ?? H(x) : H(C), t = H(b) === void 0 ? H(w) ?? H(S) : H(w);
@@ -11428,7 +11428,7 @@ function zv(e, t) {
 				dragging: H(f),
 				selected: H(i),
 				draggable: H(j),
-				connectable: H(te),
+				connectable: H(M),
 				selectable: H(ee),
 				nopan: H(j),
 				parent: H(oe)
@@ -11436,7 +11436,7 @@ function zv(e, t) {
 			[Ga]: {
 				"z-index": H(E),
 				transform: `translate(${H(D) ?? ""}px, ${H(O) ?? ""}px)`,
-				visibility: H(M) ? "visible" : "hidden"
+				visibility: H(te) ? "visible" : "hidden"
 			}
 		})), Da(L(a), () => H(fe), (e, t) => {
 			t(e, {
@@ -11480,7 +11480,7 @@ function zv(e, t) {
 					return H(h);
 				},
 				get isConnectable() {
-					return H(te);
+					return H(M);
 				},
 				get positionAbsoluteX() {
 					return H(D);
@@ -11602,7 +11602,7 @@ function Uv(e, t) {
 	bt(t, !0);
 	let n = /* @__PURE__ */ P(() => t.edge.id), r = /* @__PURE__ */ P(() => t.edge.source), i = /* @__PURE__ */ P(() => t.edge.target), a = /* @__PURE__ */ P(() => t.edge.sourceX), o = /* @__PURE__ */ P(() => t.edge.sourceY), s = /* @__PURE__ */ P(() => t.edge.targetX), c = /* @__PURE__ */ P(() => t.edge.targetY), u = /* @__PURE__ */ P(() => t.edge.sourcePosition), d = /* @__PURE__ */ P(() => t.edge.targetPosition), f = /* @__PURE__ */ P(() => l(t.edge.animated, !1)), p = /* @__PURE__ */ P(() => l(t.edge.selected, !1)), m = /* @__PURE__ */ P(() => t.edge.label), h = /* @__PURE__ */ P(() => t.edge.labelStyle), g = /* @__PURE__ */ P(() => l(t.edge.data, () => ({}), !0)), _ = /* @__PURE__ */ P(() => t.edge.style), v = /* @__PURE__ */ P(() => t.edge.interactionWidth), y = /* @__PURE__ */ P(() => l(t.edge.type, "default")), b = /* @__PURE__ */ P(() => t.edge.sourceHandle), x = /* @__PURE__ */ P(() => t.edge.targetHandle), S = /* @__PURE__ */ P(() => t.edge.markerStart), C = /* @__PURE__ */ P(() => t.edge.markerEnd), w = /* @__PURE__ */ P(() => t.edge.selectable), T = /* @__PURE__ */ P(() => t.edge.focusable), E = /* @__PURE__ */ P(() => l(t.edge.deletable, !0)), D = /* @__PURE__ */ P(() => t.edge.hidden), O = /* @__PURE__ */ P(() => t.edge.zIndex), k = /* @__PURE__ */ P(() => t.edge.class), A = /* @__PURE__ */ P(() => t.edge.ariaLabel);
 	j_(H(n));
-	let j = null, ee = /* @__PURE__ */ P(() => H(w) ?? t.store.elementsSelectable), te = /* @__PURE__ */ P(() => H(T) ?? t.store.edgesFocusable), M = /* @__PURE__ */ P(() => t.store.edgeTypes[H(y)] ?? nv), ne = /* @__PURE__ */ P(() => H(S) ? `url('#${Tg(H(S), t.store.flowId)}')` : void 0), re = /* @__PURE__ */ P(() => H(C) ? `url('#${Tg(H(C), t.store.flowId)}')` : void 0);
+	let j = null, ee = /* @__PURE__ */ P(() => H(w) ?? t.store.elementsSelectable), M = /* @__PURE__ */ P(() => H(T) ?? t.store.edgesFocusable), te = /* @__PURE__ */ P(() => t.store.edgeTypes[H(y)] ?? nv), ne = /* @__PURE__ */ P(() => H(S) ? `url('#${Tg(H(S), t.store.flowId)}')` : void 0), re = /* @__PURE__ */ P(() => H(C) ? `url('#${Tg(H(C), t.store.flowId)}')` : void 0);
 	function ie(e) {
 		let r = t.store.edgeLookup.get(H(n));
 		r && (H(ee) && t.store.handleEdgeSelection(H(n)), t.onedgeclick?.({
@@ -11641,18 +11641,18 @@ function Uv(e, t) {
 				ae(e, t.onedgepointerleave);
 			} : void 0,
 			"aria-label": H(A) === null ? void 0 : H(A) ? H(A) : `Edge from ${H(r)} to ${H(i)}`,
-			"aria-describedby": H(te) ? `${Iv}-${t.store.flowId}` : void 0,
-			role: t.edge.ariaRole ?? (H(te) ? "group" : "img"),
+			"aria-describedby": H(M) ? `${Iv}-${t.store.flowId}` : void 0,
+			role: t.edge.ariaRole ?? (H(M) ? "group" : "img"),
 			"aria-roledescription": "edge",
-			onkeydown: H(te) ? oe : void 0,
-			tabindex: H(te) ? 0 : void 0,
+			onkeydown: H(M) ? oe : void 0,
+			tabindex: H(M) ? 0 : void 0,
 			...t.edge.domAttributes,
 			[Wa]: {
 				animated: H(f),
 				selected: H(p),
 				selectable: H(ee)
 			}
-		})), Da(L(C), () => H(M), (e, t) => {
+		})), Da(L(C), () => H(te), (e, t) => {
 			t(e, {
 				get id() {
 					return H(n);
@@ -13542,7 +13542,7 @@ function Ub(e, t) {
 	], g = /* @__PURE__ */ F(null), _ = /* @__PURE__ */ F("workflow"), v = /* @__PURE__ */ F("all"), y = /* @__PURE__ */ F(null), b = /* @__PURE__ */ F(null), x = /* @__PURE__ */ F(typeof window < "u" ? window.innerWidth : 1200), S = /* @__PURE__ */ F(H(x) <= 700), C = /* @__PURE__ */ F({
 		nodes: [],
 		edges: []
-	}), w = /* @__PURE__ */ F([]), T = /* @__PURE__ */ F(0), E = /* @__PURE__ */ F(null), D = /* @__PURE__ */ F(!1), O = null, k = /* @__PURE__ */ F(""), A = /* @__PURE__ */ F(""), j = /* @__PURE__ */ F([]), ee = 0, te = /* @__PURE__ */ F(null), M = /* @__PURE__ */ F(!1), ne = /* @__PURE__ */ F(""), re = 0, ie = /* @__PURE__ */ F(""), ae = /* @__PURE__ */ F(null), oe = /* @__PURE__ */ F(""), se = /* @__PURE__ */ F(!1), ce = /* @__PURE__ */ F(""), le = 0;
+	}), w = /* @__PURE__ */ F([]), T = /* @__PURE__ */ F(0), E = /* @__PURE__ */ F(null), D = /* @__PURE__ */ F(!1), O = null, k = /* @__PURE__ */ F(""), A = /* @__PURE__ */ F(""), j = /* @__PURE__ */ F([]), ee = 0, M = /* @__PURE__ */ F(null), te = /* @__PURE__ */ F(!1), ne = /* @__PURE__ */ F(""), re = 0, ie = /* @__PURE__ */ F(""), ae = /* @__PURE__ */ F(null), oe = /* @__PURE__ */ F(""), se = /* @__PURE__ */ F(!1), ce = /* @__PURE__ */ F(""), le = 0;
 	function ue(e, t, n, r, i = {}) {
 		return {
 			title: e,
@@ -13665,23 +13665,23 @@ function Ub(e, t) {
 		return H(A) === e.id ? ee : Number(e.workflowHistorySummary?.total || ye(e).length);
 	}
 	async function xe(e, t = !1) {
-		if (H(M) || t && !H(te)) return;
+		if (H(te) || t && !H(M)) return;
 		let n = ++re, r = t && ye(e).filter(fe)[H(T)]?.id || "";
-		(!t || H(A) !== e.id) && (I(A, e.id), I(j, []), I(te, null), ee = Number(e.workflowHistorySummary?.total || 0)), I(M, !0), I(ne, "");
+		(!t || H(A) !== e.id) && (I(A, e.id), I(j, []), I(M, null), ee = Number(e.workflowHistorySummary?.total || 0)), I(te, !0), I(ne, "");
 		try {
 			let i = new URL("/api/workflow-history", location.origin);
-			i.searchParams.set("project", e.id), i.searchParams.set("limit", "250"), t && H(te) && i.searchParams.set("cursor", H(te));
+			i.searchParams.set("project", e.id), i.searchParams.set("limit", "250"), t && H(M) && i.searchParams.set("cursor", H(M));
 			let a = await fetch(`${i.pathname}${i.search}`, { cache: "no-store" }), o = await a.json();
 			if (!a.ok) throw Error(o.error || `Could not load campaign history: ${a.status}`);
 			if (n !== re || H(g)?.id !== e.id) return;
 			let s = t ? [...o.items, ...H(j)] : o.items;
-			I(j, [...new Map(s.map((e) => [e.id, e])).values()]), ee = o.total, I(te, o.nextCursor);
+			I(j, [...new Map(s.map((e) => [e.id, e])).values()]), ee = o.total, I(M, o.nextCursor);
 			let c = H(j).filter(fe);
 			t && r ? I(T, Math.max(0, c.findIndex((e) => e.id === r))) : t || I(T, Math.max(0, c.length - 1));
 		} catch (e) {
 			n === re && I(ne, e instanceof Error ? e.message : String(e));
 		} finally {
-			n === re && I(M, !1);
+			n === re && I(te, !1);
 		}
 	}
 	async function Se(e) {
@@ -13788,8 +13788,8 @@ function Ub(e, t) {
 		I(g, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
 	}), B(() => H(x), () => {
 		I(S, H(x) <= 700);
-	}), B(() => (H(A), H(j), H(te), H(v), H(S)), () => {
-		I(ie, `${H(A)}:${H(j).length}:${H(te) || ""}:${H(v)}:${H(S)}`);
+	}), B(() => (H(A), H(j), H(M), H(v), H(S)), () => {
+		I(ie, `${H(A)}:${H(j).length}:${H(M) || ""}:${H(v)}:${H(S)}`);
 	}), B(() => (H(g), H(A), H(j)), () => {
 		I(w, H(g) ? (H(A) === H(g).id && H(j).length ? H(j) : Array.isArray(H(g).workflowHistory) ? H(g).workflowHistory : []).filter(fe) : []);
 	}), B(() => (H(g), H(k), H(w)), () => {
@@ -13834,18 +13834,18 @@ function Ub(e, t) {
 				W("click", t, () => xe(H(g), !0)), K(e, t);
 			};
 			J(i, (e) => {
-				H(te) && !H(M) && e(a);
+				H(M) && !H(te) && e(a);
 			});
 			var o = z(i, 2), s = (e) => {
 				var t = ib();
 				W("click", t, () => xe(H(g))), K(e, t);
 			};
 			J(o, (e) => {
-				H(ne) && !H(M) && e(s);
-			}), N(t), V((e) => q(r, e), [() => (H(M), H(ne), H(g), U(() => H(M) ? "Loading durable history…" : H(ne) || `${ye(H(g)).length} of ${be(H(g))} events loaded`))]), K(e, t);
+				H(ne) && !H(te) && e(s);
+			}), N(t), V((e) => q(r, e), [() => (H(te), H(ne), H(g), U(() => H(te) ? "Loading durable history…" : H(ne) || `${ye(H(g)).length} of ${be(H(g))} events loaded`))]), K(e, t);
 		};
 		J(j, (e) => {
-			H(_) !== "workflow" && (H(M) || H(ne) || H(te)) && e(ee);
+			H(_) !== "workflow" && (H(te) || H(ne) || H(M)) && e(ee);
 		});
 		var re = z(j, 2), ie = (e) => {
 			var t = ob(), n = L(t), r = z(L(n)), i = L(r, !0);
@@ -14221,10 +14221,10 @@ function Ub(e, t) {
 //#endregion
 //#region src/ui/LoopControl.svelte
 Zi(["click", "input"]), Ho();
-var Wb = /* @__PURE__ */ G("<div class=\"loop-error\" role=\"alert\"><strong>Paused safely</strong><span> </span></div>"), Gb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span>REQUIRED BEFORE AUTOPILOT CAN CONTINUE</span> <strong> </strong> <p> </p></div>"), Kb = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><span> </span><p> </p></div><i> </i></li>"), qb = /* @__PURE__ */ G("<li><strong> </strong><span> </span></li>"), Jb = /* @__PURE__ */ G("<details class=\"schedule-deferred\"><summary>Deferred candidates <strong> </strong></summary><ul></ul></details>"), Yb = /* @__PURE__ */ G("<details class=\"scheduled-wave\"><summary><span> </span><strong> </strong></summary> <div class=\"scheduled-wave-body\"><div class=\"schedule-budget\"><span><b> </b> tokens reserved</span><span><b> </b> available slots</span><span><b> </b> schedule state</span></div> <ol></ol> <!> <footer><b> </b><span> </span></footer></div></details>"), Xb = /* @__PURE__ */ G("<button class=\"outline-button compact\">Stop & capture here</button>"), Zb = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <!>", 1), Qb = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button>"), $b = /* @__PURE__ */ G("<!> <!>", 1), ex = /* @__PURE__ */ G("<button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), tx = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), nx = /* @__PURE__ */ G("<button class=\"primary-button\"> </button>"), rx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), ix = /* @__PURE__ */ G("<ol class=\"loop-context-steps\"></ol>"), ax = /* @__PURE__ */ G("<details class=\"loop-context\"><summary>Inspect captured loop boundary and steps <strong> </strong></summary> <div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <div class=\"loop-boundary pending\"><span>END · PENDING</span><strong>Captured when this run stops</strong></div></div> <!></details>"), ox = /* @__PURE__ */ G("<div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div>"), sx = /* @__PURE__ */ G("<div class=\"loop-boundary pending\"><span>END · PENDING</span><strong> </strong></div>"), cx = /* @__PURE__ */ G("<details class=\"loop-ledger\"><summary>Inspect loop steps <strong> </strong></summary> <ol></ol></details>"), lx = /* @__PURE__ */ G("<div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <!></div> <!>", 1), ux = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), dx = /* @__PURE__ */ G("<section id=\"loop-control\" aria-live=\"polite\"><div class=\"loop-control-heading\"><div><p class=\"eyebrow\">ONE-LOOP AUTOPILOT</p> <h3> </h3> <p> </p></div> <span> </span></div> <!> <!> <!> <div class=\"loop-control-row\"><div class=\"loop-now\"><span> </span> <strong> </strong></div> <div class=\"loop-buttons\"><!></div></div> <!> <!></section>");
-function fx(e, t) {
+var Wb = /* @__PURE__ */ G("<div class=\"loop-error\" role=\"alert\"><strong>Paused safely</strong><span> </span></div>"), Gb = /* @__PURE__ */ G("<p> </p>"), Kb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span> </span> <strong> </strong> <!></div>"), qb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span>REQUIRED BEFORE AUTOPILOT CAN CONTINUE</span> <strong> </strong> <p> </p></div>"), Jb = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><span> </span><p> </p></div><i> </i></li>"), Yb = /* @__PURE__ */ G("<li><strong> </strong><span> </span></li>"), Xb = /* @__PURE__ */ G("<details class=\"schedule-deferred\"><summary>Deferred candidates <strong> </strong></summary><ul></ul></details>"), Zb = /* @__PURE__ */ G("<details class=\"scheduled-wave\"><summary><span> </span><strong> </strong></summary> <div class=\"scheduled-wave-body\"><div class=\"schedule-budget\"><span><b> </b> tokens reserved</span><span><b> </b> available slots</span><span><b> </b> schedule state</span></div> <ol></ol> <!> <footer><b> </b><span> </span></footer></div></details>"), Qb = /* @__PURE__ */ G("<button class=\"outline-button compact\">Stop & capture here</button>"), $b = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <!>", 1), ex = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button>"), tx = /* @__PURE__ */ G("<!> <!>", 1), nx = /* @__PURE__ */ G("<button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), rx = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), ix = /* @__PURE__ */ G("<button class=\"primary-button\"> </button>"), ax = /* @__PURE__ */ G("<button class=\"outline-button\" disabled=\"\">Loop start blocked by preflight</button>"), ox = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), sx = /* @__PURE__ */ G("<ol class=\"loop-context-steps\"></ol>"), cx = /* @__PURE__ */ G("<details class=\"loop-context\"><summary>Inspect captured loop boundary and steps <strong> </strong></summary> <div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <div class=\"loop-boundary pending\"><span>END · PENDING</span><strong>Captured when this run stops</strong></div></div> <!></details>"), lx = /* @__PURE__ */ G("<div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div>"), ux = /* @__PURE__ */ G("<div class=\"loop-boundary pending\"><span>END · PENDING</span><strong> </strong></div>"), dx = /* @__PURE__ */ G("<details class=\"loop-ledger\"><summary>Inspect loop steps <strong> </strong></summary> <ol></ol></details>"), fx = /* @__PURE__ */ G("<div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <!></div> <!>", 1), px = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), mx = /* @__PURE__ */ G("<section id=\"loop-control\" aria-live=\"polite\"><div class=\"loop-control-heading\"><div><p class=\"eyebrow\">ONE-LOOP AUTOPILOT</p> <h3> </h3> <p> </p></div> <span> </span></div> <!> <!> <!> <!> <div class=\"loop-control-row\"><div class=\"loop-now\"><span> </span> <strong> </strong></div> <div class=\"loop-buttons\"><!></div></div> <!> <!></section>");
+function hx(e, t) {
 	bt(t, !1);
-	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(), f = /* @__PURE__ */ F(), p = /* @__PURE__ */ F(), m = /* @__PURE__ */ F(), h = /* @__PURE__ */ F(), g = /* @__PURE__ */ F(), _ = /* @__PURE__ */ F(), v = /* @__PURE__ */ F(), y = /* @__PURE__ */ F(), b = /* @__PURE__ */ F(null), x = /* @__PURE__ */ F(""), S = /* @__PURE__ */ F(""), C = /* @__PURE__ */ F("pending"), w = {
+	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(), f = /* @__PURE__ */ F(), p = /* @__PURE__ */ F(), m = /* @__PURE__ */ F(), h = /* @__PURE__ */ F(), g = /* @__PURE__ */ F(), _ = /* @__PURE__ */ F(), v = /* @__PURE__ */ F(), y = /* @__PURE__ */ F(), b = /* @__PURE__ */ F(), x = /* @__PURE__ */ F(null), S = /* @__PURE__ */ F(""), C = /* @__PURE__ */ F(""), w = /* @__PURE__ */ F("pending"), T = {
 		SYNTHESIS_READY: "results ready",
 		SYNTHESIZING: "synthesizing situation",
 		DECISION_REQUIRED: "direction decision",
@@ -14234,7 +14234,7 @@ function fx(e, t) {
 		RESEARCH_INTAKE: "landing and intake",
 		NEXT_WAVE_READY: "next wave ready",
 		PLANNING: "planning"
-	}, T = {
+	}, E = {
 		"loop.start": {
 			pending: "Starting one-loop autopilot…",
 			completed: "Autopilot started from the captured boundary."
@@ -14268,47 +14268,47 @@ function fx(e, t) {
 			completed: "The confirmed wave was dispatched under its fixed contracts."
 		}
 	};
-	function E(e = "PLANNING") {
-		return w[e] || e.toLowerCase().replaceAll("_", " ");
+	function D(e = "PLANNING") {
+		return T[e] || e.toLowerCase().replaceAll("_", " ");
 	}
-	function D(e) {
+	function O(e) {
 		if (!e) return "Pending";
 		let t = new Date(e);
 		return Number.isFinite(t.getTime()) ? t.toLocaleString() : "Pending";
 	}
-	function O(e) {
+	function k(e) {
 		let t = e?.runCounts || {}, n = Number(t.returned_to_sol || 0) + Number(t.evidence_ready || 0);
 		return e?.latestRun?.taskId ? `${e.latestRun.taskId} · ${e.latestRun.status || "recorded"}` : `${n} landed research receipt${n === 1 ? "" : "s"}`;
 	}
-	async function k(e, t = "", n = {}) {
-		if (!(!H(b) || H(x))) {
-			I(x, e), I(C, "pending"), I(S, T[e]?.pending || "Updating autopilot…");
+	async function A(e, t = "", n = {}) {
+		if (!(!H(x) || H(S))) {
+			I(S, e), I(w, "pending"), I(C, E[e]?.pending || "Updating autopilot…");
 			try {
 				await ns({
-					projectId: H(b).id,
+					projectId: H(x).id,
 					type: e,
 					targetId: t,
 					args: n,
 					scope: "loop-control",
 					pollLimit: e === "research.schedule.dispatch" ? 160 : 32
-				}), I(C, "success"), I(S, T[e]?.completed || "Autopilot updated.");
+				}), I(w, "success"), I(C, E[e]?.completed || "Autopilot updated.");
 			} catch (e) {
-				I(C, "error"), I(S, e instanceof Error ? e.message : String(e));
+				I(w, "error"), I(C, e instanceof Error ? e.message : String(e));
 			} finally {
-				I(x, "");
+				I(S, "");
 			}
 		}
 	}
-	function A() {
+	function j() {
 		document.querySelector("#operator-gate, #next-action")?.scrollIntoView({
 			behavior: "smooth",
 			block: "start"
 		});
 	}
 	B(() => n(), () => {
-		I(b, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
-	}), B(() => H(b), () => {
-		I(a, H(b)?.loop || null);
+		I(x, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
+	}), B(() => H(x), () => {
+		I(a, H(x)?.loop || null);
 	}), B(() => H(a), () => {
 		I(o, !!(H(a) && [
 			"running",
@@ -14319,22 +14319,22 @@ function fx(e, t) {
 		I(s, H(a)?.steps || []);
 	}), B(() => (H(s), H(a)), () => {
 		I(c, H(s).find((e) => e.actionId === H(a)?.pendingActionId) || H(s).at(-1));
-	}), B(() => H(b), () => {
-		I(l, H(b)?.researchRuns?.find((e) => [
+	}), B(() => H(x), () => {
+		I(l, H(x)?.researchRuns?.find((e) => [
 			"launching",
 			"running",
 			"blocked"
 		].includes(e.status)) || null);
-	}), B(() => H(b), () => {
-		I(u, H(b)?.researchRuns?.filter((e) => [
+	}), B(() => H(x), () => {
+		I(u, H(x)?.researchRuns?.filter((e) => [
 			"launching",
 			"running",
 			"blocked"
 		].includes(e.status)) || []);
-	}), B(() => H(b), () => {
-		I(d, H(b)?.researchSchedule || null);
-	}), B(() => H(b), () => {
-		I(f, H(b)?.phase === "RESEARCH_READY");
+	}), B(() => H(x), () => {
+		I(d, H(x)?.researchSchedule || null);
+	}), B(() => H(x), () => {
+		I(f, H(x)?.phase === "RESEARCH_READY");
 	}), B(() => H(d), () => {
 		I(p, !!(H(d) && [
 			"completed",
@@ -14343,55 +14343,75 @@ function fx(e, t) {
 		].includes(H(d).status)));
 	}), B(() => (H(f), H(d), H(p)), () => {
 		I(m, H(f) && (!H(d) || H(p)));
-	}), B(() => (H(d), H(p), H(b)), () => {
+	}), B(() => (H(d), H(p), H(x)), () => {
 		I(h, !!(H(d) && !H(p) && [
 			"RESEARCH_READY",
 			"RESEARCH_RUNNING",
 			"RESEARCH_INTAKE",
 			"SYNTHESIZING"
-		].includes(H(b)?.phase || "")));
-	}), B(() => (H(f), H(d), H(a)), () => {
-		I(g, H(f) && H(d)?.status === "proposed" ? "CONFIRM WAVE" : H(f) && H(d)?.status === "confirmed" ? "WAVE RESERVED" : {
+		].includes(H(x)?.phase || "")));
+	}), B(() => (H(x), H(o)), () => {
+		I(g, !!(H(x) && !H(o) && !H(x).canStartLoop && H(x).loopStart?.blocker));
+	}), B(() => (H(g), H(f), H(d), H(a)), () => {
+		I(_, H(g) ? "PREFLIGHT BLOCKED" : H(f) && H(d)?.status === "proposed" ? "CONFIRM WAVE" : H(f) && H(d)?.status === "confirmed" ? "WAVE RESERVED" : {
 			running: "RUNNING",
 			paused: "PAUSED",
 			attention: "NEEDS ATTENTION",
 			completed: "LOOP COMPLETE",
 			stopped: "STOPPED"
 		}[H(a)?.status || ""] || "READY");
-	}), B(() => (H(f), H(d), H(a)), () => {
-		I(_, H(f) && H(d)?.status === "proposed" ? "attention" : H(f) && H(d)?.status === "confirmed" ? "paused" : H(a)?.status === "attention" ? "attention" : H(a)?.status === "completed" ? "complete" : H(a)?.status || "ready");
-	}), B(() => H(b), () => {
-		I(v, H(b)?.researchPlan?.response?.operatorGuidance || H(b)?.wave?.synthesis?.response?.operatorBrief?.nextDecision || "Resolve the required human gate, then autopilot can recheck the boundary.");
-	}), B(() => H(b), () => {
-		I(y, H(b)?.phase === "RESEARCH_REVIEW" && H(b)?.researchPlan?.status === "drafted" && H(b)?.researchPlan?.response?.decision === "BLOCKED" && H(b)?.researchPlan?.response?.lanes?.some((e) => e?.taskId === "operator-doc-a1-canonical-transition"));
+	}), B(() => (H(g), H(f), H(d), H(a)), () => {
+		I(v, H(g) || H(f) && H(d)?.status === "proposed" ? "attention" : H(f) && H(d)?.status === "confirmed" ? "paused" : H(a)?.status === "attention" ? "attention" : H(a)?.status === "completed" ? "complete" : H(a)?.status || "ready");
+	}), B(() => H(x), () => {
+		I(y, H(x)?.researchPlan?.response?.operatorGuidance || H(x)?.wave?.synthesis?.response?.operatorBrief?.nextDecision || "Resolve the required human gate, then autopilot can recheck the boundary.");
+	}), B(() => H(x), () => {
+		I(b, H(x)?.phase === "RESEARCH_REVIEW" && H(x)?.researchPlan?.status === "drafted" && H(x)?.researchPlan?.response?.decision === "BLOCKED" && H(x)?.researchPlan?.response?.lanes?.some((e) => e?.taskId === "operator-doc-a1-canonical-transition"));
 	}), Br(), vo();
-	var j = ca(), ee = R(j), te = (e) => {
-		var t = dx(), n = L(t), r = L(n), i = z(L(r), 2), w = L(i, !0);
+	var ee = ca(), M = R(ee), te = (e) => {
+		var t = mx(), n = L(t), r = L(n), i = z(L(r), 2), T = L(i, !0);
 		N(i);
-		var T = z(i, 2), j = L(T, !0);
-		N(T), N(r);
-		var ee = z(r, 2), te = L(ee, !0);
-		N(ee), N(n);
-		var M = z(n, 2), ne = (e) => {
+		var E = z(i, 2), ee = L(E, !0);
+		N(E), N(r);
+		var M = z(r, 2), te = L(M, !0);
+		N(M), N(n);
+		var ne = z(n, 2), re = (e) => {
 			var t = Wb(), n = z(L(t)), r = L(n, !0);
 			N(n), N(t), V(() => q(r, (H(a), U(() => H(a).error)))), K(e, t);
 		};
-		J(M, (e) => {
-			H(a), H(y), U(() => H(a)?.error && !H(y)) && e(ne);
+		J(ne, (e) => {
+			H(a), H(b), U(() => H(a)?.error && !H(b)) && e(re);
 		});
-		var re = z(M, 2), ie = (e) => {
-			var t = Gb(), n = z(L(t), 2), r = L(n, !0);
+		var ie = z(ne, 2), ae = (e) => {
+			var t = Kb(), n = L(t), r = L(n);
+			N(n);
+			var i = z(n, 2), a = L(i, !0);
+			N(i);
+			var o = z(i, 2), s = (e) => {
+				var t = Gb(), n = L(t);
+				N(t), V((e, t) => q(n, `${e ?? ""} required · ${t ?? ""} currently schedulable · no workflow transition was consumed.`), [() => (H(x), U(() => Number(H(x).loopStart.minimumRunnableTokenCap).toLocaleString())), () => (H(x), U(() => Number(H(x).loopStart.effectiveTokenLimit || 0).toLocaleString()))]), K(e, t);
+			};
+			J(o, (e) => {
+				H(x), U(() => H(x)?.loopStart?.minimumRunnableTokenCap) && e(s);
+			}), N(t), V((e) => {
+				q(r, `AUTOMATION START PREFLIGHT · ${e ?? ""}`), q(a, (H(x), U(() => H(x)?.loopStart?.blocker)));
+			}, [() => (H(x), U(() => H(x)?.loopStart?.code?.replaceAll("_", " ")))]), K(e, t);
+		};
+		J(ie, (e) => {
+			H(g) && e(ae);
+		});
+		var oe = z(ie, 2), se = (e) => {
+			var t = qb(), n = z(L(t), 2), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), o = L(i, !0);
 			N(i), N(t), V(() => {
-				q(r, (H(a), U(() => H(a).resumeBlocker))), q(o, H(v));
+				q(r, (H(a), U(() => H(a).resumeBlocker))), q(o, H(y));
 			}), K(e, t);
 		};
-		J(re, (e) => {
-			H(a), H(y), U(() => H(a)?.status === "attention" && H(a).resumeBlocker && !H(y)) && e(ie);
+		J(oe, (e) => {
+			H(a), H(b), U(() => H(a)?.status === "attention" && H(a).resumeBlocker && !H(b)) && e(se);
 		});
-		var ae = z(re, 2), oe = (e) => {
-			var t = Yb(), n = L(t), r = L(n), i = L(r);
+		var ce = z(oe, 2), le = (e) => {
+			var t = Zb(), n = L(t), r = L(n), i = L(r);
 			N(r);
 			var a = z(r), o = L(a);
 			N(a), N(n);
@@ -14403,7 +14423,7 @@ function fx(e, t) {
 			N(_), Ke(), N(g), N(c);
 			var y = z(c, 2);
 			Y(y, 5, () => (H(d), U(() => H(d).members || [])), (e) => e.requestId, (e, t) => {
-				var n = Kb(), r = L(n), i = L(r, !0);
+				var n = Jb(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -14417,11 +14437,11 @@ function fx(e, t) {
 				}, [() => (H(t), U(() => H(t).tokenCap?.toLocaleString()))]), K(e, n);
 			}), N(y);
 			var b = z(y, 2), x = (e) => {
-				var t = Jb(), n = L(t), r = z(L(n)), i = L(r, !0);
+				var t = Xb(), n = L(t), r = z(L(n)), i = L(r, !0);
 				N(r), N(n);
 				var a = z(n);
 				Y(a, 5, () => (H(d), U(() => H(d).deferred)), (e) => e.requestId, (e, t) => {
-					var n = qb(), r = L(n), i = L(r, !0);
+					var n = Yb(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a);
 					N(a), N(n), V((e) => {
@@ -14443,61 +14463,61 @@ function fx(e, t) {
 				() => (H(d), U(() => H(d).status.toUpperCase()))
 			]), K(e, t);
 		};
-		J(ae, (e) => {
-			H(h) && e(oe);
+		J(ce, (e) => {
+			H(h) && e(le);
 		});
-		var se = z(ae, 2), ce = L(se), le = L(ce), ue = L(le, !0);
-		N(le);
-		var de = z(le, 2), fe = L(de, !0);
-		N(de), N(ce);
-		var pe = z(ce, 2), me = L(pe), he = (e) => {
-			var t = Zb(), n = R(t), r = L(n, !0);
+		var ue = z(ce, 2), de = L(ue), fe = L(de), pe = L(fe, !0);
+		N(fe);
+		var me = z(fe, 2), he = L(me, !0);
+		N(me), N(de);
+		var ge = z(de, 2), _e = L(ge), ve = (e) => {
+			var t = $b(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), a = (e) => {
-				var t = Xb();
-				V((e) => t.disabled = e, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("loop.stop")), K(e, t);
+				var t = Qb();
+				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
 			};
 			J(i, (e) => {
 				H(o) && e(a);
 			}), V((e) => {
-				n.disabled = e, q(r, H(x) ? "Freezing…" : "Freeze wave schedule");
-			}, [() => (H(x), U(() => !!H(x)))]), W("click", n, () => k("research.schedule.prepare")), K(e, t);
-		}, ge = (e) => {
-			var t = Zb(), n = R(t), r = L(n, !0);
+				n.disabled = e, q(r, H(S) ? "Freezing…" : "Freeze wave schedule");
+			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, () => A("research.schedule.prepare")), K(e, t);
+		}, ye = (e) => {
+			var t = $b(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), a = (e) => {
-				var t = Xb();
-				V((e) => t.disabled = e, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("loop.stop")), K(e, t);
+				var t = Qb();
+				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
 			};
 			J(i, (e) => {
 				H(o) && e(a);
 			}), V((e) => {
-				n.disabled = e, q(r, (H(x), H(d), U(() => H(x) ? "Confirming…" : `Confirm ${H(d).members?.length || 0}-lane schedule`)));
-			}, [() => (H(x), U(() => !!H(x)))]), W("click", n, () => k("research.schedule.confirm", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
-		}, _e = (e) => {
-			var t = $b(), n = R(t), r = (e) => {
-				var t = Qb(), n = L(t, !0);
+				n.disabled = e, q(r, (H(S), H(d), U(() => H(S) ? "Confirming…" : `Confirm ${H(d).members?.length || 0}-lane schedule`)));
+			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, () => A("research.schedule.confirm", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
+		}, be = (e) => {
+			var t = tx(), n = R(t), r = (e) => {
+				var t = ex(), n = L(t, !0);
 				N(t), V((e) => {
-					t.disabled = e, q(n, H(x) ? "Resuming…" : "Resume & dispatch wave");
-				}, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("loop.resume")), K(e, t);
+					t.disabled = e, q(n, H(S) ? "Resuming…" : "Resume & dispatch wave");
+				}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.resume")), K(e, t);
 			}, i = (e) => {
-				var t = Qb(), n = L(t, !0);
+				var t = ex(), n = L(t, !0);
 				N(t), V((e) => {
-					t.disabled = e, q(n, (H(x), H(d), U(() => H(x) ? "Dispatching…" : `Dispatch ${H(d).members?.length || 0}-lane wave`)));
-				}, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("research.schedule.dispatch", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
+					t.disabled = e, q(n, (H(S), H(d), U(() => H(S) ? "Dispatching…" : `Dispatch ${H(d).members?.length || 0}-lane wave`)));
+				}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("research.schedule.dispatch", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
 			};
 			J(n, (e) => {
 				H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention") ? e(r) : (H(a), U(() => H(a)?.status !== "running") && e(i, 1));
 			});
 			var s = z(n, 2), c = (e) => {
-				var t = Xb();
-				V((e) => t.disabled = e, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("loop.stop")), K(e, t);
+				var t = Qb();
+				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
 			};
 			J(s, (e) => {
 				H(o) && e(c);
 			}), K(e, t);
-		}, ve = (e) => {
-			var t = ex(), n = R(t), r = L(n, !0);
+		}, xe = (e) => {
+			var t = nx(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), o = L(i, !0);
 			N(i);
@@ -14505,35 +14525,37 @@ function fx(e, t) {
 			V((e, t, c) => {
 				n.disabled = e, q(r, H(l) ? "Pause automation" : "Pause now"), i.disabled = t, q(o, (H(a), U(() => H(a).pendingActionId ? "Halt after this step" : "Pause before next step"))), s.disabled = c;
 			}, [
-				() => (H(x), U(() => !!H(x))),
-				() => (H(x), U(() => !!H(x))),
-				() => (H(x), U(() => !!H(x)))
-			]), W("click", n, () => k("loop.pause")), W("click", i, () => k("loop.halt-after-step")), W("click", s, () => k("loop.stop")), K(e, t);
-		}, ye = (e) => {
-			var t = tx(), n = R(t), r = L(n, !0);
+				() => (H(S), U(() => !!H(S))),
+				() => (H(S), U(() => !!H(S))),
+				() => (H(S), U(() => !!H(S)))
+			]), W("click", n, () => A("loop.pause")), W("click", i, () => A("loop.halt-after-step")), W("click", s, () => A("loop.stop")), K(e, t);
+		}, Se = (e) => {
+			var t = rx(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2);
 			V((e, t) => {
-				n.disabled = e, q(r, H(x) === "loop.resume" ? "Rechecking…" : "Recheck & resume"), i.disabled = t;
-			}, [() => (H(x), U(() => !!H(x))), () => (H(x), U(() => !!H(x)))]), W("click", n, () => k("loop.resume")), W("click", i, () => k("loop.stop")), K(e, t);
-		}, be = (e) => {
-			var t = tx(), n = R(t), r = L(n, !0);
+				n.disabled = e, q(r, H(S) === "loop.resume" ? "Rechecking…" : "Recheck & resume"), i.disabled = t;
+			}, [() => (H(S), U(() => !!H(S))), () => (H(S), U(() => !!H(S)))]), W("click", n, () => A("loop.resume")), W("click", i, () => A("loop.stop")), K(e, t);
+		}, Ce = (e) => {
+			var t = rx(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2);
 			V((e) => {
-				q(r, H(y) ? "Review & approve DOC-A1" : "Resolve the required gate"), i.disabled = e;
-			}, [() => (H(x), U(() => !!H(x)))]), W("click", n, A), W("click", i, () => k("loop.stop")), K(e, t);
-		}, xe = (e) => {
-			var t = nx(), n = L(t, !0);
+				q(r, H(b) ? "Review & approve DOC-A1" : "Resolve the required gate"), i.disabled = e;
+			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, j), W("click", i, () => A("loop.stop")), K(e, t);
+		}, we = (e) => {
+			var t = ix(), n = L(t, !0);
 			N(t), V((e) => {
-				t.disabled = e, q(n, (H(x), H(a), H(b), U(() => H(x) === "loop.start" ? "Starting…" : H(a)?.status === "completed" ? "Run another complete loop" : H(b).phase === "DECISION_REQUIRED" ? "Run one complete loop" : "Continue this loop automatically")));
-			}, [() => (H(x), U(() => !!H(x)))]), W("click", t, () => k("loop.start")), K(e, t);
+				t.disabled = e, q(n, (H(S), H(a), H(x), U(() => H(S) === "loop.start" ? "Starting…" : H(a)?.status === "completed" ? "Run another complete loop" : H(x).phase === "DECISION_REQUIRED" ? "Run one complete loop" : "Continue this loop automatically")));
+			}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.start")), K(e, t);
+		}, Te = (e) => {
+			K(e, ax());
 		};
-		J(me, (e) => {
-			H(m) ? e(he) : (H(f), H(d), U(() => H(f) && H(d)?.status === "proposed") ? e(ge, 1) : (H(f), H(d), U(() => H(f) && H(d)?.status === "confirmed") ? e(_e, 2) : (H(a), U(() => H(a)?.status === "running") ? e(ve, 3) : (H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention" && H(a).canResume) ? e(ye, 4) : (H(a), U(() => H(a)?.status === "attention") ? e(be, 5) : (H(b), U(() => H(b).canStartLoop) && e(xe, 6)))))));
-		}), N(pe), N(se);
-		var Se = z(se, 2), Ce = (e) => {
-			var t = ax(), n = L(t), r = z(L(n)), i = L(r);
+		J(_e, (e) => {
+			H(m) ? e(ve) : (H(f), H(d), U(() => H(f) && H(d)?.status === "proposed") ? e(ye, 1) : (H(f), H(d), U(() => H(f) && H(d)?.status === "confirmed") ? e(be, 2) : (H(a), U(() => H(a)?.status === "running") ? e(xe, 3) : (H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention" && H(a).canResume) ? e(Se, 4) : (H(a), U(() => H(a)?.status === "attention") ? e(Ce, 5) : (H(x), U(() => H(x).canStartLoop) ? e(we, 6) : H(g) && e(Te, 7)))))));
+		}), N(ge), N(ue);
+		var Ee = z(ue, 2), De = (e) => {
+			var t = cx(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var o = z(n, 2), c = L(o), l = L(c), u = L(l);
 			N(l);
@@ -14542,16 +14564,16 @@ function fx(e, t) {
 			var p = z(d, 2), m = L(p);
 			N(p), N(c), Ke(2), N(o);
 			var h = z(o, 2), g = (e) => {
-				var t = ix();
+				var t = sx();
 				Y(t, 5, () => H(s), (e) => e.actionId, (e, t) => {
-					var n = rx(), r = L(n), i = L(r, !0);
+					var n = ox(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a), s = L(o, !0);
 					N(o);
 					var c = z(o), l = L(c);
 					N(c), N(a), N(n), V((e) => {
 						X(n, 1, Ma((H(t), U(() => H(t).status)))), q(i, (H(t), U(() => H(t).index))), q(s, (H(t), U(() => H(t).label))), q(l, `${H(t), U(() => H(t).status) ?? ""}${H(t), U(() => H(t).attemptCount && H(t).attemptCount > 1 ? ` · attempt ${H(t).attemptCount}` : "") ?? ""}${e ?? ""}`);
-					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${D(H(t).completedAt)}` : ""))]), K(e, n);
+					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${O(H(t).completedAt)}` : ""))]), K(e, n);
 				}), N(t), K(e, t);
 			};
 			J(h, (e) => {
@@ -14560,19 +14582,19 @@ function fx(e, t) {
 				q(i, `${e ?? ""}/${H(s), U(() => H(s).length) ?? ""} settled`), q(u, `START · ${t ?? ""}`), q(f, n), q(m, `${H(a), U(() => H(a)?.start?.waveLabel || "No named wave") ?? ""} · ${r ?? ""}`);
 			}, [
 				() => (H(s), U(() => H(s).filter((e) => e.status === "completed").length)),
-				() => (H(a), U(() => D(H(a)?.start?.capturedAt))),
-				() => (H(a), U(() => E(H(a)?.start?.phase))),
-				() => (H(a), U(() => O(H(a)?.start)))
+				() => (H(a), U(() => O(H(a)?.start?.capturedAt))),
+				() => (H(a), U(() => D(H(a)?.start?.phase))),
+				() => (H(a), U(() => k(H(a)?.start)))
 			]), K(e, t);
-		}, we = (e) => {
-			var t = lx(), n = R(t), r = L(n), i = L(r), c = L(i);
+		}, Oe = (e) => {
+			var t = fx(), n = R(t), r = L(n), i = L(r), c = L(i);
 			N(i);
 			var l = z(i, 2), u = L(l, !0);
 			N(l);
 			var d = z(l, 2), f = L(d);
 			N(d), N(r);
 			var p = z(r, 2), m = (e) => {
-				var t = ox(), n = L(t), r = L(n);
+				var t = lx(), n = L(t), r = L(n);
 				N(n);
 				var i = z(n, 2), o = L(i, !0);
 				N(i);
@@ -14580,30 +14602,30 @@ function fx(e, t) {
 				N(s), N(t), V((e, t, n) => {
 					q(r, `END · ${e ?? ""}`), q(o, t), q(c, `${H(a), U(() => H(a).end.waveLabel || "No named wave") ?? ""} · ${n ?? ""}`);
 				}, [
-					() => (H(a), U(() => D(H(a).end.capturedAt))),
-					() => (H(a), U(() => E(H(a).end.phase))),
-					() => (H(a), U(() => O(H(a).end)))
+					() => (H(a), U(() => O(H(a).end.capturedAt))),
+					() => (H(a), U(() => D(H(a).end.phase))),
+					() => (H(a), U(() => k(H(a).end)))
 				]), K(e, t);
 			}, h = (e) => {
-				var t = sx(), n = z(L(t)), r = L(n, !0);
+				var t = ux(), n = z(L(t)), r = L(n, !0);
 				N(n), N(t), V(() => q(r, H(o) ? "Captured when this run stops" : "Not captured")), K(e, t);
 			};
 			J(p, (e) => {
 				H(a), U(() => H(a)?.end?.capturedAt) ? e(m) : e(h, -1);
 			}), N(n);
 			var g = z(n, 2), _ = (e) => {
-				var t = cx(), n = L(t), r = z(L(n)), i = L(r);
+				var t = dx(), n = L(t), r = z(L(n)), i = L(r);
 				N(r), N(n);
 				var a = z(n, 2);
 				Y(a, 5, () => H(s), (e) => e.actionId, (e, t) => {
-					var n = rx(), r = L(n), i = L(r, !0);
+					var n = ox(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a), s = L(o, !0);
 					N(o);
 					var c = z(o), l = L(c);
 					N(c), N(a), N(n), V((e) => {
 						X(n, 1, Ma((H(t), U(() => H(t).status)))), q(i, (H(t), U(() => H(t).index))), q(s, (H(t), U(() => H(t).label))), q(l, `${H(t), U(() => H(t).status) ?? ""}${H(t), U(() => H(t).attemptCount && H(t).attemptCount > 1 ? ` · attempt ${H(t).attemptCount}` : "") ?? ""}${e ?? ""}`);
-					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${D(H(t).completedAt)}` : ""))]), K(e, n);
+					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${O(H(t).completedAt)}` : ""))]), K(e, n);
 				}), N(a), N(t), V((e) => {
 					t.open = H(o), q(i, `${e ?? ""}/${H(s), U(() => H(s).length) ?? ""} settled`);
 				}, [() => (H(s), U(() => H(s).filter((e) => e.status === "completed").length))]), K(e, t);
@@ -14613,35 +14635,35 @@ function fx(e, t) {
 			}), V((e, t, n) => {
 				q(c, `START · ${e ?? ""}`), q(u, t), q(f, `${H(a), U(() => H(a)?.start?.waveLabel || "No named wave") ?? ""} · ${n ?? ""}`);
 			}, [
-				() => (H(a), U(() => D(H(a)?.start?.capturedAt))),
-				() => (H(a), U(() => E(H(a)?.start?.phase))),
-				() => (H(a), U(() => O(H(a)?.start)))
+				() => (H(a), U(() => O(H(a)?.start?.capturedAt))),
+				() => (H(a), U(() => D(H(a)?.start?.phase))),
+				() => (H(a), U(() => k(H(a)?.start)))
 			]), K(e, t);
 		};
-		J(Se, (e) => {
-			H(y) ? e(Ce) : e(we, -1);
+		J(Ee, (e) => {
+			H(b) ? e(De) : e(Oe, -1);
 		});
-		var Te = z(Se, 2), Ee = (e) => {
-			var t = ux(), n = L(t), r = L(n, !0);
+		var ke = z(Ee, 2), Ae = (e) => {
+			var t = px(), n = L(t), r = L(n, !0);
 			N(n), N(t), V(() => {
-				X(t, 1, `gate-feedback loop-feedback ${H(C) ?? ""}`), q(r, H(S));
+				X(t, 1, `gate-feedback loop-feedback ${H(w) ?? ""}`), q(r, H(C));
 			}), K(e, t);
 		};
-		J(Te, (e) => {
-			H(S) && e(Ee);
+		J(ke, (e) => {
+			H(C) && e(Ae);
 		}), N(t), V((e) => {
-			X(t, 1, `loop-control ${H(_) ?? ""}`), q(w, (H(m), H(f), H(d), H(y), H(l), H(u), H(o), H(c), H(a), U(() => H(m) ? "Freeze the resource-bounded wave" : H(f) && H(d)?.status === "proposed" ? `Confirm ${H(d).members?.length || 0} scheduled member${H(d).members?.length === 1 ? "" : "s"}` : H(f) && H(d)?.status === "confirmed" ? "Dispatch the confirmed wave" : H(y) ? "Paused for one operator approval" : H(l) ? `${H(u).length} bounded lane${H(u).length === 1 ? " is" : "s are"} working` : H(o) ? H(c)?.label || (H(a)?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step") : H(a)?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"))), q(j, e), X(ee, 1, `loop-status ${H(_) ?? ""}`), q(te, H(g)), q(ue, (H(f), H(a), H(o), U(() => H(f) ? "Current position" : H(a)?.haltAfterStep ? "Halt armed" : H(o) ? "Current position" : "Scope"))), q(fe, (H(m), H(f), H(d), H(y), H(l), H(a), H(c), U(() => H(m) ? "Checked plan → freeze schedule" : H(f) && H(d)?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : H(f) && H(d)?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : H(y) ? "DOC-A1 preflight passed · your approval is next" : H(l) ? `${H(l).taskId} · ${H(l).status}` : H(a)?.haltAfterStep ? "Will pause when this step settles" : H(c) ? `${H(c).index}. ${H(c).label} · ${H(c).status}` : "One decision-to-decision cycle")));
-		}, [() => (H(m), H(p), H(f), H(d), H(y), H(l), H(u), U(() => H(m) ? `${H(p) ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : H(f) && H(d)?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : H(f) && H(d)?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : H(y) ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : H(l) ? `${H(u).map((e) => e.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."))]), K(e, t);
+			X(t, 1, `loop-control ${H(v) ?? ""}`), q(T, (H(g), H(m), H(f), H(d), H(b), H(l), H(u), H(o), H(c), H(a), U(() => H(g) ? "Recenter resources before starting the loop" : H(m) ? "Freeze the resource-bounded wave" : H(f) && H(d)?.status === "proposed" ? `Confirm ${H(d).members?.length || 0} scheduled member${H(d).members?.length === 1 ? "" : "s"}` : H(f) && H(d)?.status === "confirmed" ? "Dispatch the confirmed wave" : H(b) ? "Paused for one operator approval" : H(l) ? `${H(u).length} bounded lane${H(u).length === 1 ? " is" : "s are"} working` : H(o) ? H(c)?.label || (H(a)?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step") : H(a)?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"))), q(ee, e), X(M, 1, `loop-status ${H(v) ?? ""}`), q(te, H(_)), q(pe, (H(f), H(a), H(o), U(() => H(f) ? "Current position" : H(a)?.haltAfterStep ? "Halt armed" : H(o) ? "Current position" : "Scope"))), q(he, (H(m), H(f), H(d), H(b), H(l), H(a), H(c), U(() => H(m) ? "Checked plan → freeze schedule" : H(f) && H(d)?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : H(f) && H(d)?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : H(b) ? "DOC-A1 preflight passed · your approval is next" : H(l) ? `${H(l).taskId} · ${H(l).status}` : H(a)?.haltAfterStep ? "Will pause when this step settles" : H(c) ? `${H(c).index}. ${H(c).label} · ${H(c).status}` : "One decision-to-decision cycle")));
+		}, [() => (H(g), H(x), H(m), H(p), H(f), H(d), H(b), H(l), H(u), U(() => H(g) ? H(x)?.loopStart?.blocker : H(m) ? `${H(p) ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : H(f) && H(d)?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : H(f) && H(d)?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : H(b) ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : H(l) ? `${H(u).map((e) => e.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."))]), K(e, t);
 	};
-	J(ee, (e) => {
-		H(b) && e(te);
-	}), K(e, j), xt(), i();
+	J(M, (e) => {
+		H(x) && e(te);
+	}), K(e, ee), xt(), i();
 }
 //#endregion
 //#region src/ui/OperatorGate.svelte
 Zi(["click"]), Ho();
-var px = /* @__PURE__ */ G("<div class=\"gate-feedback error\" role=\"alert\"><span> </span></div>"), mx = /* @__PURE__ */ G("<div class=\"operator-gate-callout\"><strong>The first action is read-only</strong> <p>It resolves the exact source commit, confirms both approved SHA-256 hashes, checks that main is clean, and previews the lineage merge. It changes no Git or campaign authority.</p> <button class=\"primary-button\"> </button></div> <!>", 1), hx = /* @__PURE__ */ G("<div class=\"operator-gate-preview\"><div class=\"operator-gate-ready\"><div><span>READINESS CHECK PASSED</span> <strong>Exact DOC-A1 transition is ready</strong> <small>3 local custody commits · no push · no worker dispatch</small></div> <label class=\"operator-gate-confirm\"><input type=\"checkbox\"/><span>Approve Proposal A’s exact bytes as DOC-A1.</span></label> <button class=\"primary-button operator-gate-approve\"> </button></div> <details class=\"operator-gate-technical\"><summary>Inspect commits, paths, hashes, and effects <strong>Preflight receipt</strong></summary> <div class=\"operator-gate-summary\"><div><span>FROM FROZEN STAGING HEAD</span><strong> </strong><small> </small></div> <div><span>INTO CLEAN MAIN</span><strong> </strong><small> </small></div></div> <ul><li><code>CONTRACT.md</code><span> </span></li> <li><code>output/preimage-spec.json</code><span> </span></li> <li><code>evidence-receipt.json</code><span>new DKC successor receipt</span></li></ul> <div class=\"operator-gate-effects\"><strong>BOUNDARY EFFECTS</strong> <p>Creates one local lineage-intake merge, one exact document commit, and one successor-receipt commit. It does not push, dispatch a worker, authorize SAT or Mac work, or promote a mathematical claim.</p></div> <button class=\"outline-button compact\">Recheck readiness</button></details></div>"), gx = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), _x = /* @__PURE__ */ G("<section class=\"operator-gate\" id=\"operator-gate\" aria-live=\"polite\"><div class=\"operator-gate-heading\"><div><p class=\"eyebrow\">REQUIRED OPERATOR TRANSITION</p> <h2>Adopt Proposal A as DOC-A1</h2> <p>This is the missing bridge between the checked staging evidence and the next runnable cold-replay lane.</p></div> <span class=\"operator-gate-status\">HUMAN GATE</span></div> <div class=\"operator-gate-path\" aria-label=\"Operator transition progress\"><span>✓ Verified</span><i>→</i><span class=\"current\">Your approval</span><i>→</i><span>Sol replans</span></div> <!> <!></section>");
-function vx(e, t) {
+var gx = /* @__PURE__ */ G("<div class=\"gate-feedback error\" role=\"alert\"><span> </span></div>"), _x = /* @__PURE__ */ G("<div class=\"operator-gate-callout\"><strong>The first action is read-only</strong> <p>It resolves the exact source commit, confirms both approved SHA-256 hashes, checks that main is clean, and previews the lineage merge. It changes no Git or campaign authority.</p> <button class=\"primary-button\"> </button></div> <!>", 1), vx = /* @__PURE__ */ G("<div class=\"operator-gate-preview\"><div class=\"operator-gate-ready\"><div><span>READINESS CHECK PASSED</span> <strong>Exact DOC-A1 transition is ready</strong> <small>3 local custody commits · no push · no worker dispatch</small></div> <label class=\"operator-gate-confirm\"><input type=\"checkbox\"/><span>Approve Proposal A’s exact bytes as DOC-A1.</span></label> <button class=\"primary-button operator-gate-approve\"> </button></div> <details class=\"operator-gate-technical\"><summary>Inspect commits, paths, hashes, and effects <strong>Preflight receipt</strong></summary> <div class=\"operator-gate-summary\"><div><span>FROM FROZEN STAGING HEAD</span><strong> </strong><small> </small></div> <div><span>INTO CLEAN MAIN</span><strong> </strong><small> </small></div></div> <ul><li><code>CONTRACT.md</code><span> </span></li> <li><code>output/preimage-spec.json</code><span> </span></li> <li><code>evidence-receipt.json</code><span>new DKC successor receipt</span></li></ul> <div class=\"operator-gate-effects\"><strong>BOUNDARY EFFECTS</strong> <p>Creates one local lineage-intake merge, one exact document commit, and one successor-receipt commit. It does not push, dispatch a worker, authorize SAT or Mac work, or promote a mathematical claim.</p></div> <button class=\"outline-button compact\">Recheck readiness</button></details></div>"), yx = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), bx = /* @__PURE__ */ G("<section class=\"operator-gate\" id=\"operator-gate\" aria-live=\"polite\"><div class=\"operator-gate-heading\"><div><p class=\"eyebrow\">REQUIRED OPERATOR TRANSITION</p> <h2>Adopt Proposal A as DOC-A1</h2> <p>This is the missing bridge between the checked staging evidence and the next runnable cold-replay lane.</p></div> <span class=\"operator-gate-status\">HUMAN GATE</span></div> <div class=\"operator-gate-path\" aria-label=\"Operator transition progress\"><span>✓ Verified</span><i>→</i><span class=\"current\">Your approval</span><i>→</i><span>Sol replans</span></div> <!> <!></section>");
+function xx(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(null), f = /* @__PURE__ */ F(""), p = /* @__PURE__ */ F(!1), m = /* @__PURE__ */ F(""), h = /* @__PURE__ */ F("pending");
 	function g(e = "") {
@@ -14690,14 +14712,14 @@ function vx(e, t) {
 		I(u, H(c).find((e) => e.type === "campaign.operator-transition.prepare") || null);
 	}), Br(), vo();
 	var b = ca(), x = R(b), S = (e) => {
-		var t = _x(), n = z(L(t), 2), r = L(n);
+		var t = bx(), n = z(L(t), 2), r = L(n);
 		let i;
 		Ke(4), N(n);
 		var a = z(n, 2), o = (e) => {
-			var t = mx(), n = R(t), r = z(L(n), 4), i = L(r, !0);
+			var t = _x(), n = R(t), r = z(L(n), 4), i = L(r, !0);
 			N(r), N(n);
 			var a = z(n, 2), o = (e) => {
-				var t = px(), n = L(t), r = L(n, !0);
+				var t = gx(), n = L(t), r = L(n, !0);
 				N(n), N(t), V(() => q(r, (H(u), U(() => H(u).error)))), K(e, t);
 			};
 			J(a, (e) => {
@@ -14706,7 +14728,7 @@ function vx(e, t) {
 				r.disabled = e, q(i, H(f) ? "Checking readiness…" : "Check transition readiness");
 			}, [() => (H(f), U(() => !!H(f)))]), W("click", r, v), K(e, t);
 		}, s = (e) => {
-			var t = hx(), n = L(t), r = z(L(n), 2), i = L(r);
+			var t = vx(), n = L(t), r = z(L(n), 2), i = L(r);
 			$a(i), Ke(), N(r);
 			var a = z(r, 2), o = L(a, !0);
 			N(a), N(n);
@@ -14738,7 +14760,7 @@ function vx(e, t) {
 			H(l) ? e(s, -1) : e(o);
 		});
 		var c = z(a, 2), d = (e) => {
-			var t = gx(), n = L(t), r = L(n, !0);
+			var t = yx(), n = L(t), r = L(n, !0);
 			N(n), N(t), V(() => {
 				X(t, 1, `gate-feedback ${H(h) ?? ""}`), q(r, H(m));
 			}), K(e, t);
@@ -14754,8 +14776,8 @@ function vx(e, t) {
 //#endregion
 //#region src/ui/StrategyOverview.svelte
 Zi(["click"]), Ho();
-var yx = /* @__PURE__ */ G("<article><div><strong> </strong><span> </span></div> <div class=\"track-meter\"><i></i><b></b></div> <small> </small></article>"), bx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small><p> </p></div></li>"), xx = /* @__PURE__ */ G("<article><strong> </strong><p> </p><small> </small></article>"), Sx = /* @__PURE__ */ G("<div class=\"drift-list\"></div>"), Cx = /* @__PURE__ */ G("<p class=\"strategy-empty\">No active drift signal crosses the charter’s advisory thresholds.</p>"), wx = /* @__PURE__ */ G("<section id=\"campaign-strategy\" aria-label=\"Campaign strategy and drift\" aria-live=\"polite\"><div class=\"strategy-heading\"><div><p> </p> <h2> </h2> <span> </span></div> <div class=\"strategy-status\"><strong> </strong><span>shadow mode · advisory</span></div></div> <div class=\"strategy-vitals\"><div><span>Frontier motion</span><strong> </strong><small>recorded advances</small></div> <div><span>Measured spend</span><strong> </strong><small> </small></div> <div><span>Support share</span><strong> </strong><small> </small></div> <div><span>Frontier ledger</span><strong> </strong><small> </small></div></div> <div class=\"strategy-tracks\" aria-label=\"Strategic track allocation\"></div> <details class=\"strategy-details\"><summary><span>Inspect timescales, drift evidence, and custody separation</span><strong> </strong></summary> <div class=\"strategy-detail-grid\"><section><h3>Nested control loops</h3> <ol class=\"strategy-layers\"></ol></section> <section><h3>Drift evidence</h3> <!></section></div> <p class=\"strategy-shadow-note\"><strong>Shadow mode:</strong> these measurements are supplied to Sol synthesis and lane planning, but they do not yet approve, reject, or dispatch work.</p></details></section>");
-function Tx(e, t) {
+var Sx = /* @__PURE__ */ G("<article><div><strong> </strong><span> </span></div> <div class=\"track-meter\"><i></i><b></b></div> <small> </small></article>"), Cx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small><p> </p></div></li>"), wx = /* @__PURE__ */ G("<article><strong> </strong><p> </p><small> </small></article>"), Tx = /* @__PURE__ */ G("<div class=\"drift-list\"></div>"), Ex = /* @__PURE__ */ G("<p class=\"strategy-empty\">No active drift signal crosses the charter’s advisory thresholds.</p>"), Dx = /* @__PURE__ */ G("<section id=\"campaign-strategy\" aria-label=\"Campaign strategy and drift\" aria-live=\"polite\"><div class=\"strategy-heading\"><div><p> </p> <h2> </h2> <span> </span></div> <div class=\"strategy-status\"><strong> </strong><span>shadow mode · advisory</span></div></div> <div class=\"strategy-vitals\"><div><span>Frontier motion</span><strong> </strong><small>recorded advances</small></div> <div><span>Measured spend</span><strong> </strong><small> </small></div> <div><span>Support share</span><strong> </strong><small> </small></div> <div><span>Frontier ledger</span><strong> </strong><small> </small></div></div> <div class=\"strategy-tracks\" aria-label=\"Strategic track allocation\"></div> <details class=\"strategy-details\"><summary><span>Inspect timescales, drift evidence, and custody separation</span><strong> </strong></summary> <div class=\"strategy-detail-grid\"><section><h3>Nested control loops</h3> <ol class=\"strategy-layers\"></ol></section> <section><h3>Drift evidence</h3> <!></section></div> <p class=\"strategy-shadow-note\"><strong>Shadow mode:</strong> these measurements are supplied to Sol synthesis and lane planning, but they do not yet approve, reject, or dispatch work.</p></details></section>");
+function Ox(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(null), o = /* @__PURE__ */ F(null), s = /* @__PURE__ */ F(null);
 	function c(e) {
@@ -14779,7 +14801,7 @@ function Tx(e, t) {
 		I(s, H(o)?.drift?.signals?.[0] || null);
 	}), Br(), vo();
 	var d = ca(), f = R(d), p = (e) => {
-		var t = wx(), n = L(t), r = L(n), i = L(r), a = L(i);
+		var t = Dx(), n = L(t), r = L(n), i = L(r), a = L(i);
 		N(i);
 		var d = z(i, 2), f = L(d, !0);
 		N(d);
@@ -14799,13 +14821,13 @@ function Tx(e, t) {
 		N(k);
 		var j = z(k), ee = L(j);
 		N(j), N(D);
-		var te = z(D, 2), M = z(L(te)), ne = L(M, !0);
-		N(M);
-		var re = z(M), ie = L(re, !0);
-		N(re), N(te), N(v);
+		var M = z(D, 2), te = z(L(M)), ne = L(te, !0);
+		N(te);
+		var re = z(te), ie = L(re, !0);
+		N(re), N(M), N(v);
 		var ae = z(v, 2);
 		Y(ae, 5, () => (H(o), U(() => H(o).tracks)), (e) => e.id, (e, t) => {
-			var n = yx(), r = L(n), i = L(r), a = L(i, !0);
+			var n = Sx(), r = L(n), i = L(r), a = L(i, !0);
 			N(i);
 			var o = z(i), s = L(o);
 			N(o), N(r);
@@ -14826,7 +14848,7 @@ function Tx(e, t) {
 		N(ce), N(se);
 		var ue = z(se, 2), de = L(ue), fe = z(L(de), 2);
 		Y(fe, 7, () => (H(o), U(() => H(o).layers)), (e) => e.id, (e, t, n) => {
-			var r = bx();
+			var r = Cx();
 			let i;
 			var a = L(r), o = L(a, !0);
 			N(a);
@@ -14840,9 +14862,9 @@ function Tx(e, t) {
 			}), K(e, r);
 		}), N(fe), N(de);
 		var pe = z(de, 2), me = z(L(pe), 2), he = (e) => {
-			var t = Sx();
+			var t = Tx();
 			Y(t, 5, () => (H(o), U(() => H(o).drift.signals)), (e) => e.id, (e, t) => {
-				var n = xx(), r = L(n), i = L(r, !0);
+				var n = wx(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a, !0);
 				N(a);
@@ -14852,7 +14874,7 @@ function Tx(e, t) {
 				}), K(e, n);
 			}), N(t), K(e, t);
 		}, ge = (e) => {
-			K(e, Cx());
+			K(e, Ex());
 		};
 		J(me, (e) => {
 			H(o), U(() => H(o).drift.signals.length) ? e(he) : e(ge, -1);
@@ -14873,8 +14895,8 @@ function Tx(e, t) {
 //#endregion
 //#region src/ui/ResourceEconomy.svelte
 Ho();
-var Ex = /* @__PURE__ */ G("<div class=\"svelte-wkay8m\"><span class=\"svelte-wkay8m\"> </span><strong class=\"svelte-wkay8m\"> </strong><small class=\"svelte-wkay8m\"> </small></div>"), Dx = /* @__PURE__ */ G("<article><span class=\"svelte-wkay8m\"> </span><strong class=\"svelte-wkay8m\"> </strong><small class=\"svelte-wkay8m\"> </small></article>"), Ox = /* @__PURE__ */ G("<article><strong class=\"svelte-wkay8m\"> </strong><p class=\"svelte-wkay8m\"> </p></article>"), kx = /* @__PURE__ */ G("<section class=\"resource-signals svelte-wkay8m\"></section>"), Ax = /* @__PURE__ */ G("<li><b class=\"svelte-wkay8m\"> </b> <div class=\"svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span><p class=\"svelte-wkay8m\"> </p><small class=\"svelte-wkay8m\"> </small></div></li>"), jx = /* @__PURE__ */ G("<ol class=\"svelte-wkay8m\"></ol>"), Mx = /* @__PURE__ */ G("<div class=\"resource-empty svelte-wkay8m\"><strong class=\"svelte-wkay8m\">No bounded candidate is currently schedulable</strong><p class=\"svelte-wkay8m\">The ledger remains useful as an epoch budget and cost-quality check.</p></div>"), Nx = /* @__PURE__ */ G("<li class=\"svelte-wkay8m\"><b class=\"svelte-wkay8m\"> </b><div class=\"svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span></div><i class=\"svelte-wkay8m\">NO DISPATCH</i></li>"), Px = /* @__PURE__ */ G("<details class=\"simulation-history svelte-wkay8m\"><summary class=\"svelte-wkay8m\">Immutable simulation history <strong> </strong></summary><ol class=\"svelte-wkay8m\"></ol></details>"), Fx = /* @__PURE__ */ G("<div role=\"status\"> </div>"), Ix = /* @__PURE__ */ G("<details id=\"resource-economy\"><summary class=\"svelte-wkay8m\"><span class=\"svelte-wkay8m\"><small class=\"svelte-wkay8m\">RESOURCE ECONOMY</small><strong class=\"svelte-wkay8m\"> </strong></span> <span class=\"resource-summary svelte-wkay8m\"><b class=\"svelte-wkay8m\"> </b><b class=\"svelte-wkay8m\"> </b><i class=\"svelte-wkay8m\">SHADOW</i></span></summary> <div class=\"resource-body svelte-wkay8m\"><header class=\"resource-intro svelte-wkay8m\"><div><span class=\"svelte-wkay8m\"> </span><h2 class=\"svelte-wkay8m\">Allocate attention before compute</h2><p class=\"svelte-wkay8m\"> </p></div> <div class=\"authority svelte-wkay8m\"><strong class=\"svelte-wkay8m\">ADVISORY ONLY</strong><span class=\"svelte-wkay8m\">Simulation cannot dispatch</span></div></header> <section class=\"budget svelte-wkay8m\" aria-label=\"Epoch token budget\"><div class=\"budget-heading svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span></div> <div class=\"budget-meter svelte-wkay8m\"><i class=\"known svelte-wkay8m\"></i><i class=\"committed svelte-wkay8m\"></i><i class=\"reserve svelte-wkay8m\"></i></div> <div class=\"budget-legend svelte-wkay8m\"><span class=\"known svelte-wkay8m\"> </span><span class=\"committed svelte-wkay8m\"> </span><span class=\"reserve svelte-wkay8m\"> </span><span> </span></div></section> <div class=\"resource-grid svelte-wkay8m\"><section class=\"slot-pools svelte-wkay8m\"><h3 class=\"svelte-wkay8m\">Shared slot pools</h3> <!></section> <section class=\"layer-ledger svelte-wkay8m\"><h3 class=\"svelte-wkay8m\">Measured by layer</h3> <!></section></div> <section class=\"calibration svelte-wkay8m\" aria-label=\"Receipt-bound resource calibration\"><header class=\"svelte-wkay8m\"><div><span class=\"svelte-wkay8m\">RECEIPT-BOUND CALIBRATION</span><h3 class=\"svelte-wkay8m\"> </h3></div><strong class=\"svelte-wkay8m\"> </strong></header> <p class=\"svelte-wkay8m\"> </p> <div class=\"calibration-classes svelte-wkay8m\"></div> <footer class=\"svelte-wkay8m\">Recommendations remain advisory. Calibration cannot change caps, schedule work, or grant scheduler authority.</footer></section> <!> <section class=\"scheduler svelte-wkay8m\"><header class=\"svelte-wkay8m\"><div><span class=\"svelte-wkay8m\">ADVISORY SCHEDULER</span><h3 class=\"svelte-wkay8m\">What fits next—and what does not</h3></div><strong class=\"svelte-wkay8m\"> </strong></header> <!> <footer class=\"svelte-wkay8m\"><p class=\"svelte-wkay8m\">Freezing creates a content-addressed recommendation receipt for later comparison. It cannot call a worker, consume a gate, or alter research direction.</p><button class=\"outline-button svelte-wkay8m\"> </button></footer></section> <!> <!></div></details>");
-function Lx(e, t) {
+var kx = /* @__PURE__ */ G("<div class=\"svelte-wkay8m\"><span class=\"svelte-wkay8m\"> </span><strong class=\"svelte-wkay8m\"> </strong><small class=\"svelte-wkay8m\"> </small></div>"), Ax = /* @__PURE__ */ G("<article><span class=\"svelte-wkay8m\"> </span><strong class=\"svelte-wkay8m\"> </strong><small class=\"svelte-wkay8m\"> </small></article>"), jx = /* @__PURE__ */ G("<article><strong class=\"svelte-wkay8m\"> </strong><p class=\"svelte-wkay8m\"> </p></article>"), Mx = /* @__PURE__ */ G("<section class=\"resource-signals svelte-wkay8m\"></section>"), Nx = /* @__PURE__ */ G("<li><b class=\"svelte-wkay8m\"> </b> <div class=\"svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span><p class=\"svelte-wkay8m\"> </p><small class=\"svelte-wkay8m\"> </small></div></li>"), Px = /* @__PURE__ */ G("<ol class=\"svelte-wkay8m\"></ol>"), Fx = /* @__PURE__ */ G("<div class=\"resource-empty svelte-wkay8m\"><strong class=\"svelte-wkay8m\">No bounded candidate is currently schedulable</strong><p class=\"svelte-wkay8m\">The ledger remains useful as an epoch budget and cost-quality check.</p></div>"), Ix = /* @__PURE__ */ G("<li class=\"svelte-wkay8m\"><b class=\"svelte-wkay8m\"> </b><div class=\"svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span></div><i class=\"svelte-wkay8m\">NO DISPATCH</i></li>"), Lx = /* @__PURE__ */ G("<details class=\"simulation-history svelte-wkay8m\"><summary class=\"svelte-wkay8m\">Immutable simulation history <strong> </strong></summary><ol class=\"svelte-wkay8m\"></ol></details>"), Rx = /* @__PURE__ */ G("<div role=\"status\"> </div>"), zx = /* @__PURE__ */ G("<details id=\"resource-economy\"><summary class=\"svelte-wkay8m\"><span class=\"svelte-wkay8m\"><small class=\"svelte-wkay8m\">RESOURCE ECONOMY</small><strong class=\"svelte-wkay8m\"> </strong></span> <span class=\"resource-summary svelte-wkay8m\"><b class=\"svelte-wkay8m\"> </b><b class=\"svelte-wkay8m\"> </b><i class=\"svelte-wkay8m\">SHADOW</i></span></summary> <div class=\"resource-body svelte-wkay8m\"><header class=\"resource-intro svelte-wkay8m\"><div><span class=\"svelte-wkay8m\"> </span><h2 class=\"svelte-wkay8m\">Allocate attention before compute</h2><p class=\"svelte-wkay8m\"> </p></div> <div class=\"authority svelte-wkay8m\"><strong class=\"svelte-wkay8m\">ADVISORY ONLY</strong><span class=\"svelte-wkay8m\">Simulation cannot dispatch</span></div></header> <section class=\"budget svelte-wkay8m\" aria-label=\"Epoch token budget\"><div class=\"budget-heading svelte-wkay8m\"><strong class=\"svelte-wkay8m\"> </strong><span class=\"svelte-wkay8m\"> </span></div> <div class=\"budget-meter svelte-wkay8m\"><i class=\"known svelte-wkay8m\"></i><i class=\"committed svelte-wkay8m\"></i><i class=\"reserve svelte-wkay8m\"></i></div> <div class=\"budget-legend svelte-wkay8m\"><span class=\"known svelte-wkay8m\"> </span><span class=\"committed svelte-wkay8m\"> </span><span class=\"reserve svelte-wkay8m\"> </span><span> </span></div></section> <div class=\"resource-grid svelte-wkay8m\"><section class=\"slot-pools svelte-wkay8m\"><h3 class=\"svelte-wkay8m\">Shared slot pools</h3> <!></section> <section class=\"layer-ledger svelte-wkay8m\"><h3 class=\"svelte-wkay8m\">Measured by layer</h3> <!></section></div> <section class=\"calibration svelte-wkay8m\" aria-label=\"Receipt-bound resource calibration\"><header class=\"svelte-wkay8m\"><div><span class=\"svelte-wkay8m\">RECEIPT-BOUND CALIBRATION</span><h3 class=\"svelte-wkay8m\"> </h3></div><strong class=\"svelte-wkay8m\"> </strong></header> <p class=\"svelte-wkay8m\"> </p> <div class=\"calibration-classes svelte-wkay8m\"></div> <footer class=\"svelte-wkay8m\">Recommendations remain advisory. Calibration cannot change caps, schedule work, or grant scheduler authority.</footer></section> <!> <section class=\"scheduler svelte-wkay8m\"><header class=\"svelte-wkay8m\"><div><span class=\"svelte-wkay8m\">ADVISORY SCHEDULER</span><h3 class=\"svelte-wkay8m\">What fits next—and what does not</h3></div><strong class=\"svelte-wkay8m\"> </strong></header> <!> <footer class=\"svelte-wkay8m\"><p class=\"svelte-wkay8m\">Freezing creates a content-addressed recommendation receipt for later comparison. It cannot call a worker, consume a gate, or alter research direction.</p><button class=\"outline-button svelte-wkay8m\"> </button></footer></section> <!> <!></div></details>");
+function Bx(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(null), f = /* @__PURE__ */ F(null), p = /* @__PURE__ */ F(!1), m = /* @__PURE__ */ F(!1), h = /* @__PURE__ */ F(""), g = /* @__PURE__ */ F("pending");
 	function _(e) {
@@ -14918,7 +14940,7 @@ function Lx(e, t) {
 		I(u, Math.min(100 - H(c) - H(l), Number(H(a).reserveTokens || 0) / H(s) * 100));
 	}), Br(), vo();
 	var b = ca(), x = R(b), S = (e) => {
-		var t = Ix();
+		var t = zx();
 		let n;
 		var r = L(t), i = L(r), d = z(L(i)), b = L(d);
 		N(d), N(i);
@@ -14930,11 +14952,11 @@ function Lx(e, t) {
 		N(k);
 		var j = z(k, 2), ee = L(j, !0);
 		N(j), N(O), Ke(2), N(D);
-		var te = z(D, 2), M = L(te), ne = L(M), re = L(ne);
+		var M = z(D, 2), te = L(M), ne = L(te), re = L(ne);
 		N(ne);
 		var ie = z(ne), ae = L(ie);
-		N(ie), N(M);
-		var oe = z(M, 2), se = L(oe), ce = z(se), le = z(ce);
+		N(ie), N(te);
+		var oe = z(te, 2), se = L(oe), ce = z(se), le = z(ce);
 		N(oe);
 		var ue = z(oe, 2), de = L(ue), fe = L(de);
 		N(de);
@@ -14943,14 +14965,14 @@ function Lx(e, t) {
 		var he = z(pe), ge = L(he);
 		N(he);
 		var _e = z(he), ve = L(_e);
-		N(_e), N(ue), N(te);
-		var ye = z(te, 2), be = L(ye);
+		N(_e), N(ue), N(M);
+		var ye = z(M, 2), be = L(ye);
 		Y(z(L(be), 2), 0, () => [
 			"strategy",
 			"research",
 			"custody"
 		], _a, (e, t) => {
-			var n = Ex(), r = L(n), i = L(r, !0);
+			var n = kx(), r = L(n), i = L(r, !0);
 			N(r);
 			var a = z(r), o = L(a);
 			N(a);
@@ -14961,7 +14983,7 @@ function Lx(e, t) {
 		}), N(be);
 		var xe = z(be, 2);
 		Y(z(L(xe), 2), 1, () => (H(f), U(() => H(f).byLayer || [])), (e) => e.id, (e, t) => {
-			var n = Ex(), r = L(n), i = L(r, !0);
+			var n = kx(), r = L(n), i = L(r, !0);
 			N(r);
 			var a = z(r), o = L(a, !0);
 			N(a);
@@ -14978,7 +15000,7 @@ function Lx(e, t) {
 		N(ke);
 		var je = z(ke, 2);
 		Y(je, 5, () => (H(o), U(() => H(o).classes || [])), (e) => e.id, (e, t) => {
-			var n = Dx();
+			var n = Ax();
 			let r;
 			var i = L(n), a = L(i, !0);
 			N(i);
@@ -14990,9 +15012,9 @@ function Lx(e, t) {
 			}, [() => (H(t), U(() => H(t).samples ? `p90 ${_(H(t).tokens?.p90)}` : "awaiting receipts"))]), K(e, n);
 		}), N(je), Ke(2), N(Se);
 		var Me = z(Se, 2), Ne = (e) => {
-			var t = kx();
+			var t = Mx();
 			Y(t, 5, () => (H(f), U(() => H(f).signals)), (e) => e.id, (e, t) => {
-				var n = Ox(), r = L(n), i = L(r, !0);
+				var n = jx(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a, !0);
 				N(a), N(n), V(() => {
@@ -15006,9 +15028,9 @@ function Lx(e, t) {
 		var Pe = z(Me, 2), Fe = L(Pe), Ie = z(L(Fe)), Le = L(Ie);
 		N(Ie), N(Fe);
 		var Re = z(Fe, 2), ze = (e) => {
-			var t = jx();
+			var t = Px();
 			Y(t, 5, () => (H(f), U(() => H(f).candidates)), (e) => e.id, (e, t) => {
-				var n = Ax(), r = L(n), i = L(r, !0);
+				var n = Nx(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r, 2), o = L(a), s = L(o, !0);
 				N(o);
@@ -15022,7 +15044,7 @@ function Lx(e, t) {
 				}, [() => (H(t), U(() => `decision-${H(t).decision.toLowerCase()}`)), () => (H(t), U(() => _(H(t).tokenCap)))]), K(e, n);
 			}), N(t), K(e, t);
 		}, Be = (e) => {
-			K(e, Mx());
+			K(e, Fx());
 		};
 		J(Re, (e) => {
 			H(f), U(() => H(f).candidates?.length) ? e(ze) : e(Be, -1);
@@ -15030,11 +15052,11 @@ function Lx(e, t) {
 		var Ve = z(Re, 2), He = z(L(Ve)), Ue = L(He, !0);
 		N(He), N(Ve), N(Pe);
 		var We = z(Pe, 2), Ge = (e) => {
-			var t = Px(), n = L(t), r = z(L(n)), i = L(r);
+			var t = Lx(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(f), U(() => H(f).simulations)), _a, (e, t) => {
-				var n = Nx(), r = L(n), i = L(r);
+				var n = Ix(), r = L(n), i = L(r);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -15048,7 +15070,7 @@ function Lx(e, t) {
 			H(f), U(() => H(f).simulations?.length) && e(Ge);
 		});
 		var qe = z(We, 2), Je = (e) => {
-			var t = Fx(), n = L(t, !0);
+			var t = Rx(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `resource-feedback ${H(g) ?? ""}`, "svelte-wkay8m"), q(n, H(h));
 			}), K(e, t);
@@ -15077,8 +15099,8 @@ function Lx(e, t) {
 //#endregion
 //#region src/ui/StrategyWorkspace.svelte
 Zi(["click"]), Ho();
-var Rx = /* @__PURE__ */ G("<label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Exact thread or turn ID</span><input maxlength=\"500\" placeholder=\"Attached coordinator reference\" class=\"svelte-1ull9g0\"/></label>"), zx = /* @__PURE__ */ G("<div class=\"strategy-review-request\"><div><span>CURRENT EPOCH</span> <strong> </strong> <p> </p></div> <label><span>Review focus</span><textarea rows=\"3\" maxlength=\"2000\"></textarea></label> <div class=\"strategy-review-provenance svelte-1ull9g0\"><label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Review kind</span><select class=\"svelte-1ull9g0\"><option>Epoch audit</option><option>Independent idea search</option></select></label> <label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Request source</span><select class=\"svelte-1ull9g0\"><option>Operator</option><option>Coordinator request</option></select></label> <!></div> <button class=\"primary-button\"> </button></div>"), Bx = /* @__PURE__ */ G("<div class=\"strategy-review-running\"><span class=\"strategy-pulse\"></span> <div><strong> </strong><p> </p><small> </small></div></div>"), Vx = /* @__PURE__ */ G("<div><span> </span><strong> </strong><small> </small></div>"), Hx = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"> </li>"), Ux = /* @__PURE__ */ G("<ul></ul>"), Wx = /* @__PURE__ */ G("<p>None proposed.</p>"), Gx = /* @__PURE__ */ G("<section><strong> </strong><!></section>"), Kx = /* @__PURE__ */ G("<li><strong> </strong><span> </span><p> </p></li>"), qx = /* @__PURE__ */ G("<details class=\"custody-candidates\"><summary> </summary><ul></ul></details>"), Jx = /* @__PURE__ */ G("<label><input type=\"checkbox\"/><span>I approve this exact advisory charter as the next epoch.</span></label> <div><button class=\"outline-button\">Keep current charter</button><button class=\"primary-button\"> </button></div>", 1), Yx = /* @__PURE__ */ G("<button class=\"outline-button\">Close proposal and keep current charter</button>"), Xx = /* @__PURE__ */ G("<div class=\"strategy-proposal\"><header><div><span> </span><h3> </h3></div> <strong> </strong></header> <div class=\"strategy-proposal-objective\"><span>PROPOSED EPOCH</span> <strong> </strong> <p> </p></div> <div class=\"strategy-proposal-weights\" aria-label=\"Proposed track weights\"></div> <div class=\"strategy-action-diff\"></div> <!> <div class=\"strategy-human-gate\"><div><span>HUMAN ACTIVATION GATE</span><strong> </strong><small> </small></div> <!></div></div>"), Zx = /* @__PURE__ */ G("<div role=\"status\"> </div>"), Qx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), $x = /* @__PURE__ */ G("<details class=\"strategy-history\"><summary>Charter history <strong> </strong></summary><ol></ol></details>"), eS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\"> </span><div><strong> </strong><small> </small></div></li>"), tS = /* @__PURE__ */ G("<details class=\"strategy-history strategy-review-history svelte-1ull9g0\"><summary>Independent review history <strong> </strong></summary><ol></ol></details>"), nS = /* @__PURE__ */ G("<details id=\"strategy-workspace\" class=\"strategy-workspace\"><summary><span><small>STRATEGY WORKSPACE</small><strong> </strong></span> <span class=\"strategy-workspace-state\"> </span></summary> <div class=\"strategy-workspace-body\"><div class=\"strategy-workspace-boundary\"><strong>Independent governance lane</strong> <p>Epoch and idea-search reviews run in one dedicated read-only Sol lane. Each request binds its strategy slot and token cap, and cannot interrupt the regular coordinator, change campaign phase, dispatch workers, or activate its own proposal.</p></div> <!> <!> <!> <!></div></details>");
-function rS(e, t) {
+var Vx = /* @__PURE__ */ G("<label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Exact thread or turn ID</span><input maxlength=\"500\" placeholder=\"Attached coordinator reference\" class=\"svelte-1ull9g0\"/></label>"), Hx = /* @__PURE__ */ G("<div class=\"strategy-review-request\"><div><span>CURRENT EPOCH</span> <strong> </strong> <p> </p></div> <label><span>Review focus</span><textarea rows=\"3\" maxlength=\"2000\"></textarea></label> <div class=\"strategy-review-provenance svelte-1ull9g0\"><label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Review kind</span><select class=\"svelte-1ull9g0\"><option>Epoch audit</option><option>Independent idea search</option></select></label> <label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Request source</span><select class=\"svelte-1ull9g0\"><option>Operator</option><option>Coordinator request</option></select></label> <!></div> <button class=\"primary-button\"> </button></div>"), Ux = /* @__PURE__ */ G("<div class=\"strategy-review-running\"><span class=\"strategy-pulse\"></span> <div><strong> </strong><p> </p><small> </small></div></div>"), Wx = /* @__PURE__ */ G("<div><span> </span><strong> </strong><small> </small></div>"), Gx = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"> </li>"), Kx = /* @__PURE__ */ G("<ul></ul>"), qx = /* @__PURE__ */ G("<p>None proposed.</p>"), Jx = /* @__PURE__ */ G("<section><strong> </strong><!></section>"), Yx = /* @__PURE__ */ G("<li><strong> </strong><span> </span><p> </p></li>"), Xx = /* @__PURE__ */ G("<details class=\"custody-candidates\"><summary> </summary><ul></ul></details>"), Zx = /* @__PURE__ */ G("<label><input type=\"checkbox\"/><span>I approve this exact advisory charter as the next epoch.</span></label> <div><button class=\"outline-button\">Keep current charter</button><button class=\"primary-button\"> </button></div>", 1), Qx = /* @__PURE__ */ G("<button class=\"outline-button\">Close proposal and keep current charter</button>"), $x = /* @__PURE__ */ G("<div class=\"strategy-proposal\"><header><div><span> </span><h3> </h3></div> <strong> </strong></header> <div class=\"strategy-proposal-objective\"><span>PROPOSED EPOCH</span> <strong> </strong> <p> </p></div> <div class=\"strategy-proposal-weights\" aria-label=\"Proposed track weights\"></div> <div class=\"strategy-action-diff\"></div> <!> <div class=\"strategy-human-gate\"><div><span>HUMAN ACTIVATION GATE</span><strong> </strong><small> </small></div> <!></div></div>"), eS = /* @__PURE__ */ G("<div role=\"status\"> </div>"), tS = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), nS = /* @__PURE__ */ G("<details class=\"strategy-history\"><summary>Charter history <strong> </strong></summary><ol></ol></details>"), rS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\"> </span><div><strong> </strong><small> </small></div></li>"), iS = /* @__PURE__ */ G("<details class=\"strategy-history strategy-review-history svelte-1ull9g0\"><summary>Independent review history <strong> </strong></summary><ol></ol></details>"), aS = /* @__PURE__ */ G("<details id=\"strategy-workspace\" class=\"strategy-workspace\"><summary><span><small>STRATEGY WORKSPACE</small><strong> </strong></span> <span class=\"strategy-workspace-state\"> </span></summary> <div class=\"strategy-workspace-body\"><div class=\"strategy-workspace-boundary\"><strong>Independent governance lane</strong> <p>Epoch and idea-search reviews run in one dedicated read-only Sol lane. Each request binds its strategy slot and token cap, and cannot interrupt the regular coordinator, change campaign phase, dispatch workers, or activate its own proposal.</p></div> <!> <!> <!> <!></div></details>");
+function oS(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(null), u = /* @__PURE__ */ F(null), d = /* @__PURE__ */ F(null), f = /* @__PURE__ */ F(""), p = /* @__PURE__ */ F(!1), m = /* @__PURE__ */ F("epoch"), h = /* @__PURE__ */ F("operator"), g = /* @__PURE__ */ F(""), _ = /* @__PURE__ */ F("Review whether the current epoch is producing durable frontier motion and whether its portfolio should be rebalanced."), v = /* @__PURE__ */ F(""), y = /* @__PURE__ */ F("pending"), b = (e) => `${Math.round(Number(e || 0) * 100)}%`;
 	async function x(e, t = "", n = {}) {
@@ -15131,12 +15153,12 @@ function rS(e, t) {
 		I(c, !!(H(d) && ["drafting", "drafted"].includes(H(d).status)));
 	}), Br(), vo();
 	var T = ca(), E = R(T), D = (e) => {
-		var t = nS(), n = L(t), r = L(n), i = z(L(r)), x = L(i);
+		var t = aS(), n = L(t), r = L(n), i = z(L(r)), x = L(i);
 		N(i), N(r);
 		var T = z(r, 2), E = L(T, !0);
 		N(T), N(n);
 		var D = z(n, 2), O = z(L(D), 2), k = (e) => {
-			var t = zx(), n = L(t), r = z(L(n), 2), i = L(r, !0);
+			var t = Hx(), n = L(t), r = z(L(n), 2), i = L(r, !0);
 			N(r);
 			var a = z(r, 2), o = L(a, !0);
 			N(a), N(n);
@@ -15151,7 +15173,7 @@ function rS(e, t) {
 			var T = z(w);
 			T.value = T.__value = "coordinator-request", N(C), N(x);
 			var E = z(x, 2), D = (e) => {
-				var t = Rx(), n = z(L(t));
+				var t = Vx(), n = z(L(t));
 				$a(n), N(t), so(n, () => H(g), (e) => I(g, e)), K(e, t);
 			};
 			J(E, (e) => {
@@ -15162,7 +15184,7 @@ function rS(e, t) {
 				q(i, (H(l), U(() => H(l).strategy.epoch.label))), q(o, (H(l), U(() => H(l).strategy.charter.epoch?.objective || H(l).strategy.charter.thesis))), O.disabled = e, q(k, H(f) === "strategy.review.request" ? "Starting independent review…" : "Ask independent Sol strategist");
 			}, [() => (H(f), H(u), H(_), H(h), H(g), U(() => !!H(f) || !H(u).reviewAvailable || !H(_).trim() || H(h) === "coordinator-request" && !H(g).trim()))]), so(c, () => H(_), (e) => I(_, e)), Ha(v, () => H(m), (e) => I(m, e)), Ha(C, () => H(h), (e) => I(h, e)), W("click", O, S), K(e, t);
 		}, A = (e) => {
-			var t = Bx(), n = z(L(t), 2), r = L(n), i = L(r, !0);
+			var t = Ux(), n = z(L(t), 2), r = L(n), i = L(r, !0);
 			N(r);
 			var a = z(r), o = L(a, !0);
 			N(a);
@@ -15171,7 +15193,7 @@ function rS(e, t) {
 				q(i, (H(d), U(() => H(d).reviewKind === "idea-search" ? "Searching for independent directions" : "Reviewing the epoch ledger"))), q(o, (H(d), U(() => H(d).triggerReason))), q(c, `${H(d), U(() => H(d).requestSource) ?? ""} · cap ${e ?? ""} · frozen bundle ${H(d), U(() => H(d).bundleDigest || "being prepared") ?? ""}`);
 			}, [() => (H(d), U(() => Number(H(d).resourceCap || 0).toLocaleString()))]), K(e, t);
 		}, j = (e) => {
-			var t = Xx(), n = L(t), r = L(n), i = L(r), c = L(i);
+			var t = $x(), n = L(t), r = L(n), i = L(r), c = L(i);
 			N(i);
 			var m = z(i), h = L(m, !0);
 			N(m), N(r);
@@ -15183,7 +15205,7 @@ function rS(e, t) {
 			N(S), N(v);
 			var E = z(v, 2);
 			Y(E, 5, () => H(s), (e) => e.trackId, (e, t) => {
-				var n = Vx(), r = L(n), i = L(r, !0);
+				var n = Wx(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a, !0);
 				N(a);
@@ -15198,16 +15220,16 @@ function rS(e, t) {
 				["CONTINUE", H(a).portfolioActions?.continue],
 				["START", H(a).portfolioActions?.start]
 			])), _a, (e, t) => {
-				var n = Gx(), r = L(n), i = L(r, !0);
+				var n = Jx(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = (e) => {
-					var n = Ux();
+					var n = Kx();
 					Y(n, 5, () => (H(t), U(() => H(t)[1])), _a, (e, t) => {
-						var n = Hx(), r = L(n, !0);
+						var n = Gx(), r = L(n, !0);
 						N(n), V(() => q(r, H(t))), K(e, n);
 					}), N(n), K(e, n);
 				}, s = /* @__PURE__ */ P(() => (H(t), U(() => Array.isArray(H(t)[1]) && H(t)[1].length))), c = (e) => {
-					K(e, Wx());
+					K(e, qx());
 				};
 				J(a, (e) => {
 					H(s) ? e(o) : e(c, -1);
@@ -15216,11 +15238,11 @@ function rS(e, t) {
 				}, [() => (H(t), U(() => `strategy-action-${String(H(t)[0]).toLowerCase()}`))]), K(e, n);
 			}), N(D);
 			var O = z(D, 2), k = (e) => {
-				var t = qx(), n = L(t), r = L(n);
+				var t = Xx(), n = L(t), r = L(n);
 				N(n);
 				var i = z(n);
 				Y(i, 5, () => (H(o), U(() => H(o).custodyCandidates)), _a, (e, t) => {
-					var n = Kx(), r = L(n), i = L(r, !0);
+					var n = Yx(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a);
 					N(a);
@@ -15233,45 +15255,45 @@ function rS(e, t) {
 			J(O, (e) => {
 				H(o), U(() => H(o).custodyCandidates?.length) && e(k);
 			});
-			var A = z(O, 2), j = L(A), ee = z(L(j)), te = L(ee, !0);
+			var A = z(O, 2), j = L(A), ee = z(L(j)), M = L(ee, !0);
 			N(ee);
-			var M = z(ee), ne = L(M);
-			N(M), N(j);
+			var te = z(ee), ne = L(te);
+			N(te), N(j);
 			var re = z(j, 2), ie = (e) => {
-				var t = Jx(), n = R(t), r = L(n);
+				var t = Zx(), n = R(t), r = L(n);
 				$a(r), Ke(), N(n);
 				var i = z(n, 2), a = L(i), o = z(a), s = L(o, !0);
 				N(o), N(i), V((e, t) => {
 					a.disabled = e, o.disabled = t, q(s, H(f) === "strategy.proposal.activate" ? "Activating revision…" : "Activate new epoch");
 				}, [() => (H(f), U(() => !!H(f))), () => (H(p), H(f), U(() => !H(p) || !!H(f)))]), co(r, () => H(p), (e) => I(p, e)), W("click", a, w), W("click", o, C), K(e, t);
 			}, ae = (e) => {
-				var t = Yx();
+				var t = Qx();
 				V((e) => t.disabled = e, [() => (H(f), U(() => !!H(f)))]), W("click", t, w), K(e, t);
 			};
 			J(re, (e) => {
 				H(u), U(() => H(u).activationAvailable) ? e(ie) : e(ae, -1);
 			}), N(A), N(t), V((e, t) => {
-				q(c, `${e ?? ""} · ${H(a), U(() => H(a).assessment?.epochStatus || "COMPLETE") ?? ""}`), q(h, (H(a), U(() => H(a).summary || "Independent strategy proposal"))), q(_, t), q(x, (H(o), U(() => H(o).epochLabel))), q(T, (H(o), U(() => H(o).epochObjective))), q(te, (H(a), U(() => H(a).operatorDecision))), q(ne, `Activation records revision ${H(l), U(() => H(l).strategy.charter.revision + 1) ?? ""} and resets measurement boundaries. Campaign phase and dispatch state remain unchanged.`);
+				q(c, `${e ?? ""} · ${H(a), U(() => H(a).assessment?.epochStatus || "COMPLETE") ?? ""}`), q(h, (H(a), U(() => H(a).summary || "Independent strategy proposal"))), q(_, t), q(x, (H(o), U(() => H(o).epochLabel))), q(T, (H(o), U(() => H(o).epochObjective))), q(M, (H(a), U(() => H(a).operatorDecision))), q(ne, `Activation records revision ${H(l), U(() => H(l).strategy.charter.revision + 1) ?? ""} and resets measurement boundaries. Campaign phase and dispatch state remain unchanged.`);
 			}, [() => (H(d), U(() => H(d).reviewKind?.replaceAll("-", " ") || "REVIEW")), () => (H(a), U(() => H(a).recommendation?.replaceAll("_", " ")))]), K(e, t);
 		};
 		J(O, (e) => {
 			H(d) ? (H(d), U(() => H(d).status === "drafting" || H(d).status === "queued") ? e(A, 1) : (H(d), U(() => H(d).status === "drafted") && e(j, 2))) : e(k);
 		});
-		var ee = z(O, 2), te = (e) => {
-			var t = Zx(), n = L(t, !0);
+		var ee = z(O, 2), M = (e) => {
+			var t = eS(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `strategy-workspace-feedback ${H(y) ?? ""}`, "svelte-1ull9g0"), q(n, H(v));
 			}), K(e, t);
 		};
 		J(ee, (e) => {
-			H(v) && e(te);
+			H(v) && e(M);
 		});
-		var M = z(ee, 2), ne = (e) => {
-			var t = $x(), n = L(t), r = z(L(n)), i = L(r);
+		var te = z(ee, 2), ne = (e) => {
+			var t = nS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(u), U(() => H(u).charterHistory)), _a, (e, t) => {
-				var n = Qx(), r = L(n), i = L(r);
+				var n = tS(), r = L(n), i = L(r);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -15281,15 +15303,15 @@ function rS(e, t) {
 				}, [() => (H(t), U(() => new Date(H(t).createdAt).toLocaleString()))]), K(e, n);
 			}), N(a), N(t), V(() => q(i, `${H(u), U(() => H(u).charterHistory.length) ?? ""} revision${H(u), U(() => H(u).charterHistory.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(M, (e) => {
+		J(te, (e) => {
 			H(u), U(() => H(u).charterHistory?.length) && e(ne);
 		});
-		var re = z(M, 2), ie = (e) => {
-			var t = tS(), n = L(t), r = z(L(n)), i = L(r);
+		var re = z(te, 2), ie = (e) => {
+			var t = iS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(u), U(() => H(u).reviews)), _a, (e, t) => {
-				var n = eS(), r = L(n), i = L(r, !0);
+				var n = rS(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -15316,8 +15338,8 @@ function rS(e, t) {
 //#endregion
 //#region src/ui/CustodyService.svelte
 Zi(["click"]), Ho();
-var iS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"> </li>"), aS = /* @__PURE__ */ G("<button class=\"primary-button compact svelte-pcnttw\"> </button>"), oS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\"> </button>"), sS = /* @__PURE__ */ G("<code class=\"svelte-pcnttw\"> </code>"), cS = /* @__PURE__ */ G("<b class=\"svelte-pcnttw\"> </b><p class=\"svelte-pcnttw\"> </p>", 1), lS = /* @__PURE__ */ G("<div class=\"custody-receipt-review svelte-pcnttw\"><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">MEASURED RESULT</span><strong class=\"svelte-pcnttw\"> </strong></div><b class=\"svelte-pcnttw\"> </b></header> <div class=\"custody-receipt-metrics svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span></div> <!> <details class=\"svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect checks, worktree, and immutable bindings</summary><div class=\"svelte-pcnttw\"><b class=\"svelte-pcnttw\">Producer</b><code class=\"svelte-pcnttw\"> </code><b class=\"svelte-pcnttw\">Worktree</b><code class=\"svelte-pcnttw\"> </code><!></div></details> <footer class=\"svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\">Reject result</button><button class=\"primary-button svelte-pcnttw\"> </button></footer> <small class=\"svelte-pcnttw\">Landing rechecks the exact receipt and clean checkout, then cherry-picks only the frozen producer commit. It never pushes or promotes a claim.</small></div>"), uS = /* @__PURE__ */ G("<div><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <strong class=\"svelte-pcnttw\"> </strong> <small class=\"svelte-pcnttw\"> </small></div> <!></div> <!>", 1), dS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\">Park</button> <button class=\"primary-button svelte-pcnttw\"> </button>", 1), fS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), pS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Research continues independently while this isolated steward works.</span>"), mS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The measured receipt above has no landing authority until you accept it.</span>"), hS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The steward stopped without landing. Inspect the receipt before parking or reshaping the contract.</span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), gS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Outside the active service queue.</span><button class=\"outline-button compact svelte-pcnttw\">Restore to inbox</button>", 1), _S = /* @__PURE__ */ G("<article><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><strong class=\"svelte-pcnttw\"> </strong></div> <b> </b></header> <p class=\"svelte-pcnttw\"> </p> <div class=\"custody-item-facts svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span></div> <details class=\"custody-contract svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect acceptance contract <strong class=\"svelte-pcnttw\"> </strong></summary> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ACCEPT WHEN</span><ul class=\"svelte-pcnttw\"></ul></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ALLOWED PATHS</span><code class=\"svelte-pcnttw\"> </code></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HARD STOP</span><p class=\"svelte-pcnttw\"> </p></div></details> <!> <footer class=\"svelte-pcnttw\"><!></footer></article>"), vS = /* @__PURE__ */ G("<div class=\"custody-inbox svelte-pcnttw\"></div>"), yS = /* @__PURE__ */ G("<div class=\"custody-empty svelte-pcnttw\"><strong class=\"svelte-pcnttw\">No custody contracts are queued</strong><p class=\"svelte-pcnttw\">Future strategy reviews can stage bounded candidates here. Until then, the service has no authority and consumes no resources.</p></div>"), bS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><div class=\"svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><small class=\"svelte-pcnttw\"> </small></div></li>"), xS = /* @__PURE__ */ G("<details class=\"custody-protocol-history svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Custody lease and receipt history <strong> </strong></summary><ol class=\"svelte-pcnttw\"></ol></details>"), SS = /* @__PURE__ */ G("<p class=\"svelte-pcnttw\"> </p>"), CS = /* @__PURE__ */ G("<div class=\"custody-violations svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><!></div>"), wS = /* @__PURE__ */ G("<div role=\"status\"> </div>"), TS = /* @__PURE__ */ G("<details id=\"custody-service\" class=\"custody-service svelte-pcnttw\"><summary class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"><small class=\"svelte-pcnttw\">CUSTODY SERVICE</small><strong class=\"svelte-pcnttw\"> </strong></span> <span class=\"custody-summary-counts svelte-pcnttw\"><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><i class=\"svelte-pcnttw\">SEPARATE EXECUTOR</i></span></summary> <div class=\"custody-body svelte-pcnttw\"><div class=\"custody-boundary svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ADAPTER</span><strong class=\"svelte-pcnttw\">Terra local steward</strong><small class=\"svelte-pcnttw\"> </small></div> <p class=\"svelte-pcnttw\">Custody can repair, verify, archive, and preserve provenance in its own slot pool. It cannot choose research direction, leave its allowed paths, spawn children, promote claims, merge, or push.</p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HANDOFF RULE</span><strong class=\"svelte-pcnttw\">Two exact human gates</strong><small class=\"svelte-pcnttw\">confirm lease · review receipt</small></div></div> <!> <!> <!> <!></div></details>");
-function ES(e, t) {
+var sS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"> </li>"), cS = /* @__PURE__ */ G("<button class=\"primary-button compact svelte-pcnttw\"> </button>"), lS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\"> </button>"), uS = /* @__PURE__ */ G("<code class=\"svelte-pcnttw\"> </code>"), dS = /* @__PURE__ */ G("<b class=\"svelte-pcnttw\"> </b><p class=\"svelte-pcnttw\"> </p>", 1), fS = /* @__PURE__ */ G("<div class=\"custody-receipt-review svelte-pcnttw\"><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">MEASURED RESULT</span><strong class=\"svelte-pcnttw\"> </strong></div><b class=\"svelte-pcnttw\"> </b></header> <div class=\"custody-receipt-metrics svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span></div> <!> <details class=\"svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect checks, worktree, and immutable bindings</summary><div class=\"svelte-pcnttw\"><b class=\"svelte-pcnttw\">Producer</b><code class=\"svelte-pcnttw\"> </code><b class=\"svelte-pcnttw\">Worktree</b><code class=\"svelte-pcnttw\"> </code><!></div></details> <footer class=\"svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\">Reject result</button><button class=\"primary-button svelte-pcnttw\"> </button></footer> <small class=\"svelte-pcnttw\">Landing rechecks the exact receipt and clean checkout, then cherry-picks only the frozen producer commit. It never pushes or promotes a claim.</small></div>"), pS = /* @__PURE__ */ G("<div><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <strong class=\"svelte-pcnttw\"> </strong> <small class=\"svelte-pcnttw\"> </small></div> <!></div> <!>", 1), mS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\">Park</button> <button class=\"primary-button svelte-pcnttw\"> </button>", 1), hS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), gS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Research continues independently while this isolated steward works.</span>"), _S = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The measured receipt above has no landing authority until you accept it.</span>"), vS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The steward stopped without landing. Inspect the receipt before parking or reshaping the contract.</span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), yS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Outside the active service queue.</span><button class=\"outline-button compact svelte-pcnttw\">Restore to inbox</button>", 1), bS = /* @__PURE__ */ G("<article><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><strong class=\"svelte-pcnttw\"> </strong></div> <b> </b></header> <p class=\"svelte-pcnttw\"> </p> <div class=\"custody-item-facts svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span></div> <details class=\"custody-contract svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect acceptance contract <strong class=\"svelte-pcnttw\"> </strong></summary> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ACCEPT WHEN</span><ul class=\"svelte-pcnttw\"></ul></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ALLOWED PATHS</span><code class=\"svelte-pcnttw\"> </code></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HARD STOP</span><p class=\"svelte-pcnttw\"> </p></div></details> <!> <footer class=\"svelte-pcnttw\"><!></footer></article>"), xS = /* @__PURE__ */ G("<div class=\"custody-inbox svelte-pcnttw\"></div>"), SS = /* @__PURE__ */ G("<div class=\"custody-empty svelte-pcnttw\"><strong class=\"svelte-pcnttw\">No custody contracts are queued</strong><p class=\"svelte-pcnttw\">Future strategy reviews can stage bounded candidates here. Until then, the service has no authority and consumes no resources.</p></div>"), CS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><div class=\"svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><small class=\"svelte-pcnttw\"> </small></div></li>"), wS = /* @__PURE__ */ G("<details class=\"custody-protocol-history svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Custody lease and receipt history <strong> </strong></summary><ol class=\"svelte-pcnttw\"></ol></details>"), TS = /* @__PURE__ */ G("<p class=\"svelte-pcnttw\"> </p>"), ES = /* @__PURE__ */ G("<div class=\"custody-violations svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><!></div>"), DS = /* @__PURE__ */ G("<div role=\"status\"> </div>"), OS = /* @__PURE__ */ G("<details id=\"custody-service\" class=\"custody-service svelte-pcnttw\"><summary class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"><small class=\"svelte-pcnttw\">CUSTODY SERVICE</small><strong class=\"svelte-pcnttw\"> </strong></span> <span class=\"custody-summary-counts svelte-pcnttw\"><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><i class=\"svelte-pcnttw\">SEPARATE EXECUTOR</i></span></summary> <div class=\"custody-body svelte-pcnttw\"><div class=\"custody-boundary svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ADAPTER</span><strong class=\"svelte-pcnttw\">Terra local steward</strong><small class=\"svelte-pcnttw\"> </small></div> <p class=\"svelte-pcnttw\">Custody can repair, verify, archive, and preserve provenance in its own slot pool. It cannot choose research direction, leave its allowed paths, spawn children, promote claims, merge, or push.</p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HANDOFF RULE</span><strong class=\"svelte-pcnttw\">Two exact human gates</strong><small class=\"svelte-pcnttw\">confirm lease · review receipt</small></div></div> <!> <!> <!> <!></div></details>");
+function kS(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(null), s = /* @__PURE__ */ F(null), c = /* @__PURE__ */ F(""), l = /* @__PURE__ */ F(""), u = /* @__PURE__ */ F("pending");
 	async function d(e, t) {
@@ -15351,7 +15373,7 @@ function ES(e, t) {
 		I(a, H(s)?.items?.filter((e) => !["complete", "failed"].includes(e.status)) || []);
 	}), Br(), vo();
 	var f = ca(), p = R(f), m = (e) => {
-		var t = TS(), n = L(t), r = L(n), i = z(L(r)), o = L(i, !0);
+		var t = OS(), n = L(t), r = L(n), i = z(L(r)), o = L(i, !0);
 		N(i), N(r);
 		var f = z(r, 2), p = L(f), m = L(p);
 		N(p);
@@ -15360,9 +15382,9 @@ function ES(e, t) {
 		var _ = z(n, 2), v = L(_), y = L(v), b = z(L(y), 2), x = L(b, !0);
 		N(b), N(y), Ke(4), N(v);
 		var S = z(v, 2), C = (e) => {
-			var t = vS();
+			var t = xS();
 			Y(t, 5, () => H(a), (e) => e.id, (e, t) => {
-				var n = _S();
+				var n = bS();
 				let r;
 				var i = L(n), a = L(i), o = L(a), l = L(o);
 				N(o);
@@ -15384,15 +15406,15 @@ function ES(e, t) {
 				N(O), N(D);
 				var A = z(D, 2), j = z(L(A));
 				Y(j, 5, () => (H(t), U(() => H(t).acceptance.acceptanceCriteria)), _a, (e, t) => {
-					var n = iS(), r = L(n, !0);
+					var n = sS(), r = L(n, !0);
 					N(n), V(() => q(r, H(t))), K(e, n);
 				}), N(j), N(A);
-				var ee = z(A, 2), te = z(L(ee)), M = L(te, !0);
-				N(te), N(ee);
+				var ee = z(A, 2), M = z(L(ee)), te = L(M, !0);
+				N(M), N(ee);
 				var ne = z(ee, 2), re = z(L(ne)), ie = L(re, !0);
 				N(re), N(ne), N(E);
 				var ae = z(E, 2), oe = (e) => {
-					var n = uS(), r = R(n);
+					var n = pS(), r = R(n);
 					let i;
 					var a = L(r), o = L(a), s = L(o, !0);
 					N(o);
@@ -15401,27 +15423,27 @@ function ES(e, t) {
 					var f = z(l, 2), p = L(f, !0);
 					N(f), N(a);
 					var m = z(a, 2), h = (e) => {
-						var n = aS(), r = L(n, !0);
+						var n = cS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).id}:lease.prepare` ? "Freezing…" : "Freeze custody lease")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => d(H(t), "lease.prepare")), K(e, n);
 					}, g = (e) => {
-						var n = oS(), r = L(n, !0);
+						var n = lS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.simulate` ? "Simulating…" : "Simulate zero-effect receipt")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => d(H(t), "lease.simulate")), K(e, n);
 					}, _ = (e) => {
-						var n = aS(), r = L(n, !0);
+						var n = cS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.confirm` ? "Confirming…" : "Confirm exact lease")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => d(H(t), "lease.confirm")), K(e, n);
 					}, v = (e) => {
-						var n = aS(), r = L(n, !0);
+						var n = cS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.dispatch` ? "Starting…" : "Dispatch Terra steward")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => d(H(t), "lease.dispatch")), K(e, n);
 					}, y = (e) => {
-						var n = oS(), r = L(n, !0);
+						var n = lS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.replay` ? "Verifying replay…" : "Replay & verify receipt")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => d(H(t), "lease.replay")), K(e, n);
@@ -15430,7 +15452,7 @@ function ES(e, t) {
 						H(t), U(() => !H(t).activeLease) ? e(h) : (H(t), U(() => H(t).activeLease.lease?.adapter?.executionMode === "disconnected" && H(t).activeLease.status === "prepared") ? e(g, 1) : (H(t), U(() => H(t).activeLease.status === "prepared") ? e(_, 2) : (H(t), U(() => H(t).activeLease.status === "confirmed") ? e(v, 3) : (H(t), U(() => H(t).activeLease.status === "simulated") && e(y, 4)))));
 					}), N(r);
 					var b = z(r, 2), x = (e) => {
-						var n = lS(), r = L(n), i = L(r), a = z(L(i)), o = L(a, !0);
+						var n = fS(), r = L(n), i = L(r), a = z(L(i)), o = L(a, !0);
 						N(a), N(i);
 						var s = z(i), l = L(s, !0);
 						N(s), N(r);
@@ -15443,7 +15465,7 @@ function ES(e, t) {
 						var v = z(g), y = L(v);
 						N(v), N(u);
 						var b = z(u, 2), x = (e) => {
-							var n = sS(), r = L(n, !0);
+							var n = uS(), r = L(n, !0);
 							N(n), V((e) => q(r, e), [() => (H(t), U(() => H(t).activeLease.receipt.effects.changedPaths.join(" · ")))]), K(e, n);
 						};
 						J(b, (e) => {
@@ -15453,7 +15475,7 @@ function ES(e, t) {
 						N(w);
 						var E = z(w, 2), D = L(E, !0);
 						N(E), Y(z(E), 1, () => (H(t), U(() => H(t).activeLease.receipt?.checks || [])), _a, (e, t) => {
-							var n = cS(), r = R(n), i = L(r, !0);
+							var n = dS(), r = R(n), i = L(r, !0);
 							N(r);
 							var a = z(r), o = L(a, !0);
 							N(a), V(() => {
@@ -15483,26 +15505,26 @@ function ES(e, t) {
 					H(se) && e(oe);
 				});
 				var ce = z(ae, 2), le = L(ce), ue = (e) => {
-					var n = dS(), r = R(n), i = z(r, 2), a = L(i, !0);
+					var n = mS(), r = R(n), i = z(r, 2), a = L(i, !0);
 					N(i), V((e, n) => {
 						r.disabled = e, i.disabled = n, q(a, (H(c), H(t), U(() => H(c) === `${H(t).id}:promote` ? "Checking contract…" : "Mark ready for steward")));
 					}, [() => (H(c), U(() => !!H(c))), () => (H(c), H(t), U(() => !!H(c) || !H(t).eligibleToReady))]), W("click", r, () => d(H(t), "park")), W("click", i, () => d(H(t), "promote")), K(e, n);
 				}, de = (e) => {
-					var n = fS(), r = R(n), i = L(r, !0);
+					var n = hS(), r = R(n), i = L(r, !0);
 					N(r);
 					var a = z(r);
 					V((e) => {
 						q(i, (H(t), U(() => H(t).activeLease ? "Lease sequence is controlled above." : "Eligible for the separate custody executor; still not dispatched."))), a.disabled = e;
 					}, [() => (H(c), H(t), U(() => !!H(c) || !!H(t).activeLease))]), W("click", a, () => d(H(t), "park")), K(e, n);
 				}, fe = (e) => {
-					K(e, pS());
+					K(e, gS());
 				}, pe = (e) => {
-					K(e, mS());
+					K(e, _S());
 				}, me = (e) => {
-					var n = hS(), r = z(R(n));
+					var n = vS(), r = z(R(n));
 					V((e) => r.disabled = e, [() => (H(c), U(() => !!H(c)))]), W("click", r, () => d(H(t), "park")), K(e, n);
 				}, he = (e) => {
-					var n = gS(), r = z(R(n));
+					var n = yS(), r = z(R(n));
 					V((e) => r.disabled = e, [() => (H(c), U(() => !!H(c)))]), W("click", r, () => d(H(t), "restore")), K(e, n);
 				};
 				J(le, (e) => {
@@ -15511,21 +15533,21 @@ function ES(e, t) {
 					r = X(n, 1, "svelte-pcnttw", null, r, {
 						blocking: H(t).blocksResearch,
 						parked: H(t).status === "parked"
-					}), q(l, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(f, (H(t), U(() => H(t).task))), X(p, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(m, e), q(g, (H(t), U(() => H(t).reason))), q(y, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(x, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(C, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(T, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(k, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(M, i), q(ie, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
+					}), q(l, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(f, (H(t), U(() => H(t).task))), X(p, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(m, e), q(g, (H(t), U(() => H(t).reason))), q(y, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(x, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(C, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(T, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(k, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(te, i), q(ie, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
 				}, [() => (H(t), U(() => H(t).status.toUpperCase())), () => (H(t), U(() => H(t).acceptance.allowedPaths.length ? H(t).acceptance.allowedPaths.join(" · ") : "No paths declared"))]), K(e, n);
 			}), N(t), K(e, t);
 		}, w = (e) => {
-			K(e, yS());
+			K(e, SS());
 		};
 		J(S, (e) => {
 			H(a), U(() => H(a).length) ? e(C) : e(w, -1);
 		});
 		var T = z(S, 2), E = (e) => {
-			var t = xS(), n = L(t), r = z(L(n)), i = L(r);
+			var t = wS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(s), U(() => H(s).protocol.leases)), _a, (e, t) => {
-				var n = bS(), r = L(n), i = L(r, !0);
+				var n = CS(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -15539,9 +15561,9 @@ function ES(e, t) {
 			H(s), U(() => H(s).protocol?.leases?.length) && e(E);
 		});
 		var D = z(T, 2), O = (e) => {
-			var t = CS(), n = L(t), r = L(n);
+			var t = ES(), n = L(t), r = L(n);
 			N(n), Y(z(n), 1, () => (H(s), U(() => H(s).violations)), _a, (e, t) => {
-				var n = SS(), r = L(n, !0);
+				var n = TS(), r = L(n, !0);
 				N(n), V(() => q(r, (H(t), U(() => H(t).detail)))), K(e, n);
 			}), N(t), V(() => q(r, `${H(s), U(() => H(s).violations.length) ?? ""} contract warning${H(s), U(() => H(s).violations.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
@@ -15549,7 +15571,7 @@ function ES(e, t) {
 			H(s), U(() => H(s).violations?.length) && e(O);
 		});
 		var k = z(D, 2), A = (e) => {
-			var t = wS(), n = L(t, !0);
+			var t = DS(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `custody-feedback ${H(u) ?? ""}`, "svelte-pcnttw"), q(n, H(l));
 			}), K(e, t);
@@ -15567,8 +15589,8 @@ function ES(e, t) {
 //#endregion
 //#region src/ui/App.svelte
 Zi(["click"]), Ho();
-var DS = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), OS = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), kS = /* @__PURE__ */ G("<!> <!> <!> <!> <!> <section class=\"workspace-switchboard\" aria-label=\"Supporting campaign workspaces\"><header><div><p class=\"eyebrow\">SUPPORTING WORKSPACES</p><h2>Open detail only when the main line calls for it</h2></div><span>Evidence · strategy · system</span></header> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), AS = /* @__PURE__ */ G("<header class=\"topbar\"><div><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></div> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!> <!></main>", 1);
-function jS(e, t) {
+var AS = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), jS = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), MS = /* @__PURE__ */ G("<!> <!> <!> <!> <!> <section class=\"workspace-switchboard\" aria-label=\"Supporting campaign workspaces\"><header><div><p class=\"eyebrow\">SUPPORTING WORKSPACES</p><h2>Open detail only when the main line calls for it</h2></div><span>Evidence · strategy · system</span></header> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), NS = /* @__PURE__ */ G("<header class=\"topbar\"><div><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></div> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!> <!></main>", 1);
+function PS(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt();
 	wo(() => {
@@ -15577,8 +15599,8 @@ function jS(e, t) {
 			e(), t();
 		};
 	}), vo();
-	var a = AS(), o = R(a), s = z(L(o), 2), c = L(s), l = (e) => {
-		var t = DS(), r = L(t), i = L(r, !0);
+	var a = NS(), o = R(a), s = z(L(o), 2), c = L(s), l = (e) => {
+		var t = AS(), r = L(t), i = L(r, !0);
 		N(r);
 		var a = z(r, 1, !0);
 		N(t), V((e) => {
@@ -15597,31 +15619,31 @@ function jS(e, t) {
 	var g = z(o, 2), _ = L(g);
 	Ws(_, {});
 	var v = z(_, 2), y = (e) => {
-		var t = OS();
+		var t = jS();
 		Ds(z(L(t), 2), {}), N(t), K(e, t);
 	}, b = (e) => {
-		var t = kS(), n = R(t);
+		var t = MS(), n = R(t);
 		Ys(n, {});
 		var r = z(n, 2);
 		bc(r, {});
 		var i = z(r, 2);
 		Ub(i, {});
 		var a = z(i, 2);
-		fx(a, {});
+		hx(a, {});
 		var o = z(a, 2);
-		vx(o, {});
+		xx(o, {});
 		var s = z(o, 2), c = z(L(s), 2), l = z(L(c), 2), u = L(l);
 		ll(u, {});
 		var d = z(u, 2);
-		ES(d, {});
+		kS(d, {});
 		var f = z(d, 2);
 		Ds(z(L(f), 2), {}), N(f), N(l), N(c);
 		var p = z(c, 2), m = z(L(p), 2), h = L(m);
-		Tx(h, {});
+		Ox(h, {});
 		var g = z(h, 2);
-		Lx(g, {});
+		Bx(g, {});
 		var _ = z(g, 2);
-		rS(_, {}), Mc(z(_, 2), {}), N(m), N(p);
+		oS(_, {}), Mc(z(_, 2), {}), N(m), N(p);
 		var v = z(p, 2), y = z(L(v), 2), b = L(y);
 		rl(b, {}), qc(z(b, 2), {}), N(y), N(v), N(s), K(e, t);
 	};
@@ -15636,5 +15658,5 @@ function jS(e, t) {
 }
 //#endregion
 //#region src/ui/main.ts
-Zi(["click"]), la(jS, { target: document.querySelector("#app") });
+Zi(["click"]), la(PS, { target: document.querySelector("#app") });
 //#endregion

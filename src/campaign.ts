@@ -20,6 +20,7 @@ import { CoordinatorSessionService, type CodexCoordinatorCandidate, type Coordin
 import { ResearchPlanningService } from "./research-planning-service";
 import { WaveSemanticService } from "./wave-semantic-service";
 import { AutopilotService } from "./autopilot-service";
+import { evaluateAutopilotStartReadiness, type AutopilotStartReadiness } from "./autopilot-readiness";
 import { ObservationSyncService, assertTerminalResearchReceipt } from "./observation-sync-service";
 import { CodexNotificationService, sanitizeCoordinatorConversation } from "./codex-notification-service";
 import { ActionQueueService, type ActionQueueRow } from "./action-queue-service";
@@ -1065,6 +1066,7 @@ export class CampaignControl {
       project: (projectId) => this.getProject(projectId),
       observer: () => this.latestObserver,
       nextDispatchTarget: (projectId) => this.researchExecution.nextDispatchTarget(projectId),
+      startReadiness: (projectId) => this.autopilotStartReadiness(projectId),
       enqueueAction: (input, actor) => this.enqueueAction(input as EnqueueActionInput, actor),
       touchProject: (projectId) => this.updateProject(projectId, {}),
       recordEvent: (projectId, aggregateType, aggregateId, eventType, payload) => this.recordEvent(projectId, aggregateType, aggregateId, eventType, payload),
@@ -1097,6 +1099,7 @@ export class CampaignControl {
       latestLoop: (projectId) => this.autopilot.latestLoop(projectId),
       activeLoop: (projectId) => this.autopilot.activeLoop(projectId),
       loopSnapshot: (row) => this.autopilot.snapshot(row),
+      loopStartReadiness: (projectId) => this.autopilotStartReadiness(projectId),
       researchSchedule: (projectId, waveId) => this.researchExecution.scheduleSnapshot(this.waveScheduleRepository.latest(projectId, waveId)),
       actionSnapshot: (row) => this.actionQueue.snapshot(row as ActionQueueRow),
       liveTurn: (projectId) => this.codexNotifications.liveTurn(projectId),
@@ -1154,6 +1157,41 @@ export class CampaignControl {
 
   private resourceSnapshot(projectId: string): Record<string, any> {
     return this.domainReader.resourceSnapshot(projectId);
+  }
+
+  private autopilotStartReadiness(projectId: string): AutopilotStartReadiness {
+    const project = this.getProject(projectId);
+    const wave = this.latestWave(projectId);
+    const plan = wave ? this.database.query("SELECT status, response_json FROM campaign_research_plans WHERE wave_id = $wave")
+      .get({ $wave: wave.wave_id }) as { status: string; response_json: string } | null : null;
+    const response = parseJson<Record<string, any>>(plan?.response_json || "{}", {});
+    const requests = wave ? this.database.query("SELECT * FROM campaign_research_requests WHERE project_id = $project AND wave_id = $wave")
+      .all({ $project: projectId, $wave: wave.wave_id }) as ResearchRequestRow[] : [];
+    const runs = this.database.query("SELECT * FROM campaign_research_runs WHERE project_id = $project ORDER BY created_at")
+      .all({ $project: projectId }) as ResearchRunRow[];
+    const candidates = requests
+      .filter((request) => project.current_phase !== "RESEARCH_READY" || request.status === "approved_for_dispatch")
+      .flatMap((request) => {
+        const spec = researchDispatchSpecFromPlan(request, response);
+        return spec ? [{
+          taskId: spec.taskId,
+          tokenBudget: spec.tokenBudget,
+          dependencyReady: researchDependencySatisfied(spec, runs),
+          requiresOperatorRelease: Boolean(spec.requiresOperatorRelease),
+        }] : [];
+      });
+    const resources = this.resourceSnapshot(projectId);
+    const schedule = wave ? this.waveScheduleRepository.latest(projectId, wave.wave_id) : null;
+    return evaluateAutopilotStartReadiness({
+      phase: project.current_phase,
+      planStatus: plan?.status || "",
+      planDecision: String(response.decision || ""),
+      candidates,
+      spendableEpochTokens: Number(resources.ledger?.remainingBeforeCommitments || 0),
+      waveTokenBudget: Number(resources.policy?.waveTokenBudget || 0),
+      availableResearchSlots: Number(resources.slots?.available?.research || 0),
+      scheduleStatus: schedule?.status || "",
+    });
   }
 
   private simulateResourceSchedule(projectId: string, actor: string): Record<string, unknown> {

@@ -1,6 +1,6 @@
 # Lane Watch architecture and recovery handoff
 
-Captured: 2026-08-31 11:06 CDT  
+Captured: 2026-09-01 18:45 CDT
 Workspace: `C:\Users\wstri\dev\math-research`  
 Application: `infrastructure\agent-observer`  
 Live project: `cfg23`  
@@ -54,14 +54,16 @@ architecture and should not be used as descriptions of present capability.
 > broaden mutation scope or add Mac reconciliation
 > until its ownership and recovery semantics are explicitly proven.
 > The operator explicitly approved and applied the received DKC redirect. Its
-> four questions then completed a second read-only Sol lane-plan check. CFG23 is
-> checked plan was explicitly approved and all four contracts were staged.
-> CFG23 is now version 180 at `RESEARCH_REVIEW`, with a drafted eight-record
-> checked plan and zero active actions or controlled research runs. Five records
-> are explicit drops; the three surviving revisions are the asymmetric intake
-> replay/reconciliation, BS12 row-41 frontier work, and the twelfth-type supply
-> scout. Do not approve, schedule, or dispatch that plan without a fresh explicit
-> operator decision. The v103 UI now includes a persistent Campaign
+> four questions then completed a second read-only Sol lane-plan check. The
+> checked plan was explicitly approved and its contracts staged; the resulting
+> schedule ran only the asymmetric laboratory lane and its accepted evidence was
+> synthesized. CFG23 is now version 182 at `RESEARCH_REVIEW`, with zero active
+> actions or controlled research runs. The v104 UI refuses one-loop start before
+> any workflow transition because the cheapest dependency-ready row-41 contract
+> needs 80,000 tokens while the exhausted epoch has only 4,906 schedulable. A
+> read-only Sol epoch audit is `drafted` at the separate human activation gate
+> and recommends `Epoch 2 — Balanced proof-object frontier`; do not activate it
+> without a fresh explicit operator decision. The UI also includes a persistent Campaign
 > Interpretation deck and Research Atlas, with typed evidence semantics and an
 > explicit interpretation-is-not-authority boundary. Historical run strategy is
 > restored from immutable confirmed schedules rather than recomputed from the
@@ -1440,3 +1442,33 @@ bundles, receipts, or campaign worktrees. A build rewrites `public\ui.js` and
   schedule's 80,000-token reservation. The current scheduler treats the cap as
   admission accounting rather than a hard runtime stop. Review this overrun
   before dispatching the next reserved lane.
+
+## 2026-09-01 budget preflight and Epoch 2 proposal gate
+
+- PWA cache v104 adds a shared loop-start readiness contract. Live CFG23 now
+  reports `canStartLoop=false`, `code=EPOCH_BUDGET`, 80,000 tokens required,
+  and 4,906 schedulable. The guard executes before loop creation or checked-plan
+  approval, so the blocked attempt consumes no workflow transition.
+- The exact live independent epoch review is
+  `162f3f55-eb3f-4795-a656-2fc9e3d0c1ec`, bound by
+  `sha256:d69fb087f0604517786d102c0bc46043a63c849a616b4fc2939e1aa2108ebc9e`.
+  It completed read-only with zero scheduler authority and recommends
+  `ACTIVATE_NEW_EPOCH`, but remains `drafted` and unactivated.
+- The proposal is a three-wave, 1,000,000-token shadow epoch with 240,000 per
+  wave, a 15% reserve, two research slots, zero tolerated unreported runs, and
+  40/30/30 coverage/supply/decision weights. Row 41 and bounded C2 forensics
+  come first; a single BS21 proof-object pilot waits for demonstrated budget
+  discipline. Three custody candidates remain inert unless the exact charter
+  is activated and each lease later passes its own human gate.
+- The review exposed a digest-documentation ambiguity: a strategist initially
+  compared the canonical semantic digest with the pretty-printed file hash.
+  Bundle schema v3 now embeds algorithm, canonicalization, and digest-scope
+  metadata, and the prompt states the distinction explicitly.
+- Verification: 157 unit/integration tests with 840 assertions, TypeScript and
+  Svelte with zero diagnostics, and all 9 live Playwright scenarios passed
+  after deployment. The supervised listener is Bun 1.3.14 PID 32036.
+- Proofs:
+  `live-proofs/2026-09-01-v104/all-jobs-overview-local-v104.png`,
+  `live-proofs/2026-09-01-v104/autopilot-preflight-mobile-v104.png`,
+  `live-proofs/2026-09-01-v104/campaign-line-workflow-desktop-v104.png`, and
+  `live-proofs/2026-09-01-v104/strategy-epoch-2-proposal-gate-v104.png`.

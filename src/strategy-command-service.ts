@@ -259,7 +259,13 @@ export class StrategyCommandService {
       WHERE project_id = $project ORDER BY created_at DESC LIMIT 4
     `).all({ $project: projectId }) as Array<Record<string, any>>;
     const bundleBody = {
-      schema: "campaign-strategy-review-bundle/v2",
+      schema: "campaign-strategy-review-bundle/v3",
+      binding: {
+        algorithm: "sha256",
+        serialization: "canonical-json/v1",
+        digestScope: "all top-level fields except bundleDigest",
+        verification: "Parse this JSON, remove only the top-level bundleDigest field, recursively sort object keys while preserving array order, encode JSON scalars without formatting whitespace, and hash the resulting UTF-8 text.",
+      },
       projectId,
       reviewId,
       request: { reviewKind, source: requestSource, reference: requestReference, authorizedBy: actor, capturedAt: stamp },
@@ -295,6 +301,7 @@ export class StrategyCommandService {
       const prompt = [
         `You are the independent ${reviewKind === "idea-search" ? "idea-search strategist" : "epoch strategist"} for campaign ${projectId}. This is not the campaign's regular wave coordinator.`,
         `The immutable strategy-review bundle is ${bundlePath}, bound by ${bundleDigest}. Read it completely.`,
+        "Verify the bundle with its binding metadata. The recorded digest is the semantic SHA-256 of canonical-json/v1 over every top-level field except bundleDigest; it is intentionally not the SHA-256 of the pretty-printed file bytes.",
         "Audit the campaign at the epoch timescale. Activity is not progress: only count durable changes to a coverage denominator, candidate supply, candidate decision, mathematical claim, or demonstrated scaling/cost fact.",
         "Look for maintenance capture, tunnel vision, repeated descendants of the same blocker, unjustified track concentration, missing costs, stale assumptions, and work that belongs in a separate custody service.",
         ...(reviewKind === "idea-search" ? ["Search deliberately outside the current dominant line. Put falsifiable, dependency-aware candidate directions in portfolioActions.start, but do not create research requests or launch contracts. Any direction remains inert unless a human later activates the exact charter proposal and separately approves a checked research plan."] : []),

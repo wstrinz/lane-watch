@@ -90,6 +90,12 @@ queue as the operator. Its research step uses an immutable multi-member wave
 schedule; it does not treat one lane as a wave or dispatch around confirmation
 gates.
 
+Loop start also has a shared, side-effect-free resource preflight. Before it
+creates a loop row or approves a checked plan, the preflight resolves the exact
+dependency-ready contracts and proves that at least the cheapest candidate fits
+the current wave and epoch envelopes. A blocked start reports the required and
+schedulable token amounts without consuming a workflow transition.
+
 The History surface mirrors that hierarchy from durable rows and keeps the
 chronological event graph alongside it. Each epoch shows recorded metric, cost,
 and drift values at its start and latest end boundary; an active baseline-only
@@ -127,6 +133,11 @@ slot and strategy-review token cap, and runs read-only. Coordinator prose alone
 cannot start a review. The result remains an inert charter alternative until a
 human activates it; research planning, scheduling, and dispatch retain their
 separate gates.
+
+Each review bundle self-describes its SHA-256 binding, canonical JSON
+serialization, and digest scope. The semantic digest excludes only the final
+top-level `bundleDigest` field and is intentionally distinct from a checksum of
+the pretty-printed file bytes.
 
 Resource calibration is a separate read-only projection. Research token and
 wall-time measurements are durably frozen only when the exact terminal evidence

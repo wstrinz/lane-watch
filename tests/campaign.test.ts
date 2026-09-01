@@ -647,9 +647,21 @@ test("an independent Sol strategy review creates a human-gated charter revision 
     status: "drafting", baseRevision: 1, reviewKind: "idea-search", requestSource: "operator",
     requestReference: "", resourceCap: 120_000, threadId: "thr_strategy", turnId: "turn_strategy_review",
   });
+  const strategyBundle = JSON.parse(readFileSync(review.bundlePath, "utf8"));
+  expect(strategyBundle).toMatchObject({
+    schema: "campaign-strategy-review-bundle/v3",
+    binding: {
+      algorithm: "sha256",
+      serialization: "canonical-json/v1",
+      digestScope: "all top-level fields except bundleDigest",
+    },
+    bundleDigest: review.bundleDigest,
+  });
   expect(codex.startThreadParams).toMatchObject({ cwd: join(fixtureRoot, "project"), model: "gpt-5.6-sol" });
   expect(codex.startParams).toMatchObject({ threadId: "thr_strategy", model: "gpt-5.6-sol", sandboxPolicy: { type: "readOnly" } });
-  expect((codex.startParams?.input as Array<{ text: string }>)[0]?.text).toContain("independent idea-search strategist");
+  const strategyPrompt = (codex.startParams?.input as Array<{ text: string }>)[0]?.text || "";
+  expect(strategyPrompt).toContain("independent idea-search strategist");
+  expect(strategyPrompt).toContain("intentionally not the SHA-256 of the pretty-printed file bytes");
   expect(project.phase).toBe(originalPhase);
   expect(project.coordinator.attached).toBe(false);
 
