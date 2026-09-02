@@ -37,6 +37,18 @@ interface LoopStep {
   attemptCount?: number;
 }
 
+export function compactLoopSteps(steps: LoopStep[]): LoopStep[] {
+  const seenActions = new Set<string>();
+  const compacted = steps.filter((step) => {
+    if (!step.actionId) return true;
+    if (seenActions.has(step.actionId)) return false;
+    seenActions.add(step.actionId);
+    return true;
+  });
+  compacted.forEach((step, index) => { step.index = index + 1; });
+  return compacted;
+}
+
 interface ActionRow {
   action_id: string;
   project_id: string;
@@ -368,10 +380,11 @@ export class AutopilotService {
   }
 
   private async enqueueStep(loop: LoopRunRow, type: string, targetId = "", args: Record<string, unknown> = {}, key: string = type): Promise<void> {
-    let steps = parseJson<LoopStep[]>(loop.steps_json, []);
+    let steps = compactLoopSteps(parseJson<LoopStep[]>(loop.steps_json, []));
+    const priorMatches = steps.filter((step) => step.key === key);
     const failedMatches = steps.filter((step) => step.key === key && step.status === "failed");
     const retrySlot = failedMatches[0] || null;
-    const priorAttempts = failedMatches.reduce((total, step) => total + (step.attemptCount || 1), 0);
+    const priorAttempts = priorMatches.reduce((maximum, step) => Math.max(maximum, step.attemptCount || 1), 0);
     if (failedMatches.length > 1) {
       const keepId = retrySlot!.actionId;
       steps = steps.filter((step) => step.key !== key || step.status !== "failed" || step.actionId === keepId);
