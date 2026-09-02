@@ -3953,15 +3953,20 @@ function Ws(e, t) {
 			};
 		}
 		if (e.phase === "RESEARCH_INTAKE") {
-			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready");
+			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready"), n = (e.researchRuns || []).find((e) => e.status === "failed");
 			return {
-				status: "LANDING GATE",
-				title: t ? "Accept the landed research receipt" : "Inspect the landing blocker",
-				detail: "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane.",
+				status: t ? "LANDING GATE" : n ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
+				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : "Inspect the landing blocker",
+				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : n ? y(n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.") : "The worker is terminal, but its validated evidence receipt has not landed yet.",
 				actions: t ? [{
 					key: "research.evidence.return",
 					targetId: t.id,
 					label: "Accept receipt & continue",
+					style: "primary-button"
+				}] : n ? [{
+					key: "research.failure.requeue",
+					targetId: n.id,
+					label: "Stage a fresh retry",
 					style: "primary-button"
 				}] : []
 			};

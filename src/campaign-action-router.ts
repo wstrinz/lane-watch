@@ -20,6 +20,7 @@ export const CAMPAIGN_ACTION_TYPES = [
   "research.schedule.confirm",
   "research.schedule.dispatch",
   "research.dispatch.start",
+  "research.failure.requeue",
   "research.evidence.return",
   "loop.start",
   "loop.pause",

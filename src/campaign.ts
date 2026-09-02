@@ -1336,6 +1336,7 @@ export class CampaignControl {
       "research.schedule.confirm": (action, args) => this.researchExecution.confirmSchedule(action.project_id, action.target_id, args, action.created_by),
       "research.schedule.dispatch": (action, args) => this.researchExecution.dispatchSchedule(action.project_id, action.target_id, args, action.created_by),
       "research.dispatch.start": () => { throw new Error("Direct one-lane dispatch is retired; freeze, confirm, and dispatch the resource-bounded wave schedule instead"); },
+      "research.failure.requeue": (action) => this.researchExecution.requeueFailed(action.project_id, action.target_id, action.created_by),
       "research.evidence.return": (action) => this.researchExecution.returnEvidence(action.project_id, action.target_id, action.created_by),
       "loop.start": (action) => this.autopilot.start(action.project_id, action.created_by),
       "loop.pause": (action) => this.autopilot.pause(action.project_id, action.created_by),

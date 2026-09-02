@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { readFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { runGit } from "./git";
-import { TERMINAL_DAEMONS, deriveCampaignPhase, waveAccounting } from "./wave";
+import { TERMINAL_DAEMONS, deriveCampaignPhase, laneFailure, waveAccounting } from "./wave";
 import { WaveCommandService } from "./wave-commands";
 import { WaveRepository } from "./wave-repository";
 import { WaveScheduleRepository } from "./wave-schedule-repository";
@@ -222,9 +222,12 @@ export class ObservationSyncService {
       const lane = lanes.find((candidate) => candidate.task === run.task_id || candidate.id === run.lane_id || candidate.jobId === run.job_id);
       if (!lane) continue;
       const terminal = TERMINAL_DAEMONS.has(String(lane.daemon).toLowerCase());
+      const terminalFailure = terminal && laneFailure(lane);
       const blocked = !terminal && (String(lane.tempo).toLowerCase() === "blocked" || lane.severity === "attention");
-      let status = terminal ? "awaiting_evidence" : blocked ? "blocked" : "running";
-      let error = blocked ? (lane.detail || lane.attentionReason || "Worker requires attention before research can continue.") : "";
+      let status = terminalFailure ? "failed" : terminal ? "awaiting_evidence" : blocked ? "blocked" : "running";
+      let error = terminalFailure
+        ? (lane.detail || lane.output || lane.attentionReason || `Worker terminated with ${lane.daemon} before producing validated evidence.`)
+        : blocked ? (lane.detail || lane.attentionReason || "Worker requires attention before research can continue.") : "";
       let evidenceSha256 = "";
       let evidenceJson = "{}";
       const settledSignal = terminal || (blocked && Number(lane.inFlight || 0) === 0);
@@ -273,13 +276,14 @@ export class ObservationSyncService {
         $measurementSource: measurement?.source ?? "", $measurementAt: measurement?.measuredAt ?? "",
         $error: error.slice(0, 4000), $now: stamp, $completed: terminal || status === "evidence_ready" ? stamp : "", $run: run.run_id,
       });
+      const requestStatus = status === "failed" ? "approved_for_dispatch" : status;
       this.database.query("UPDATE campaign_research_requests SET status = $status, updated_at = $now WHERE request_id = $request")
-        .run({ $status: status, $now: stamp, $request: run.request_id });
+        .run({ $status: requestStatus, $now: stamp, $request: run.request_id });
       const schedule = this.schedules.latest(projectId, run.wave_id);
       if (schedule && this.schedules.members(schedule.schedule_id).some((member) => member.request_id === run.request_id)) {
         this.schedules.transitionMember(schedule.schedule_id, run.request_id, status, run.run_id, error.slice(0, 4000), stamp);
       }
-      this.port.recordEvent(projectId, "research_run", run.run_id, status === "evidence_ready" ? "research.run.evidence-ready" : terminal ? "research.run.terminal" : blocked ? "research.run.blocked" : "research.run.observed", {
+      this.port.recordEvent(projectId, "research_run", run.run_id, status === "evidence_ready" ? "research.run.evidence-ready" : status === "failed" ? "research.run.failed" : terminal ? "research.run.terminal" : blocked ? "research.run.blocked" : "research.run.observed", {
         taskId: run.task_id, laneId: lane.id, jobId: lane.jobId, status, evidenceSha256,
         measurement: measurement ? { tokens: measurement.tokens, wallSeconds: measurement.wallSeconds, source: measurement.source, measuredAt: measurement.measuredAt } : null,
       });
@@ -298,7 +302,7 @@ export class ObservationSyncService {
       if (schedule && ["dispatching", "running", "attention"].includes(schedule.status)) {
         const members = this.schedules.members(schedule.schedule_id);
         if (members.length && members.every((member) => !["reserved", "launching", "running", "blocked"].includes(member.status))) {
-          this.schedules.transitionSchedule(schedule.schedule_id, "landed", this.port.now());
+          this.schedules.transitionSchedule(schedule.schedule_id, members.every((member) => member.status === "failed") ? "failed" : "landed", this.port.now());
         }
       }
     }

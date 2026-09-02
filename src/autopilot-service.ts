@@ -294,7 +294,12 @@ export class AutopilotService {
     if (phase === "RESEARCH_INTAKE") {
       const run = this.database.query("SELECT run_id FROM campaign_research_runs WHERE project_id = $project AND status = 'evidence_ready' ORDER BY created_at DESC LIMIT 1")
         .get({ $project: projectId }) as { run_id: string } | null;
-      if (!run) return this.attention(loop, "Research intake has no validated evidence-ready receipt");
+      if (!run) {
+        const failed = project.researchRuns.find((candidate: any) => candidate.status === "failed");
+        return this.attention(loop, failed
+          ? `Research launch failed safely before evidence landed: ${failed.taskId}. Use the recovery gate to stage a fresh checked schedule.`
+          : "Research intake has no validated evidence-ready receipt");
+      }
       return this.enqueueStep(loop, "research.evidence.return", run.run_id);
     }
     if (phase === "RESEARCH_REVIEW") {
@@ -420,7 +425,7 @@ export class AutopilotService {
       "research.review.start": "Coordinator checks the lane plan", "research.review.resolve": "Apply the checked lane plan",
       "research.schedule.prepare": "Freeze the resource-bounded wave schedule", "research.schedule.confirm": "Confirm the exact wave schedule",
       "research.schedule.dispatch": "Dispatch the confirmed wave", "research.dispatch.start": "Dispatch one bounded lane",
-      "research.evidence.return": "Return landed evidence to synthesis", "wave.adopt": "Adopt the active wave", "lane.reconcile": "Reconcile a terminal lane",
+      "research.failure.requeue": "Stage a failed launch for a fresh schedule", "research.evidence.return": "Return landed evidence to synthesis", "wave.adopt": "Adopt the active wave", "lane.reconcile": "Reconcile a terminal lane",
       "wave.triage.request": "Ask Sol to triage unresolved custody", "wave.triage.apply": "Apply Sol's custody recommendations",
     } as Record<string, string>)[type] || type;
   }

@@ -100,7 +100,19 @@
     }
     if (value.phase === "RESEARCH_INTAKE") {
       const run = (value.researchRuns || []).find((candidate: any) => candidate.status === "evidence_ready");
-      return { status: "LANDING GATE", title: run ? "Accept the landed research receipt" : "Inspect the landing blocker", detail: "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane.", actions: run ? [{ key: "research.evidence.return", targetId: run.id, label: "Accept receipt & continue", style: "primary-button" }] : [] };
+      const failed = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed");
+      return {
+        status: run ? "LANDING GATE" : failed ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
+        title: run ? "Accept the landed research receipt" : failed ? "Retry from a fresh checked schedule" : "Inspect the landing blocker",
+        detail: run
+          ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane."
+          : failed
+            ? compact(failed.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.")
+            : "The worker is terminal, but its validated evidence receipt has not landed yet.",
+        actions: run
+          ? [{ key: "research.evidence.return", targetId: run.id, label: "Accept receipt & continue", style: "primary-button" }]
+          : failed ? [{ key: "research.failure.requeue", targetId: failed.id, label: "Stage a fresh retry", style: "primary-button" }] : [],
+      };
     }
     if (value.phase === "REVISING") return { status: "REVISION READY", title: "Rerun the corrected plan check", detail: "Your revision direction is recorded and no lanes were staged.", actions: [{ key: "research.review.start", label: "Run corrected plan check", style: "primary-button" }] };
     if (value.canAdoptWave) return { status: "BOOTSTRAP", title: "Adopt the current bounded lanes", detail: "Capture the current active lane set as an explicit wave before applying accounting and synthesis mechanics.", actions: [{ key: "wave.adopt", label: "Adopt active lanes", style: "primary-button" }] };

@@ -22,6 +22,7 @@ describe("campaign composition boundaries", () => {
 
     expect(source).toContain('"research.schedule.prepare": (action) => this.researchExecution.prepareSchedule');
     expect(source).toContain('"research.schedule.dispatch": (action, args) => this.researchExecution.dispatchSchedule');
+    expect(source).toContain('"research.failure.requeue": (action) => this.researchExecution.requeueFailed');
     expect(source).toContain('"research.evidence.return": (action) => this.researchExecution.returnEvidence');
     expect(source).not.toContain("private async dispatchScheduledWave(");
     expect(source).not.toContain("private async returnResearchEvidence(");

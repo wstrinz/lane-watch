@@ -568,6 +568,37 @@ export class ResearchExecutionService {
     return { runId: run.run_id, runIds: intake.map((item) => item.run.run_id), scheduleId: schedule?.schedule_id || "", waveId: wave.wave_id, bundlePath, bundleDigest, threadId: coordinator.thread_id, turnId: turn.id, phase: "SYNTHESIZING" };
   }
 
+  requeueFailed(projectId: string, runId: string, actor: string): Record<string, unknown> {
+    if (this.port.project(projectId).current_phase !== "RESEARCH_INTAKE") throw new Error("Retrying a failed research launch requires RESEARCH_INTAKE");
+    const run = this.database.query("SELECT * FROM campaign_research_runs WHERE run_id = $run AND project_id = $project")
+      .get({ $run: runId, $project: projectId }) as ResearchRunRow | null;
+    if (!run || run.status !== "failed") throw new Error("Select a terminal research run that failed without validated evidence");
+    if (run.evidence_sha256) throw new Error("A run with validated evidence must use the landing gate, not retry recovery");
+    const active = this.database.query(`
+      SELECT COUNT(*) AS count FROM campaign_research_runs
+      WHERE project_id = $project AND status IN ('launching', 'running', 'blocked', 'awaiting_evidence', 'evidence_ready')
+    `).get({ $project: projectId }) as { count: number } | null;
+    if (active?.count) throw new Error("A failed launch cannot be requeued while another research receipt is active or ready");
+    const wave = this.port.latestWave(projectId);
+    if (!wave || wave.wave_id !== run.wave_id) throw new Error("The failed research run is not attached to the current wave");
+    const schedule = this.schedules.latest(projectId, wave.wave_id);
+    const member = schedule?.schedule_id ? this.schedules.members(schedule.schedule_id).find((candidate) => candidate.run_id === runId) : null;
+    if (!schedule || !member || member.status !== "failed") throw new Error("The failed run is not bound to the latest settled wave schedule");
+    const stamp = this.port.now();
+    this.database.query("UPDATE campaign_research_requests SET status = 'approved_for_dispatch', updated_at = $now WHERE request_id = $request")
+      .run({ $now: stamp, $request: run.request_id });
+    this.port.touchProject(projectId, "RESEARCH_READY");
+    this.port.recordEvent(projectId, "research_run", runId, "research.failure.requeued", {
+      requestId: run.request_id,
+      taskId: run.task_id,
+      failedScheduleId: schedule.schedule_id,
+      actor,
+      nextBoundary: "fresh-schedule-required",
+      dispatchAuthority: "none",
+    });
+    return { runId, requestId: run.request_id, taskId: run.task_id, phase: "RESEARCH_READY", nextBoundary: "fresh-schedule-required" };
+  }
+
   private runBundle(run: ResearchRunRow): Record<string, unknown> {
     return {
       id: run.run_id,
