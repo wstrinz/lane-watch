@@ -585,18 +585,20 @@ export class ResearchExecutionService {
     const member = schedule?.schedule_id ? this.schedules.members(schedule.schedule_id).find((candidate) => candidate.run_id === runId) : null;
     if (!schedule || !member || member.status !== "failed") throw new Error("The failed run is not bound to the latest settled wave schedule");
     const stamp = this.port.now();
-    this.database.query("UPDATE campaign_research_requests SET status = 'approved_for_dispatch', updated_at = $now WHERE request_id = $request")
-      .run({ $now: stamp, $request: run.request_id });
-    this.schedules.transitionSchedule(schedule.schedule_id, "failed", stamp);
-    this.port.touchProject(projectId, "RESEARCH_READY");
-    this.port.recordEvent(projectId, "research_run", runId, "research.failure.requeued", {
-      requestId: run.request_id,
-      taskId: run.task_id,
-      failedScheduleId: schedule.schedule_id,
-      actor,
-      nextBoundary: "fresh-schedule-required",
-      dispatchAuthority: "none",
-    });
+    this.database.transaction(() => {
+      this.database.query("UPDATE campaign_research_requests SET status = 'approved_for_dispatch', updated_at = $now WHERE request_id = $request")
+        .run({ $now: stamp, $request: run.request_id });
+      this.schedules.transitionSchedule(schedule.schedule_id, "failed", stamp);
+      this.port.touchProject(projectId, "RESEARCH_READY");
+      this.port.recordEvent(projectId, "research_run", runId, "research.failure.requeued", {
+        requestId: run.request_id,
+        taskId: run.task_id,
+        failedScheduleId: schedule.schedule_id,
+        actor,
+        nextBoundary: "fresh-schedule-required",
+        dispatchAuthority: "none",
+      });
+    })();
     return { runId, requestId: run.request_id, taskId: run.task_id, phase: "RESEARCH_READY", nextBoundary: "fresh-schedule-required" };
   }
 
