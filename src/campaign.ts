@@ -740,14 +740,25 @@ function researchDispatchSpecFromPlan(request: ResearchRequestRow, planResponse:
   };
 }
 
-function researchDependencySatisfied(spec: ResearchLaunchSpec, runs: ResearchRunRow[]): boolean {
+export function researchDependencySatisfied(spec: ResearchLaunchSpec, runs: ResearchRunRow[]): boolean {
   if (spec.requiresOperatorRelease) return false;
   const dependencies = spec.dependsOnTaskIds?.length ? spec.dependsOnTaskIds : spec.dependsOnTaskId ? [spec.dependsOnTaskId] : [];
   if (!dependencies.length) return true;
   const acceptedStatuses = spec.dependsOnEvidenceStatuses ?? ["complete"];
-  return dependencies.every((taskId) => runs.some((run) => run.task_id === taskId
-      && run.status === "returned_to_sol"
-      && acceptedStatuses.includes(parseJson<Record<string, any>>(run.evidence_json, {}).status)));
+  return dependencies.every((taskId) => runs.some((run) => {
+    if (run.task_id !== taskId || run.status !== "returned_to_sol") return false;
+    const receipt = parseJson<Record<string, any>>(run.evidence_json, {});
+    const declaredStatus = String(receipt.status || "").toLowerCase();
+    const terminalVerdict = String(receipt.verdict || receipt.terminal_state || "").toUpperCase();
+    const normalizedStatus: "complete" | "blocked" | "" = declaredStatus === "complete"
+      ? "complete"
+      : declaredStatus.startsWith("blocked")
+        ? "blocked"
+        : ["SUPPORTED", "REFUTED", "INCONCLUSIVE"].includes(terminalVerdict)
+          ? "complete"
+          : terminalVerdict === "BLOCKED" ? "blocked" : "";
+    return normalizedStatus !== "" && acceptedStatuses.includes(normalizedStatus);
+  }));
 }
 
 async function launchLocalResearch(projectRoot: string, spec: ResearchLaunchSpec): Promise<ResearchLaunchResult> {

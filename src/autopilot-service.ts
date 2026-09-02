@@ -352,7 +352,8 @@ export class AutopilotService {
     if (phase === "RESEARCH_READY") {
       const schedule = wave ? this.schedules.latest(projectId, wave.wave_id) : null;
       if (schedule?.status === "proposed") return "The immutable multi-member wave schedule is waiting for explicit operator confirmation.";
-      if (!schedule && !this.port.nextDispatchTarget(projectId)) return "No dependency-safe checked launch contract is available. Repair the contract or change the checked plan before rechecking autopilot.";
+      const scheduleClosed = !schedule || ["superseded", "failed", "completed"].includes(schedule.status);
+      if (scheduleClosed && !this.port.nextDispatchTarget(projectId)) return "No dependency-safe checked launch contract is available. Repair the contract or change the checked plan before rechecking autopilot.";
     }
     if (phase === "DECISION_REQUIRED") {
       const synthesis = wave ? this.database.query("SELECT response_json FROM campaign_syntheses WHERE wave_id = $wave").get({ $wave: wave.wave_id }) as { response_json: string } | null : null;

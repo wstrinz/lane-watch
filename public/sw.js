@@ -1,4 +1,4 @@
-const CACHE = "lane-watch-v110";
+const CACHE = "lane-watch-v112";
 const APP_SHELL = ["/", "/styles.css?v=106", "/ui.css?v=106", "/ui.js?v=106", "/manifest.webmanifest?v=65", "/icon.svg"];
 
 self.addEventListener("install", (event) => {

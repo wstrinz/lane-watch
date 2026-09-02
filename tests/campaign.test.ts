@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { CampaignControl, deriveCampaignPhase, freezeResearchLaunchPackets, requireCleanContractWorkspace } from "../src/campaign";
+import { CampaignControl, deriveCampaignPhase, freezeResearchLaunchPackets, requireCleanContractWorkspace, researchDependencySatisfied } from "../src/campaign";
 import { CampaignReadService } from "../src/campaign-read-service";
 import type { CodexNotification, CodexServerRequest, CodexThreadSummary } from "../src/codex";
 import type { LaneSnapshot, ObserverSnapshot } from "../src/types";
@@ -31,6 +31,17 @@ afterEach(async () => {
       }
     }
   }
+});
+
+test("dependency readiness normalizes accepted terminal-state receipts", () => {
+  const spec = { taskId: "successor", dependsOnTaskIds: ["producer"], dependsOnEvidenceStatuses: ["complete"] } as any;
+  const run = (receipt: Record<string, unknown>) => [{
+    task_id: "producer", status: "returned_to_sol", evidence_json: JSON.stringify(receipt),
+  }] as any;
+
+  expect(researchDependencySatisfied(spec, run({ schema: "cfg23-research-evidence/v1", terminal_state: "SUPPORTED" }))).toBe(true);
+  expect(researchDependencySatisfied(spec, run({ schema: "cfg23-research-evidence/v1", verdict: "INCONCLUSIVE" }))).toBe(true);
+  expect(researchDependencySatisfied(spec, run({ schema: "cfg23-research-evidence/v1", status: "blocked_at_preflight", verdict: "BLOCKED" }))).toBe(false);
 });
 
 test("checked launch packets are frozen without absorbing unrelated work", async () => {

@@ -13,6 +13,7 @@
   let recoveryNote = "";
   let recoveryConfirmed = false;
   let recoveryReportId = "";
+  let observedLoopError = "";
 
   const phaseLabels: Record<string, string> = {
     SYNTHESIS_READY: "landed evidence", SYNTHESIZING: "synthesis", DECISION_REQUIRED: "direction decision",
@@ -106,6 +107,10 @@
       const schedule = value.researchSchedule;
       if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
       if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
+      if (value.loop?.resumeBlocker) return { status: "PLAN REPAIR NEEDED", title: "Repair the checked launch frontier", detail: compact(value.loop.resumeBlocker), actions: [
+        { key: "reveal", label: "Inspect process & plan", target: "#process-history", style: "primary-button" },
+        { key: "reveal", label: "Review strategy context", target: "#strategy-workspaces", style: "outline-button" },
+      ] };
       return { status: "LAUNCH PREPARATION", title: "Freeze the dependency-safe retry schedule", detail: "The failed attempt is preserved. Rechecking autopilot will create a fresh immutable schedule for the same checked mathematical contract, without launching it.", actions: [{ key: "loop.resume", label: "Prepare checked schedule", style: "primary-button" }] };
     }
     if (value.phase === "RESEARCH_RUNNING") {
@@ -214,6 +219,14 @@
   }
 
   $: project = ($campaignState.control?.projects?.find((candidate) => candidate.id === $campaignState.selectedProject) as Project | undefined) || null;
+  $: latestLoopStep = Array.isArray(project?.loop?.steps) ? project?.loop?.steps.at(-1) : null;
+  $: currentLoopError = project?.loop?.status === "attention" && latestLoopStep?.status === "failed" ? String(project?.loop?.error || "") : "";
+  $: if (currentLoopError && currentLoopError !== observedLoopError) {
+    observedLoopError = currentLoopError;
+    feedbackKind = "error";
+    feedback = compact(currentLoopError, 520);
+  }
+  $: if (!currentLoopError && observedLoopError) observedLoopError = "";
   $: focus = project ? focusFor(project) : null;
   $: planLanes = Array.isArray(project?.researchPlan?.response?.lanes) ? project.researchPlan.response.lanes : [];
   $: synthesis = project?.wave?.synthesis?.response || null;

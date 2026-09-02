@@ -3723,7 +3723,7 @@ Zi(["click", "change"]), Ho();
 var Os = /* @__PURE__ */ G("<div class=\"rail-direction\"><span>CURRENT GROUNDING</span><strong> </strong></div>"), ks = /* @__PURE__ */ G("<div class=\"rail-observation\"><span>OBSERVED ACTIVITY · NON-AUTHORITATIVE</span><strong> </strong></div>"), As = /* @__PURE__ */ G("<button> </button>"), js = /* @__PURE__ */ G("<li><b> </b><span> </span></li>"), Ms = /* @__PURE__ */ G("<ul></ul>"), Ns = /* @__PURE__ */ G("<p> </p> <!>", 1), Ps = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><p> </p><small> </small></div></li>"), Fs = /* @__PURE__ */ G("<ol></ol>"), Is = /* @__PURE__ */ G("<details class=\"rail-inspector\"><summary><span>Inspect the decision packet</span><strong> </strong></summary> <div class=\"rail-packet\"><!> <label class=\"rail-note\"><span>Operator note or revision direction</span><textarea rows=\"3\" placeholder=\"Optional, but useful when redirecting or requesting revision\"></textarea></label></div></details>"), Ls = /* @__PURE__ */ G("<div class=\"recovery-report\"><div class=\"recovery-report-grid\"><div><span>WORKFLOW</span><strong> </strong></div> <div><span>FROZEN WAVE</span><strong> </strong></div> <div><span>ACCOUNTING</span><strong> </strong></div> <div><span>CONTROLLED EXECUTION</span><strong> </strong></div></div> <p class=\"recovery-digest\"><span>BOUND REPORT</span><code> </code></p> <p> </p> <label class=\"recovery-choice\"><span>Explicit recovery decision</span><select><option>Preserve the current hold</option><option>Align the historical wave to the workflow</option><option>Align the workflow to the frozen wave</option><option>Apply terminal-evidence projection repair</option></select></label> <label class=\"rail-note\"><span>Recovery rationale</span><textarea rows=\"3\" placeholder=\"Why this historical boundary—not the research direction—should change\"></textarea></label> <label class=\"recovery-confirm\"><input type=\"checkbox\"/><span>I reviewed the exact digest and authorize only this historical recovery decision.</span></label> <div class=\"recovery-boundary\"><strong>No inferred authority</strong><span>This command cannot infer a worker result, dispatch work, promote claims, merge, or push.</span></div> <button class=\"primary-button recovery-apply\"> </button></div>"), Rs = /* @__PURE__ */ G("<div class=\"recovery-report empty\"><p>Freeze a fresh report before choosing a transition. Preparation is read-only with respect to campaign workflow, workers, claims, Git, and publication.</p></div>"), zs = /* @__PURE__ */ G("<details class=\"rail-inspector rail-recovery\"><summary><span>Historical recovery protocol</span><strong> </strong></summary> <!></details>"), Bs = /* @__PURE__ */ G("<div role=\"status\"> </div>"), Vs = /* @__PURE__ */ G("<section class=\"lifecycle-focus primary-action-rail\" id=\"next-action\" aria-live=\"polite\"><div class=\"rail-copy\"><div class=\"rail-kicker\"><span> </span><strong> </strong><i> </i></div> <h2> </h2> <p> </p> <!> <!> <details class=\"rail-hint\"><summary><span>WHY THIS MATTERS</span><strong>Plain-language hint + mathematical connection</strong></summary> <div><p><b>What this state means.</b> </p> <p><b>Mathematical connection.</b> </p> <p><b>What your click changes.</b> </p></div></details></div> <div class=\"lifecycle-actions rail-actions\"></div> <!> <!> <!></section>"), Hs = /* @__PURE__ */ G("<button><strong> </strong><span> </span><small> </small></button>"), Us = /* @__PURE__ */ G("<section class=\"project-picker\" aria-label=\"Campaign projects\"><div><p class=\"eyebrow\">CAMPAIGNS</p><h2>Choose a campaign control surface</h2></div> <div></div></section>");
 function Ws(e, t) {
 	bt(t, !1);
-	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(null), u = /* @__PURE__ */ F(""), d = /* @__PURE__ */ F(""), f = /* @__PURE__ */ F("pending"), p = /* @__PURE__ */ F(""), m = /* @__PURE__ */ F("PRESERVE_HOLD"), h = /* @__PURE__ */ F(""), g = /* @__PURE__ */ F(!1), _ = /* @__PURE__ */ F(""), v = {
+	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(null), f = /* @__PURE__ */ F(""), p = /* @__PURE__ */ F(""), m = /* @__PURE__ */ F("pending"), h = /* @__PURE__ */ F(""), g = /* @__PURE__ */ F("PRESERVE_HOLD"), _ = /* @__PURE__ */ F(""), v = /* @__PURE__ */ F(!1), y = /* @__PURE__ */ F(""), b = /* @__PURE__ */ F(""), x = {
 		SYNTHESIS_READY: "landed evidence",
 		SYNTHESIZING: "synthesis",
 		DECISION_REQUIRED: "direction decision",
@@ -3738,25 +3738,25 @@ function Ws(e, t) {
 		RUNNING: "wave out",
 		REVISING: "plan revision"
 	};
-	function y(e, t = 260) {
+	function S(e, t = 260) {
 		let n = String(e || "").trim().replace(/\s+/g, " ");
 		return n.length <= t ? n : `${n.slice(0, t).replace(/\s+\S*$/, "")}…`;
 	}
-	function b(e) {
+	function C(e) {
 		let t = Array.isArray(e?.researchRequests) ? e.researchRequests : [], n = e?.wave?.id ? t.filter((t) => t.waveId === e.wave.id) : t;
 		if (!["drafting", "drafted"].includes(String(e?.researchPlan?.status || ""))) return n;
 		let r = n.filter((e) => e.status === "in_review"), i = new Set((Array.isArray(e?.researchPlan?.response?.lanes) ? e.researchPlan.response.lanes : []).map((e) => e?.requestId).filter(Boolean));
 		return i.size ? r.filter((e) => i.has(e.id)) : r;
 	}
-	function x(e) {
+	function w(e) {
 		return e?.action === "DROP" || e?.contract?.status === "NOT_LAUNCHABLE" ? "excluded" : e?.contract?.status === "AFTER_DEPENDENCY" || e?.dependsOnTaskIds?.length ? "followup" : e?.contract?.status === "READY" && /^[0-9a-f]{40}$/i.test(String(e.contract.baseRef || "")) ? "ready" : "contract";
 	}
-	function S(e) {
+	function T(e) {
 		let t = e.controlState?.recovery, n = (e.researchRuns || []).find((e) => e.status === "failed" && !e.evidenceSha256);
 		if (t?.required && n && e.researchSchedule?.status === "failed") return {
 			status: "SAFE RETRY READY",
 			title: "Return the failed launch to one checked gate",
-			detail: y(n.error || "The worker stopped before validated evidence landed. Its attempt remains preserved, and no mathematical claim was inferred."),
+			detail: S(n.error || "The worker stopped before validated evidence landed. Its attempt remains preserved, and no mathematical claim was inferred."),
 			actions: [{
 				key: "research.failure.requeue",
 				targetId: n.id,
@@ -3769,7 +3769,7 @@ function Ws(e, t) {
 			return {
 				status: "RECOVERY REVIEW",
 				title: "Workflow and frozen wave disagree",
-				detail: y(t.summary || `The workflow is ${t.workflowPhase}, while the frozen wave is ${t.wavePhase}. Inspect the durable boundary before choosing a new transition.`),
+				detail: S(t.summary || `The workflow is ${t.workflowPhase}, while the frozen wave is ${t.wavePhase}. Inspect the durable boundary before choosing a new transition.`),
 				actions: [
 					...n?.status === "prepared" ? [{
 						key: "scroll",
@@ -3852,7 +3852,7 @@ function Ws(e, t) {
 			return {
 				status: "HUMAN DIRECTION GATE",
 				title: "Choose the campaign direction",
-				detail: y(t?.operatorBrief?.nextDecision || t?.waveReview?.summary || `Sol proposes ${n.length} follow-up lanes.`),
+				detail: S(t?.operatorBrief?.nextDecision || t?.waveReview?.summary || `Sol proposes ${n.length} follow-up lanes.`),
 				actions: [
 					...r ? [{
 						key: "synthesis.review",
@@ -3887,16 +3887,16 @@ function Ws(e, t) {
 			};
 		}
 		if (e.phase === "RESEARCH_REVIEW") {
-			let t = e.researchPlan, n = (Array.isArray(t?.response?.lanes) ? t.response.lanes : []).filter((e) => x(e) === "ready"), r = t?.status === "drafted" && t?.response?.decision === "BLOCKED";
+			let t = e.researchPlan, n = (Array.isArray(t?.response?.lanes) ? t.response.lanes : []).filter((e) => w(e) === "ready"), r = t?.status === "drafted" && t?.response?.decision === "BLOCKED";
 			return t?.status === "drafting" ? {
 				status: "SOL CHECKING",
 				title: "Sol is shaping the next bounded wave",
-				detail: `The coordinator is checking ${b(e).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`,
+				detail: `The coordinator is checking ${C(e).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`,
 				actions: []
 			} : r ? {
 				status: "OPERATOR TRANSITION",
 				title: "The checked plan needs one operator-owned change",
-				detail: y(t?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."),
+				detail: S(t?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."),
 				actions: [{
 					key: "scroll",
 					label: "Open required operator gate",
@@ -3906,7 +3906,7 @@ function Ws(e, t) {
 			} : t?.status === "drafted" ? {
 				status: "HUMAN PLAN GATE",
 				title: `Review ${n.length} launchable lane${n.length === 1 ? "" : "s"}`,
-				detail: y(t?.response?.summary || t?.response?.operatorGuidance || "The checked plan is ready for an explicit human gate."),
+				detail: S(t?.response?.summary || t?.response?.operatorGuidance || "The checked plan is ready for an explicit human gate."),
 				actions: [
 					{
 						key: "research.review.resolve",
@@ -3930,7 +3930,7 @@ function Ws(e, t) {
 			} : {
 				status: "PLAN INPUT READY",
 				title: "Ask Sol to shape the wave",
-				detail: `${b(e).filter((e) => e.status === "proposed").length} candidate lane records are ready for dependency, staffing, resource, and breadth checks.`,
+				detail: `${C(e).filter((e) => e.status === "proposed").length} candidate lane records are ready for dependency, staffing, resource, and breadth checks.`,
 				actions: [{
 					key: "research.review.start",
 					label: "Check & shape lane plan",
@@ -3959,6 +3959,21 @@ function Ws(e, t) {
 					key: "loop.resume",
 					label: "Resume & dispatch",
 					style: "primary-button"
+				}]
+			} : e.loop?.resumeBlocker ? {
+				status: "PLAN REPAIR NEEDED",
+				title: "Repair the checked launch frontier",
+				detail: S(e.loop.resumeBlocker),
+				actions: [{
+					key: "reveal",
+					label: "Inspect process & plan",
+					target: "#process-history",
+					style: "primary-button"
+				}, {
+					key: "reveal",
+					label: "Review strategy context",
+					target: "#strategy-workspaces",
+					style: "outline-button"
 				}]
 			} : {
 				status: "LAUNCH PREPARATION",
@@ -3994,7 +4009,7 @@ function Ws(e, t) {
 			return {
 				status: t ? "LANDING GATE" : n ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
 				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : r?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
-				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : y(n ? n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate." : r?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
+				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : S(n ? n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate." : r?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
 				actions: t ? [{
 					key: "research.evidence.return",
 					targetId: t.id,
@@ -4042,8 +4057,8 @@ function Ws(e, t) {
 			actions: []
 		};
 	}
-	async function C(e) {
-		if (!(!H(l) || H(u))) {
+	async function E(e) {
+		if (!(!H(d) || H(f))) {
 			if (e.key === "scroll") {
 				document.querySelector(e.target || "")?.scrollIntoView({
 					behavior: "smooth",
@@ -4067,17 +4082,17 @@ function Ws(e, t) {
 				}));
 				return;
 			}
-			I(u, e.key), I(f, "pending"), I(d, e.key === "refresh" ? "Rechecking the worker and receipt boundary…" : "Applying the checked transition…");
+			I(f, e.key), I(m, "pending"), I(p, e.key === "refresh" ? "Rechecking the worker and receipt boundary…" : "Applying the checked transition…");
 			try {
 				if (e.key === "refresh") {
-					await Ro(), I(f, "success"), I(d, "The worker and receipt boundary is current.");
+					await Ro(), I(m, "success"), I(p, "The worker and receipt boundary is current.");
 					return;
 				}
 				let t = {
 					...e.args || {},
-					...["synthesis.review", "research.review.resolve"].includes(e.key) ? { note: H(p) } : {}
+					...["synthesis.review", "research.review.resolve"].includes(e.key) ? { note: H(h) } : {}
 				}, n = await ns({
-					projectId: H(l).id,
+					projectId: H(d).id,
 					type: e.key,
 					targetId: e.targetId || "",
 					args: t,
@@ -4085,84 +4100,92 @@ function Ws(e, t) {
 					pollLimit: ["synthesis.request", "research.review.start"].includes(e.key) ? 160 : 80
 				});
 				e.key === "research.failure.requeue" && n.project.phase === "RESEARCH_READY" && await ns({
-					projectId: H(l).id,
+					projectId: H(d).id,
 					type: "loop.resume",
 					scope: "primary-rail-retry",
 					pollLimit: 80
 				}), e.key === "synthesis.review" && e.args?.decision === "research" && n.project.phase === "RESEARCH_REVIEW" && await ns({
-					projectId: H(l).id,
+					projectId: H(d).id,
 					type: "research.review.start",
 					scope: "primary-rail",
 					pollLimit: 160
-				}), I(p, ""), I(f, "success"), I(d, "The transition settled and the live control state is current.");
+				}), I(h, ""), I(m, "success"), I(p, "The transition settled and the live control state is current.");
 			} catch (e) {
-				I(f, "error"), I(d, e instanceof Error ? e.message : String(e));
+				I(m, "error"), I(p, e instanceof Error ? e.message : String(e));
 			} finally {
-				I(u, "");
+				I(f, "");
 			}
 		}
 	}
-	async function w() {
-		let e = H(l)?.recoveryReport;
-		if (!(!H(l) || !e || e.status !== "prepared" || H(u) || !H(g))) {
-			I(u, "campaign.recovery.apply"), I(f, "pending"), I(d, "Revalidating the exact recovery digest…");
+	async function D() {
+		let e = H(d)?.recoveryReport;
+		if (!(!H(d) || !e || e.status !== "prepared" || H(f) || !H(v))) {
+			I(f, "campaign.recovery.apply"), I(m, "pending"), I(p, "Revalidating the exact recovery digest…");
 			try {
 				await ns({
-					projectId: H(l).id,
+					projectId: H(d).id,
 					type: "campaign.recovery.apply",
 					args: {
 						reportId: e.id,
 						reportDigest: e.reportDigest,
-						decision: H(m),
-						note: H(h),
+						decision: H(g),
+						note: H(_),
 						confirmation: "APPLY CAMPAIGN RECOVERY"
 					},
 					scope: "recovery-rail"
-				}), I(g, !1), I(h, ""), I(f, "success"), I(d, "The selected historical recovery decision settled. No worker result, dispatch, claim promotion, merge, or push was inferred.");
+				}), I(v, !1), I(_, ""), I(m, "success"), I(p, "The selected historical recovery decision settled. No worker result, dispatch, claim promotion, merge, or push was inferred.");
 			} catch (e) {
-				I(f, "error"), I(d, e instanceof Error ? e.message : String(e));
+				I(m, "error"), I(p, e instanceof Error ? e.message : String(e));
 			} finally {
-				I(u, "");
+				I(f, "");
 			}
 		}
 	}
 	B(() => n(), () => {
-		I(l, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
-	}), B(() => H(l), () => {
-		I(a, H(l) ? S(H(l)) : null);
-	}), B(() => H(l), () => {
-		I(o, Array.isArray(H(l)?.researchPlan?.response?.lanes) ? H(l).researchPlan.response.lanes : []);
-	}), B(() => H(l), () => {
-		I(s, H(l)?.wave?.synthesis?.response || null);
-	}), B(() => (H(l), H(s)), () => {
-		I(c, H(l)?.researchPlan?.response?.operatorGuidance || H(s)?.waveReview?.coordinatorGuidance || H(s)?.nextWave?.objective || H(l)?.role || "");
-	}), B(() => (H(l), H(_)), () => {
-		(H(l)?.recoveryReport?.id || "") !== H(_) && (I(_, H(l)?.recoveryReport?.id || ""), I(m, "PRESERVE_HOLD"), I(h, ""), I(g, !1));
+		I(d, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
+	}), B(() => H(d), () => {
+		I(a, Array.isArray(H(d)?.loop?.steps) ? H(d)?.loop?.steps.at(-1) : null);
+	}), B(() => (H(d), H(a)), () => {
+		I(o, H(d)?.loop?.status === "attention" && H(a)?.status === "failed" ? String(H(d)?.loop?.error || "") : "");
+	}), B(() => (H(o), H(b)), () => {
+		H(o) && H(o) !== H(b) && (I(b, H(o)), I(m, "error"), I(p, S(H(o), 520)));
+	}), B(() => (H(o), H(b)), () => {
+		!H(o) && H(b) && I(b, "");
+	}), B(() => H(d), () => {
+		I(s, H(d) ? T(H(d)) : null);
+	}), B(() => H(d), () => {
+		I(c, Array.isArray(H(d)?.researchPlan?.response?.lanes) ? H(d).researchPlan.response.lanes : []);
+	}), B(() => H(d), () => {
+		I(l, H(d)?.wave?.synthesis?.response || null);
+	}), B(() => (H(d), H(l)), () => {
+		I(u, H(d)?.researchPlan?.response?.operatorGuidance || H(l)?.waveReview?.coordinatorGuidance || H(l)?.nextWave?.objective || H(d)?.role || "");
+	}), B(() => (H(d), H(y)), () => {
+		(H(d)?.recoveryReport?.id || "") !== H(y) && (I(y, H(d)?.recoveryReport?.id || ""), I(g, "PRESERVE_HOLD"), I(_, ""), I(v, !1));
 	}), Br(), vo();
-	var T = ca(), E = R(T), D = (e) => {
-		var t = Vs(), n = L(t), r = L(n), i = L(r), _ = L(i, !0);
+	var O = ca(), k = R(O), A = (e) => {
+		var t = Vs(), n = L(t), r = L(n), i = L(r), a = L(i, !0);
 		N(i);
-		var b = z(i), S = L(b, !0);
-		N(b);
-		var T = z(b), E = L(T, !0);
-		N(T), N(r);
-		var D = z(r, 2), O = L(D, !0);
-		N(D);
-		var k = z(D, 2), A = L(k, !0);
+		var o = z(i), y = L(o, !0);
+		N(o);
+		var b = z(o), C = L(b, !0);
+		N(b), N(r);
+		var T = z(r, 2), O = L(T, !0);
+		N(T);
+		var k = z(T, 2), A = L(k, !0);
 		N(k);
 		var j = z(k, 2), ee = (e) => {
 			var t = Os(), n = z(L(t)), r = L(n, !0);
-			N(n), N(t), V((e) => q(r, e), [() => (H(c), U(() => y(H(c), 360)))]), K(e, t);
+			N(n), N(t), V((e) => q(r, e), [() => (H(u), U(() => S(H(u), 360)))]), K(e, t);
 		};
 		J(j, (e) => {
-			H(c) && e(ee);
+			H(u) && e(ee);
 		});
 		var te = z(j, 2), M = (e) => {
 			var t = ks(), n = z(L(t)), r = L(n);
-			N(n), N(t), V((e) => q(r, `${e ?? ""} · ${H(l), U(() => H(l).controlState.observation.active) ?? ""} active`), [() => (H(l), U(() => v[H(l).controlState.observation.phase] || H(l).controlState.observation.phase?.toLowerCase().replaceAll("_", " ")))]), K(e, t);
+			N(n), N(t), V((e) => q(r, `${e ?? ""} · ${H(d), U(() => H(d).controlState.observation.active) ?? ""} active`), [() => (H(d), U(() => x[H(d).controlState.observation.phase] || H(d).controlState.observation.phase?.toLowerCase().replaceAll("_", " ")))]), K(e, t);
 		};
 		J(te, (e) => {
-			H(l), U(() => H(l).controlState?.observation) && e(M);
+			H(d), U(() => H(d).controlState?.observation) && e(M);
 		});
 		var ne = z(te, 2), re = z(L(ne), 2), ie = L(re), ae = z(L(ie));
 		N(ie);
@@ -4171,21 +4194,21 @@ function Ws(e, t) {
 		var ce = z(oe, 2), le = z(L(ce));
 		N(ce), N(re), N(ne), N(n);
 		var ue = z(n, 2);
-		Y(ue, 5, () => (H(a), U(() => H(a).actions)), _a, (e, t) => {
+		Y(ue, 5, () => (H(s), U(() => H(s).actions)), _a, (e, t) => {
 			var n = As(), r = L(n, !0);
 			N(n), V((e) => {
-				X(n, 1, Ma((H(t), U(() => H(t).style || "outline-button")))), n.disabled = e, q(r, (H(u), H(t), U(() => H(u) === H(t).key ? "Working…" : H(t).label)));
-			}, [() => (H(u), U(() => !!H(u)))]), W("click", n, () => C(H(t))), K(e, n);
+				X(n, 1, Ma((H(t), U(() => H(t).style || "outline-button")))), n.disabled = e, q(r, (H(f), H(t), U(() => H(f) === H(t).key ? "Working…" : H(t).label)));
+			}, [() => (H(f), U(() => !!H(f)))]), W("click", n, () => E(H(t))), K(e, n);
 		}), N(ue);
 		var de = z(ue, 2), fe = (e) => {
 			var t = Is(), n = L(t), r = z(L(n)), i = L(r, !0);
 			N(r), N(n);
-			var a = z(n, 2), c = L(a), u = (e) => {
+			var a = z(n, 2), o = L(a), s = (e) => {
 				var t = Ns(), n = R(t), r = L(n, !0);
 				N(n);
 				var i = z(n, 2), a = (e) => {
 					var t = Ms();
-					Y(t, 5, () => (H(s), U(() => H(s).waveReview.quickChecks)), _a, (e, t) => {
+					Y(t, 5, () => (H(l), U(() => H(l).waveReview.quickChecks)), _a, (e, t) => {
 						var n = js(), r = L(n), i = L(r, !0);
 						N(r);
 						var a = z(r), o = L(a, !0);
@@ -4195,11 +4218,11 @@ function Ws(e, t) {
 					}), N(t), K(e, t);
 				};
 				J(i, (e) => {
-					H(s), U(() => H(s)?.waveReview?.quickChecks?.length) && e(a);
-				}), V(() => q(r, (H(s), U(() => H(s)?.waveReview?.summary || "No synthesis summary was recorded.")))), K(e, t);
-			}, d = (e) => {
+					H(l), U(() => H(l)?.waveReview?.quickChecks?.length) && e(a);
+				}), V(() => q(r, (H(l), U(() => H(l)?.waveReview?.summary || "No synthesis summary was recorded.")))), K(e, t);
+			}, u = (e) => {
 				var t = Fs();
-				Y(t, 5, () => H(o), _a, (e, t) => {
+				Y(t, 5, () => H(c), _a, (e, t) => {
 					var n = Ps(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a), s = L(o, !0);
@@ -4209,15 +4232,15 @@ function Ws(e, t) {
 					var u = z(c), d = L(u);
 					N(u), N(a), N(n), V((e) => {
 						q(i, (H(t), U(() => H(t).priority || "–"))), q(s, (H(t), U(() => H(t).taskId || "bounded lane"))), q(l, (H(t), U(() => H(t).question || H(t).objective || H(t).rationale))), q(d, `${e ?? ""} · ${H(t), U(() => H(t).profile || "sonnet-worker") ?? ""}`);
-					}, [() => (H(t), U(() => x(H(t))))]), K(e, n);
+					}, [() => (H(t), U(() => w(H(t))))]), K(e, n);
 				}), N(t), K(e, t);
 			};
-			J(c, (e) => {
-				H(l), U(() => H(l).phase === "DECISION_REQUIRED") ? e(u) : e(d, -1);
+			J(o, (e) => {
+				H(d), U(() => H(d).phase === "DECISION_REQUIRED") ? e(s) : e(u, -1);
 			});
-			var f = z(c, 2), m = z(L(f));
-			tn(m), N(f), N(a), N(t), V(() => q(i, (H(l), H(s), H(o), U(() => H(l).phase === "DECISION_REQUIRED" ? `${H(s)?.nextWave?.lanes?.length || 0} proposed next lanes` : `${H(o).length} checked plan records`)))), so(m, () => H(p), (e) => I(p, e)), K(e, t);
-		}, pe = /* @__PURE__ */ P(() => (H(l), U(() => ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(H(l).phase))));
+			var f = z(o, 2), p = z(L(f));
+			tn(p), N(f), N(a), N(t), V(() => q(i, (H(d), H(l), H(c), U(() => H(d).phase === "DECISION_REQUIRED" ? `${H(l)?.nextWave?.lanes?.length || 0} proposed next lanes` : `${H(c).length} checked plan records`)))), so(p, () => H(h), (e) => I(h, e)), K(e, t);
+		}, pe = /* @__PURE__ */ P(() => (H(d), U(() => ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(H(d).phase))));
 		J(de, (e) => {
 			H(pe) && e(fe);
 		});
@@ -4229,54 +4252,54 @@ function Ws(e, t) {
 				N(i), N(r);
 				var o = z(r, 2), s = z(L(o)), c = L(s, !0);
 				N(s), N(o);
-				var d = z(o, 2), f = z(L(d)), p = L(f);
-				N(f), N(d);
-				var _ = z(d, 2), v = z(L(_)), y = L(v, !0);
-				N(v), N(_), N(n);
+				var l = z(o, 2), u = z(L(l)), p = L(u);
+				N(u), N(l);
+				var m = z(l, 2), h = z(L(m)), y = L(h, !0);
+				N(h), N(m), N(n);
 				var b = z(n, 2), x = z(L(b)), S = L(x, !0);
 				N(x), N(b);
-				var C = z(b, 2), T = L(C, !0);
+				var C = z(b, 2), w = L(C, !0);
 				N(C);
-				var E = z(C, 2), D = z(L(E)), O = L(D);
+				var T = z(C, 2), E = z(L(T)), O = L(E);
 				O.value = O.__value = "PRESERVE_HOLD";
 				var k = z(O);
 				k.value = k.__value = "ALIGN_WAVE_TO_WORKFLOW";
 				var A = z(k);
 				A.value = A.__value = "ALIGN_WORKFLOW_TO_WAVE";
 				var j = z(A);
-				j.value = j.__value = "APPLY_VALIDATED_PROJECTION_REPAIR", N(D), N(E);
-				var ee = z(E, 2), te = z(L(ee));
+				j.value = j.__value = "APPLY_VALIDATED_PROJECTION_REPAIR", N(E), N(T);
+				var ee = z(T, 2), te = z(L(ee));
 				tn(te), N(ee);
 				var M = z(ee, 2), ne = L(M);
 				$a(ne), Ke(), N(M);
 				var re = z(M, 4), ie = L(re, !0);
 				N(re), N(t), V((e) => {
-					q(a, (H(l), U(() => H(l).recoveryReport.snapshot?.project?.phase))), q(c, (H(l), U(() => H(l).recoveryReport.snapshot?.wave?.phase))), q(p, `${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.accounted) ?? ""}/${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.total) ?? ""}`), q(y, (H(l), U(() => H(l).recoveryReport.snapshot?.controlState?.recovery?.activeExecution || 0))), q(S, (H(l), U(() => H(l).recoveryReport.reportDigest))), q(T, (H(l), U(() => H(l).recoveryReport.snapshot?.projectionRepair?.summary))), j.disabled = (H(l), U(() => !H(l).recoveryReport.snapshot?.choices?.applyProjectionRepair)), re.disabled = e, q(ie, H(u) === "campaign.recovery.apply" ? "Revalidating…" : "Apply selected recovery");
-				}, [() => (H(g), H(u), U(() => !H(g) || !!H(u)))]), Ha(D, () => H(m), (e) => I(m, e)), so(te, () => H(h), (e) => I(h, e)), co(ne, () => H(g), (e) => I(g, e)), W("click", re, w), K(e, t);
+					q(a, (H(d), U(() => H(d).recoveryReport.snapshot?.project?.phase))), q(c, (H(d), U(() => H(d).recoveryReport.snapshot?.wave?.phase))), q(p, `${H(d), U(() => H(d).recoveryReport.snapshot?.wave?.accounting?.accounted) ?? ""}/${H(d), U(() => H(d).recoveryReport.snapshot?.wave?.accounting?.total) ?? ""}`), q(y, (H(d), U(() => H(d).recoveryReport.snapshot?.controlState?.recovery?.activeExecution || 0))), q(S, (H(d), U(() => H(d).recoveryReport.reportDigest))), q(w, (H(d), U(() => H(d).recoveryReport.snapshot?.projectionRepair?.summary))), j.disabled = (H(d), U(() => !H(d).recoveryReport.snapshot?.choices?.applyProjectionRepair)), re.disabled = e, q(ie, H(f) === "campaign.recovery.apply" ? "Revalidating…" : "Apply selected recovery");
+				}, [() => (H(v), H(f), U(() => !H(v) || !!H(f)))]), Ha(E, () => H(g), (e) => I(g, e)), so(te, () => H(_), (e) => I(_, e)), co(ne, () => H(v), (e) => I(v, e)), W("click", re, D), K(e, t);
 			}, s = (e) => {
 				K(e, Rs());
 			};
 			J(a, (e) => {
-				H(l), U(() => H(l).recoveryReport?.status === "prepared") ? e(o) : e(s, -1);
+				H(d), U(() => H(d).recoveryReport?.status === "prepared") ? e(o) : e(s, -1);
 			}), N(t), V(() => {
-				t.open = (H(l), U(() => H(l).recoveryReport?.status === "prepared")), q(i, (H(l), U(() => H(l).recoveryReport?.status === "prepared" ? "DIGEST FROZEN" : "REPORT REQUIRED")));
+				t.open = (H(d), U(() => H(d).recoveryReport?.status === "prepared")), q(i, (H(d), U(() => H(d).recoveryReport?.status === "prepared" ? "DIGEST FROZEN" : "REPORT REQUIRED")));
 			}), K(e, t);
 		};
 		J(me, (e) => {
-			H(l), H(a), U(() => H(l).controlState?.recovery?.required && H(a).status !== "SAFE RETRY READY") && e(he);
+			H(d), H(s), U(() => H(d).controlState?.recovery?.required && H(s).status !== "SAFE RETRY READY") && e(he);
 		});
 		var ge = z(me, 2), _e = (e) => {
 			var t = Bs(), n = L(t, !0);
 			N(t), V(() => {
-				X(t, 1, `gate-feedback ${H(f) ?? ""}`), q(n, H(d));
+				X(t, 1, `gate-feedback ${H(m) ?? ""}`), q(n, H(p));
 			}), K(e, t);
 		};
 		J(ge, (e) => {
-			H(d) && e(_e);
+			H(p) && e(_e);
 		}), N(t), V((e, t) => {
-			q(_, (H(l), U(() => H(l).id))), q(S, e), q(E, (H(a), U(() => H(a).status))), q(O, (H(a), U(() => H(a).title))), q(A, (H(a), U(() => H(a).detail))), q(ae, ` ${H(l), U(() => H(l).phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : H(l).phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it.") ?? ""}`), q(se, ` ${t ?? ""}`), q(le, ` ${H(a), U(() => H(a).actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : H(a).actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated.") ?? ""}`);
-		}, [() => (H(l), U(() => v[H(l).phase] || H(l).phase?.toLowerCase().replaceAll("_", " "))), () => (H(l), H(c), U(() => y(H(l).researchSchedule?.members?.[0]?.expectedDelta || H(l).researchPlan?.response?.lanes?.[0]?.evidenceExpected || H(c) || H(l).role, 420)))]), K(e, t);
-	}, O = (e) => {
+			q(a, (H(d), U(() => H(d).id))), q(y, e), q(C, (H(s), U(() => H(s).status))), q(O, (H(s), U(() => H(s).title))), q(A, (H(s), U(() => H(s).detail))), q(ae, ` ${H(d), U(() => H(d).phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : H(d).phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it.") ?? ""}`), q(se, ` ${t ?? ""}`), q(le, ` ${H(s), U(() => H(s).actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : H(s).actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated.") ?? ""}`);
+		}, [() => (H(d), U(() => x[H(d).phase] || H(d).phase?.toLowerCase().replaceAll("_", " "))), () => (H(d), H(u), U(() => S(H(d).researchSchedule?.members?.[0]?.expectedDelta || H(d).researchPlan?.response?.lanes?.[0]?.evidenceExpected || H(u) || H(d).role, 420)))]), K(e, t);
+	}, j = (e) => {
 		var t = Us(), r = z(L(t), 2);
 		Y(r, 5, () => (n(), U(() => n().control.projectIndex)), _a, (e, t) => {
 			var n = Hs(), r = L(n), i = L(r, !0);
@@ -4285,13 +4308,13 @@ function Ws(e, t) {
 			N(a);
 			var s = z(a), c = L(s, !0);
 			N(s), N(n), V(() => {
-				q(i, (H(t), U(() => H(t).id))), q(o, (H(t), U(() => v[H(t).phase] || H(t).phase))), q(c, (H(t), U(() => H(t).role)));
+				q(i, (H(t), U(() => H(t).id))), q(o, (H(t), U(() => x[H(t).phase] || H(t).phase))), q(c, (H(t), U(() => H(t).role)));
 			}), W("click", n, () => No(String(H(t).id))), K(e, n);
 		}), N(r), N(t), K(e, t);
 	};
-	J(E, (e) => {
-		H(l) && H(a) ? e(D) : (n(), U(() => n().control?.projectIndex?.length) && e(O, 1));
-	}), K(e, T), xt(), i();
+	J(k, (e) => {
+		H(d) && H(s) ? e(A) : (n(), U(() => n().control?.projectIndex?.length) && e(j, 1));
+	}), K(e, O), xt(), i();
 }
 //#endregion
 //#region src/ui/PacketInbox.svelte
