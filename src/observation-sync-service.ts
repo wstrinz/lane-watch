@@ -251,7 +251,8 @@ export class ObservationSyncService {
             error = "";
           } catch (receiptError) {
             if (terminal || (receiptError as NodeJS.ErrnoException)?.code !== "ENOENT") {
-              error = receiptError instanceof Error ? `Evidence receipt is not ready: ${receiptError.message}` : "Evidence receipt is not ready.";
+              const receiptDetail = receiptError instanceof Error ? `Evidence receipt is not ready: ${receiptError.message}` : "Evidence receipt is not ready.";
+              error = terminalFailure ? `${error} ${receiptDetail}`.trim() : receiptDetail;
             }
           }
         }
@@ -299,7 +300,7 @@ export class ObservationSyncService {
     if (!active?.count) {
       const wave = this.waves.latest(projectId);
       const schedule = wave ? this.schedules.latest(projectId, wave.wave_id) : null;
-      if (schedule && ["dispatching", "running", "attention"].includes(schedule.status)) {
+      if (schedule && ["dispatching", "running", "attention", "landed"].includes(schedule.status)) {
         const members = this.schedules.members(schedule.schedule_id);
         if (members.length && members.every((member) => !["reserved", "launching", "running", "blocked"].includes(member.status))) {
           this.schedules.transitionSchedule(schedule.schedule_id, members.every((member) => member.status === "failed") ? "failed" : "landed", this.port.now());
