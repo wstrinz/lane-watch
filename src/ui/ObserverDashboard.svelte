@@ -124,7 +124,15 @@
   $: stale = snapshot ? Date.now() - new Date(snapshot.generatedAt).valueOf() >= 35_000 : false;
   $: alertLabel = ({ loading: "Checking alerts…", unsupported: "Alerts unsupported", disabled: "Enable alerts", enabled: "Alerts enabled", error: "Alert setup failed" } as Record<string, string>)[$alertState];
 
-  onMount(() => { if (openLaneId) void showLane(openLaneId); });
+  onMount(() => {
+    const openRequestedLane = (event: Event) => {
+      const id = (event as CustomEvent<{ id?: string }>).detail?.id || "";
+      if (id) void showLane(id);
+    };
+    window.addEventListener("lane-watch:open-lane", openRequestedLane);
+    if (openLaneId) void showLane(openLaneId);
+    return () => window.removeEventListener("lane-watch:open-lane", openRequestedLane);
+  });
 </script>
 
 <section class="summary" aria-label="Lane summary">

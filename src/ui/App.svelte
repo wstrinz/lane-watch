@@ -13,11 +13,12 @@
   import HeaderAutopilot from "./HeaderAutopilot.svelte";
   import CampaignProcessTracker from "./CampaignProcessTracker.svelte";
   import OperatorGate from "./OperatorGate.svelte";
+  import ActiveLaneStrip from "./ActiveLaneStrip.svelte";
   import StrategyOverview from "./StrategyOverview.svelte";
   import ResourceEconomy from "./ResourceEconomy.svelte";
   import StrategyWorkspace from "./StrategyWorkspace.svelte";
   import CustodyService from "./CustodyService.svelte";
-  import { campaignState, connectCampaignState, refreshAll } from "./campaign-state";
+  import { campaignState, connectCampaignState, refreshAll, selectProject } from "./campaign-state";
   import { registerPwa } from "./pwa";
 
   onMount(() => {
@@ -28,10 +29,10 @@
 </script>
 
 <header class="topbar">
-  <div class="topbar-brand">
+  <a class="topbar-brand" href="/" title="Open all jobs" onclick={(event) => { event.preventDefault(); selectProject(""); }}>
     <p class="eyebrow">CAMPAIGN CONTROL</p>
     <h1>Lane Watch</h1>
-  </div>
+  </a>
   <HeaderAutopilot />
   <div class="connection-wrap">
     {#if $campaignState.access}<span class="access-identity" title={`${$campaignState.access.projects.includes("*") ? "Read all projects" : `Read ${$campaignState.access.projects.join(", ")}`} · ${$campaignState.access.mutableProjects.includes("*") ? "change all projects" : `change ${$campaignState.access.mutableProjects.join(", ") || "none"}`}`}><b>{$campaignState.access.role}</b>{$campaignState.access.identity}</span>{/if}
@@ -49,6 +50,7 @@
     </section>
   {:else}
     <CampaignProcessTracker />
+    <ActiveLaneStrip />
     <PrimaryActionRail />
     <details class="autopilot-ledger">
       <summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary>
