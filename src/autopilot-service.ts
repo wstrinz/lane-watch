@@ -295,9 +295,10 @@ export class AutopilotService {
       const run = this.database.query("SELECT run_id FROM campaign_research_runs WHERE project_id = $project AND status = 'evidence_ready' ORDER BY created_at DESC LIMIT 1")
         .get({ $project: projectId }) as { run_id: string } | null;
       if (!run) {
-        const failed = project.researchRuns.find((candidate: any) => candidate.status === "failed");
+        const failed = this.database.query("SELECT task_id FROM campaign_research_runs WHERE project_id = $project AND status = 'failed' ORDER BY created_at DESC LIMIT 1")
+          .get({ $project: projectId }) as { task_id: string } | null;
         return this.attention(loop, failed
-          ? `Research launch failed safely before evidence landed: ${failed.taskId}. Use the recovery gate to stage a fresh checked schedule.`
+          ? `Research launch failed safely before evidence landed: ${failed.task_id}. Use the recovery gate to stage a fresh checked schedule.`
           : "Research intake has no validated evidence-ready receipt");
       }
       return this.enqueueStep(loop, "research.evidence.return", run.run_id);
