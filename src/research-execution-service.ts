@@ -2,6 +2,7 @@ import { Database } from "bun:sqlite";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CodexAppServerClient } from "./codex";
+import type { AutopilotStartReadiness } from "./autopilot-readiness";
 import type { CampaignCoordinationInterface } from "./campaign-coordination-interface-service";
 import { buildWaveSchedule, waveScheduleDigest, type ScheduledLaunchSpec, type WaveScheduleCandidate, type WaveScheduleProposal } from "./wave-schedule";
 import { WaveScheduleRepository, type WaveScheduleMemberRow, type WaveScheduleRow } from "./wave-schedule-repository";
@@ -85,6 +86,7 @@ interface ResearchExecutionPort {
   projectRoot(projectId: string): string;
   coordinatorFallbackCwd(): string;
   resourceSnapshot(projectId: string): Record<string, any>;
+  startReadiness(projectId: string): AutopilotStartReadiness;
   coordinator(projectId: string): { thread_id: string; thread_cwd: string; model: string; effort: string } | null;
   writableCoordinator(projectId: string): Promise<{ thread_id: string; thread_cwd: string; model: string; effort: string }>;
   strategyBundleContext(projectId: string): unknown;
@@ -258,6 +260,10 @@ export class ResearchExecutionService {
     if (this.port.project(projectId).current_phase !== "RESEARCH_READY") throw new Error("A wave schedule can be prepared only from RESEARCH_READY");
     if (!this.port.coordinationInterface(projectId).capabilities.prepareSchedule) {
       throw new Error("A wave schedule can be prepared only from an aligned imported-wave boundary");
+    }
+    const readiness = this.port.startReadiness(projectId);
+    if (!readiness.canStart && readiness.code !== "SCHEDULE_CONFIRMATION") {
+      throw new Error(`Wave schedule preflight blocked: ${readiness.blocker}`);
     }
     const proposal = this.buildSchedule(projectId);
     if (!proposal.invariants.valid) {

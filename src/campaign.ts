@@ -1010,6 +1010,7 @@ export class CampaignControl {
       projectRoot: (projectId) => this.projectRoot(projectId),
       coordinatorFallbackCwd: () => dirname(dirname(this.manifestPath)),
       resourceSnapshot: (projectId) => this.resourceSnapshot(projectId),
+      startReadiness: (projectId) => this.autopilotStartReadiness(projectId),
       coordinator: (projectId) => this.coordinator(projectId),
       writableCoordinator: (projectId) => this.writableCoordinator(projectId),
       strategyBundleContext: (projectId) => this.strategyBundleContext(projectId),

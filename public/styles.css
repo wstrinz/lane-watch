@@ -234,6 +234,10 @@ main {
 .loop-now { display: grid; gap: 3px; min-width: 0; }
 .loop-now > strong { color: #bed0c2; font-size: .65rem; line-height: 1.35; }
 .loop-buttons { display: flex; flex: 0 0 auto; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.autopilot-start-button { min-width: 230px; min-height: 46px; border-color: #5c9c71; background: linear-gradient(135deg, #2c573d, #1d3b2a); box-shadow: 0 0 0 1px rgba(113, 214, 160, .12), 0 8px 22px rgba(0, 0, 0, .18); font-size: .72rem; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
+.autopilot-start-button:disabled { cursor: not-allowed; opacity: .82; }
+.autopilot-unlock-button { min-height: 46px; border-color: #a65f4b; background: rgba(98, 45, 35, .28); color: #ffc0ae; font-weight: 780; }
+.autopilot-unlock-button:hover { border-color: #d47a61; background: rgba(126, 58, 44, .38); }
 .loop-error { display: flex; gap: 8px; margin-top: 9px; padding: 8px 9px; border: 1px solid #78483f; border-radius: 8px; background: rgba(79, 37, 31, .45); color: #ffc1b6; font-size: .62rem; line-height: 1.4; }
 .loop-error strong { flex: 0 0 auto; }
 .loop-ledger { margin-top: 9px; border-top: 1px solid #294536; }

@@ -106,6 +106,14 @@
     document.querySelector("#operator-gate, #next-action")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function revealStrategyProposal(): void {
+    for (const selector of ["#strategy-workspaces", "#strategy-workspace"]) {
+      const element = document.querySelector(selector);
+      if (element instanceof HTMLDetailsElement) element.open = true;
+    }
+    requestAnimationFrame(() => document.querySelector("#strategy-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+
   $: project = ($campaignState.control?.projects?.find((candidate) => candidate.id === $campaignState.selectedProject) as CampaignProject | undefined) || null;
   $: loop = project?.loop || null;
   $: active = Boolean(loop && ["running", "paused", "attention"].includes(loop.status));
@@ -118,7 +126,10 @@
   $: scheduleClosed = Boolean(schedule && ["completed", "failed", "superseded"].includes(schedule.status));
   $: scheduleNeedsPreparation = scheduleGate && (!schedule || scheduleClosed);
   $: scheduleVisible = Boolean(schedule && !scheduleClosed && ["RESEARCH_READY", "RESEARCH_RUNNING", "RESEARCH_INTAKE", "SYNTHESIZING"].includes(project?.phase || ""));
-  $: startBlocked = Boolean(project && !active && !project.canStartLoop && project.loopStart?.blocker);
+  $: startBlocked = Boolean(project && !active && !project.canStartLoop && project.loopStart?.blocker
+    && !(scheduleGate && schedule && ["proposed", "confirmed"].includes(schedule.status)));
+  $: strategyProposal = project?.strategy?.workspace?.activeReview?.status === "drafted"
+    ? project.strategy.workspace.activeReview.response?.proposal : null;
   $: statusLabel = startBlocked ? "PREFLIGHT BLOCKED"
     : scheduleGate && schedule?.status === "proposed" ? "CONFIRM WAVE"
     : scheduleGate && schedule?.status === "confirmed" ? "WAVE RESERVED"
@@ -180,10 +191,13 @@
     <div class="loop-control-row">
       <div class="loop-now">
         <span>{scheduleGate ? "Current position" : loop?.haltAfterStep ? "Halt armed" : active ? "Current position" : "Scope"}</span>
-        <strong>{scheduleNeedsPreparation ? "Checked plan → freeze schedule" : scheduleGate && schedule?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : scheduleGate && schedule?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : operatorTransitionRequired ? "DOC-A1 preflight passed · your approval is next" : activeRun ? `${activeRun.taskId} · ${activeRun.status}` : loop?.haltAfterStep ? "Will pause when this step settles" : current ? `${current.index}. ${current.label} · ${current.status}` : "One decision-to-decision cycle"}</strong>
+        <strong>{startBlocked ? "Resource gate → unlock autopilot" : scheduleNeedsPreparation ? "Checked plan → freeze schedule" : scheduleGate && schedule?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : scheduleGate && schedule?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : operatorTransitionRequired ? "DOC-A1 preflight passed · your approval is next" : activeRun ? `${activeRun.taskId} · ${activeRun.status}` : loop?.haltAfterStep ? "Will pause when this step settles" : current ? `${current.index}. ${current.label} · ${current.status}` : "One decision-to-decision cycle"}</strong>
       </div>
       <div class="loop-buttons">
-        {#if scheduleNeedsPreparation}
+        {#if startBlocked}
+          <button class="primary-button autopilot-start-button" disabled>▶ Start one-loop autopilot</button>
+          <button class="outline-button compact autopilot-unlock-button" onclick={revealStrategyProposal}>{strategyProposal?.epochLabel ? "Review Epoch 2 resource proposal →" : "Open strategy & resources →"}</button>
+        {:else if scheduleNeedsPreparation}
           <button class="primary-button compact" disabled={Boolean(working)} onclick={() => submit("research.schedule.prepare")}>{working ? "Freezing…" : "Freeze wave schedule"}</button>
           {#if active}<button class="outline-button compact" disabled={Boolean(working)} onclick={() => submit("loop.stop")}>Stop & capture here</button>{/if}
         {:else if scheduleGate && schedule?.status === "proposed"}
@@ -208,8 +222,6 @@
           <button class="outline-button compact" disabled={Boolean(working)} onclick={() => submit("loop.stop")}>Stop & capture here</button>
         {:else if project.canStartLoop}
           <button class="primary-button" disabled={Boolean(working)} onclick={() => submit("loop.start")}>{working === "loop.start" ? "Starting…" : loop?.status === "completed" ? "Run another complete loop" : project.phase === "DECISION_REQUIRED" ? "Run one complete loop" : "Continue this loop automatically"}</button>
-        {:else if startBlocked}
-          <button class="outline-button" disabled>Loop start blocked by preflight</button>
         {/if}
       </div>
     </div>

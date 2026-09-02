@@ -2074,6 +2074,7 @@ test("an explicit synthesis request advances through App Server completion", asy
   }, "test");
   const refusedLegacySchedule = await waitForAction(control, "demo", "research.schedule.prepare");
   expect(refusedLegacySchedule.status).toBe("failed");
-  expect(refusedLegacySchedule.error).toContain("no valid resource-bounded dispatch frontier");
+  expect(refusedLegacySchedule.error).toContain("Wave schedule preflight blocked");
+  expect(refusedLegacySchedule.error).toContain("no dependency-ready immutable launch contract");
   control.stop();
 }, 30_000);

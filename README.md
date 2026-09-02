@@ -95,6 +95,9 @@ creates a loop row or approves a checked plan, the preflight resolves the exact
 dependency-ready contracts and proves that at least the cheapest candidate fits
 the current wave and epoch envelopes. A blocked start reports the required and
 schedulable token amounts without consuming a workflow transition.
+The primary autopilot control remains visible in that state, impossible
+schedule actions are suppressed, and an enabled resource-gate action opens the
+exact strategy proposal needed to unlock the loop.
 
 The History surface mirrors that hierarchy from durable rows and keeps the
 chronological event graph alongside it. Each epoch shows recorded metric, cost,

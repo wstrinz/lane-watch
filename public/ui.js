@@ -55,8 +55,8 @@ function d(e, t) {
 }
 var f, p, m, h, g, _, v, y, b, x, S, C, w = t((() => {
 	f = Array.isArray, p = Array.prototype.indexOf, m = Array.prototype.includes, h = Array.from, g = Object.defineProperty, _ = Object.getOwnPropertyDescriptor, v = Object.getOwnPropertyDescriptors, y = Object.prototype, b = Array.prototype, x = Object.getPrototypeOf, S = Object.isExtensible, C = () => {};
-})), T, E, D, O, k, A, j, ee, M, te, ne, re, ie, ae, oe, se, ce, le, ue, de, fe, pe, me, he, ge, _e, ve = t((() => {
-	T = 1 << 24, E = 1024, D = 2048, O = 4096, k = 8192, A = 16384, j = 32768, ee = 1 << 25, M = 65536, te = 1 << 19, ne = 1 << 20, re = 1 << 25, ie = 65536, ae = 1 << 21, oe = 1 << 22, se = 1 << 23, ce = Symbol("$state"), le = Symbol("legacy props"), ue = Symbol(""), de = Symbol("attributes"), fe = Symbol("class"), pe = Symbol("style"), me = Symbol("text"), he = Symbol("form reset"), ge = new class extends Error {
+})), T, E, D, O, k, A, j, ee, te, M, ne, re, ie, ae, oe, se, ce, le, ue, de, fe, pe, me, he, ge, _e, ve = t((() => {
+	T = 1 << 24, E = 1024, D = 2048, O = 4096, k = 8192, A = 16384, j = 32768, ee = 1 << 25, te = 65536, M = 1 << 19, ne = 1 << 20, re = 1 << 25, ie = 65536, ae = 1 << 21, oe = 1 << 22, se = 1 << 23, ce = Symbol("$state"), le = Symbol("legacy props"), ue = Symbol(""), de = Symbol("attributes"), fe = Symbol("class"), pe = Symbol("style"), me = Symbol("text"), he = Symbol("form reset"), ge = new class extends Error {
 		name = "StaleReactionError";
 		message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
 	}(), _e = !!globalThis.document?.contentType && /* @__PURE__ */ globalThis.document.contentType.includes("xml");
@@ -529,7 +529,7 @@ function fn(e, t, n, r) {
 	new mn(e, t, n, r);
 }
 var pn, mn, hn = t((() => {
-	ve(), Le(), wt(), Mt(), ri(), Ii(), Ze(), kt(), Ne(), He(), i(), $n(), lr(), dt(), dn(), Or(), zt(), pn = M | te, mn = class {
+	ve(), Le(), wt(), Mt(), ri(), Ii(), Ze(), kt(), Ne(), He(), i(), $n(), lr(), dt(), dn(), Or(), zt(), pn = te | M, mn = class {
 		parent;
 		is_pending = !1;
 		transform_error;
@@ -755,7 +755,7 @@ var bn = t((() => {
 /*#__NO_SIDE_EFFECTS__*/
 function xn(e) {
 	var t = 2 | D;
-	return Oi !== null && (Oi.f |= te), {
+	return Oi !== null && (Oi.f |= M), {
 		ctx: Ct,
 		deps: null,
 		effects: null,
@@ -1518,7 +1518,7 @@ function jr(e, t) {
 		} catch (e) {
 			throw Yr(r), e;
 		}
-		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= M));
+		i.deps === null && i.teardown === null && i.nodes === null && i.first === i.last && !(i.f & 524288) && (i = i.first, e & 16 && e & 65536 && i !== null && (i.f |= te));
 	}
 	if (i !== null && (i.parent = n, n !== null && Ar(i, n), Ei !== null && Ei.f & 2 && !(e & 64))) {
 		var a = Ei;
@@ -1549,14 +1549,14 @@ function Ir(e) {
 }
 function Lr(e) {
 	Zn.ensure();
-	let t = jr(64 | te, e);
+	let t = jr(64 | M, e);
 	return () => {
 		Yr(t);
 	};
 }
 function Rr(e) {
 	Zn.ensure();
-	let t = jr(64 | te, e);
+	let t = jr(64 | M, e);
 	return (e = {}) => new Promise((n) => {
 		e.outro ? Qr(t, () => {
 			Yr(t), n(void 0);
@@ -1595,7 +1595,7 @@ function Br() {
 	});
 }
 function Vr(e) {
-	return jr(oe | te, e);
+	return jr(oe | M, e);
 }
 function Hr(e, t = 0) {
 	return jr(8 | t, e);
@@ -1614,7 +1614,7 @@ function Wr(e, t = 0) {
 	return jr(T | t, e);
 }
 function Gr(e) {
-	return jr(32 | te, e);
+	return jr(32 | M, e);
 }
 function Kr(e) {
 	var t = e.teardown;
@@ -2227,7 +2227,7 @@ w(), ri(), lr(), Ze(), kt(), wt(), $n(), bn(), ve(), Ze(), ri();
 function J(e, t, n = !1) {
 	var r;
 	Ye && (r = Xe, Ge());
-	var i = new pa(e), a = n ? M : 0;
+	var i = new pa(e), a = n ? te : 0;
 	function o(e, t) {
 		if (Ye) {
 			var n = Je(r);
@@ -2434,7 +2434,7 @@ function Ea(e, t, ...n) {
 	Ur(() => {
 		let e = t() ?? null;
 		r.ensure(e, e && ((t) => e(t, ...n)));
-	}, M);
+	}, te);
 }
 ve(), ri(), Ze(), Le();
 function Da(e, t, n) {
@@ -2449,7 +2449,7 @@ function Da(e, t, n) {
 			return;
 		}
 		i.ensure(e, e && ((t) => n(t, e)));
-	}, M);
+	}, te);
 }
 w(), w(), ri(), Ii(), ve(), kt(), ln(), Ze(), Or(), ri(), Ii(), wt(), ve(), Ze(), Or(), ri(), ve(), ri(), Or(), Ii(), ri(), tt(), Ii();
 function Oa(e, t, n) {
@@ -3494,11 +3494,11 @@ function Ds(e, t) {
 			error: "Alert setup failed"
 		}[r()]);
 	}), Br(), vo();
-	var ee = Es(), M = R(ee), te = L(M);
+	var ee = Es(), te = R(ee), M = L(te);
 	let ne;
-	var re = L(te), ie = L(re, !0);
-	N(re), Ke(), N(te);
-	var ae = z(te, 2);
+	var re = L(M), ie = L(re, !0);
+	N(re), Ke(), N(M);
+	var ae = z(M, 2);
 	let oe;
 	var se = L(ae), ce = L(se, !0);
 	N(se), Ke(), N(ae);
@@ -3509,8 +3509,8 @@ function Ds(e, t) {
 	var pe = z(le, 2);
 	let me;
 	var he = L(pe), ge = L(he, !0);
-	N(he), Ke(), N(pe), N(M);
-	var _e = z(M, 2), ve = L(_e);
+	N(he), Ke(), N(pe), N(te);
+	var _e = z(te, 2), ve = L(_e);
 	Y(ve, 4, () => [
 		["active", "Live"],
 		["running", "Running"],
@@ -3588,11 +3588,11 @@ function Ds(e, t) {
 		J(O, (e) => {
 			H(t), U(() => H(t).tokens != null) && e(A);
 		}), N(m);
-		var j = z(m, 2), ee = L(j), M = L(ee, !0);
+		var j = z(m, 2), ee = L(j), te = L(ee, !0);
 		N(ee);
-		var te = z(ee), ne = L(te);
-		N(te), N(j), N(n), V((e, r, i) => {
-			X(n, 1, `lane-card ${H(t), U(() => H(t).severity) ?? ""}`), Z(n, "aria-label", (H(t), U(() => `Open ${H(t).task} details`))), q(a, (H(t), U(() => H(t).lane))), q(s, (H(t), U(() => H(t).status))), q(l, (H(t), U(() => H(t).task))), q(d, (H(t), U(() => H(t).detail || H(t).output || (H(t).severity === "complete" ? "Coordinator completion recorded." : "No current detail reported.")))), q(g, (H(t), U(() => H(t).model))), q(b, (H(t), U(() => H(t).project))), q(S, (H(t), U(() => H(t).host === "macbook" ? "Mac" : "Windows"))), X(C, 1, `meta-chip ownership-chip ${e ?? ""}`), q(w, r), q(M, (H(t), U(() => H(t).jobId || "no job"))), q(ne, `updated ${i ?? ""}`);
+		var M = z(ee), ne = L(M);
+		N(M), N(j), N(n), V((e, r, i) => {
+			X(n, 1, `lane-card ${H(t), U(() => H(t).severity) ?? ""}`), Z(n, "aria-label", (H(t), U(() => `Open ${H(t).task} details`))), q(a, (H(t), U(() => H(t).lane))), q(s, (H(t), U(() => H(t).status))), q(l, (H(t), U(() => H(t).task))), q(d, (H(t), U(() => H(t).detail || H(t).output || (H(t).severity === "complete" ? "Coordinator completion recorded." : "No current detail reported.")))), q(g, (H(t), U(() => H(t).model))), q(b, (H(t), U(() => H(t).project))), q(S, (H(t), U(() => H(t).host === "macbook" ? "Mac" : "Windows"))), X(C, 1, `meta-chip ownership-chip ${e ?? ""}`), q(w, r), q(te, (H(t), U(() => H(t).jobId || "no job"))), q(ne, `updated ${i ?? ""}`);
 		}, [
 			() => (H(t), U(() => D(H(t)).origin)),
 			() => (H(t), U(() => D(H(t)).label)),
@@ -3671,7 +3671,7 @@ function Ds(e, t) {
 		J(O, (e) => {
 			H(f), U(() => H(f).output) && e(k);
 		});
-		var A = z(O, 2), ee = z(L(A)), M = L(ee), te = z(M, 2, !0), ne = z(te, 2, !0);
+		var A = z(O, 2), ee = z(L(A)), te = L(ee), M = z(te, 2, !0), ne = z(M, 2, !0);
 		N(ee), N(A);
 		var re = z(A, 2), ie = (e) => {
 			var t = Cs(), n = z(L(t)), r = L(n, !0);
@@ -3702,14 +3702,14 @@ function Ds(e, t) {
 		J(re, (e) => {
 			H(ae) ? e(ie) : H(se) && e(oe, 1);
 		}), N(l), N(t), V(() => {
-			q(a, `${H(f), U(() => H(f).lane) ?? ""} · ${H(f), U(() => H(f).project) ?? ""} · ${H(f), U(() => H(f).host === "macbook" ? "Mac" : "Windows") ?? ""}`), q(s, (H(f), U(() => H(f).task))), q(_, (H(f), U(() => H(f).detail || "No current detail reported."))), q(M, `Job ${H(f), U(() => H(f).jobId || "—") ?? ""}`), q(te, (H(f), U(() => H(f).branch || "No branch recorded"))), q(ne, (H(f), U(() => H(f).worktree || "No worktree recorded")));
+			q(a, `${H(f), U(() => H(f).lane) ?? ""} · ${H(f), U(() => H(f).project) ?? ""} · ${H(f), U(() => H(f).host === "macbook" ? "Mac" : "Windows") ?? ""}`), q(s, (H(f), U(() => H(f).task))), q(_, (H(f), U(() => H(f).detail || "No current detail reported."))), q(te, `Job ${H(f), U(() => H(f).jobId || "—") ?? ""}`), q(M, (H(f), U(() => H(f).branch || "No branch recorded"))), q(ne, (H(f), U(() => H(f).worktree || "No worktree recorded")));
 		}), W("click", c, () => H(v).close()), K(e, t);
 	};
 	J(Pe, (e) => {
 		H(f) && e(Fe);
 	}), N(Ne), ho(Ne, (e) => I(v, e), () => H(v)), V((e) => {
-		ne = X(te, 1, "summary-card working", null, ne, { selected: H(h) === "running" }), q(ie, (H(l), U(() => H(l).working))), oe = X(ae, 1, "summary-card idle", null, oe, { selected: H(h) === "running" }), q(ce, (H(l), U(() => H(l).idle))), ue = X(le, 1, "summary-card attention", null, ue, { selected: H(h) === "attention" }), q(fe, (H(l), U(() => H(l).attention))), me = X(pe, 1, "summary-card complete", null, me, { selected: H(h) === "recent" }), q(ge, (H(l), U(() => H(l).complete))), we !== (we = (n(), U(() => n().selectedProject))) && (Se.value = (Se.__value = (n(), U(() => n().selectedProject))) ?? "", Ba(Se, (n(), U(() => n().selectedProject)))), Ee = X(Te, 1, "outline-button", null, Ee, { enabled: r() === "enabled" }), Te.disabled = e, q(De, H(m));
-	}, [() => (r(), U(() => ["loading", "unsupported"].includes(r())))]), W("click", te, () => I(h, "running")), W("click", ae, () => I(h, "running")), W("click", le, () => I(h, "attention")), W("click", pe, () => I(h, "recent")), so(xe, () => H(g), (e) => I(g, e)), W("change", Se, (e) => No(e.currentTarget.value)), W("click", Te, function(...e) {
+		ne = X(M, 1, "summary-card working", null, ne, { selected: H(h) === "running" }), q(ie, (H(l), U(() => H(l).working))), oe = X(ae, 1, "summary-card idle", null, oe, { selected: H(h) === "running" }), q(ce, (H(l), U(() => H(l).idle))), ue = X(le, 1, "summary-card attention", null, ue, { selected: H(h) === "attention" }), q(fe, (H(l), U(() => H(l).attention))), me = X(pe, 1, "summary-card complete", null, me, { selected: H(h) === "recent" }), q(ge, (H(l), U(() => H(l).complete))), we !== (we = (n(), U(() => n().selectedProject))) && (Se.value = (Se.__value = (n(), U(() => n().selectedProject))) ?? "", Ba(Se, (n(), U(() => n().selectedProject)))), Ee = X(Te, 1, "outline-button", null, Ee, { enabled: r() === "enabled" }), Te.disabled = e, q(De, H(m));
+	}, [() => (r(), U(() => ["loading", "unsupported"].includes(r())))]), W("click", M, () => I(h, "running")), W("click", ae, () => I(h, "running")), W("click", le, () => I(h, "attention")), W("click", pe, () => I(h, "recent")), so(xe, () => H(g), (e) => I(g, e)), W("change", Se, (e) => No(e.currentTarget.value)), W("click", Te, function(...e) {
 		os?.apply(this, e);
 	}), Xi("close", Ne, A), K(e, ee), xt(), a();
 }
@@ -4089,12 +4089,12 @@ function Ws(e, t) {
 		J(j, (e) => {
 			H(c) && e(ee);
 		});
-		var M = z(j, 2), te = (e) => {
+		var te = z(j, 2), M = (e) => {
 			var t = ks(), n = z(L(t)), r = L(n);
 			N(n), N(t), V((e) => q(r, `${e ?? ""} · ${H(l), U(() => H(l).controlState.observation.active) ?? ""} active`), [() => (H(l), U(() => v[H(l).controlState.observation.phase] || H(l).controlState.observation.phase?.toLowerCase().replaceAll("_", " ")))]), K(e, t);
 		};
-		J(M, (e) => {
-			H(l), U(() => H(l).controlState?.observation) && e(te);
+		J(te, (e) => {
+			H(l), U(() => H(l).controlState?.observation) && e(M);
 		}), N(n);
 		var ne = z(n, 2);
 		Y(ne, 5, () => (H(a), U(() => H(a).actions)), _a, (e, t) => {
@@ -4171,14 +4171,14 @@ function Ws(e, t) {
 				A.value = A.__value = "ALIGN_WORKFLOW_TO_WAVE";
 				var j = z(A);
 				j.value = j.__value = "APPLY_VALIDATED_PROJECTION_REPAIR", N(D), N(E);
-				var ee = z(E, 2), M = z(L(ee));
-				tn(M), N(ee);
-				var te = z(ee, 2), ne = L(te);
-				$a(ne), Ke(), N(te);
-				var re = z(te, 4), ie = L(re, !0);
+				var ee = z(E, 2), te = z(L(ee));
+				tn(te), N(ee);
+				var M = z(ee, 2), ne = L(M);
+				$a(ne), Ke(), N(M);
+				var re = z(M, 4), ie = L(re, !0);
 				N(re), N(t), V((e) => {
 					q(a, (H(l), U(() => H(l).recoveryReport.snapshot?.project?.phase))), q(c, (H(l), U(() => H(l).recoveryReport.snapshot?.wave?.phase))), q(p, `${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.accounted) ?? ""}/${H(l), U(() => H(l).recoveryReport.snapshot?.wave?.accounting?.total) ?? ""}`), q(y, (H(l), U(() => H(l).recoveryReport.snapshot?.controlState?.recovery?.activeExecution || 0))), q(S, (H(l), U(() => H(l).recoveryReport.reportDigest))), q(T, (H(l), U(() => H(l).recoveryReport.snapshot?.projectionRepair?.summary))), j.disabled = (H(l), U(() => !H(l).recoveryReport.snapshot?.choices?.applyProjectionRepair)), re.disabled = e, q(ie, H(u) === "campaign.recovery.apply" ? "Revalidating…" : "Apply selected recovery");
-				}, [() => (H(g), H(u), U(() => !H(g) || !!H(u)))]), Ha(D, () => H(m), (e) => I(m, e)), so(M, () => H(h), (e) => I(h, e)), co(ne, () => H(g), (e) => I(g, e)), W("click", re, w), K(e, t);
+				}, [() => (H(g), H(u), U(() => !H(g) || !!H(u)))]), Ha(D, () => H(m), (e) => I(m, e)), so(te, () => H(h), (e) => I(h, e)), co(ne, () => H(g), (e) => I(g, e)), W("click", re, w), K(e, t);
 			}, s = (e) => {
 				K(e, Rs());
 			};
@@ -4290,9 +4290,9 @@ function Ys(e, t) {
 		let k;
 		var A = L(O), j = L(A, !0);
 		N(A);
-		var ee = z(A, 2), M = L(ee, !0);
+		var ee = z(A, 2), te = L(ee, !0);
 		N(ee), N(O), N(t), V(() => {
-			i = X(r, 1, "", null, i, { hold: H(o) }), q(l, H(s)), q(_, H(c)), q(y, H(u) ? "Copied" : "Copy full path"), q(w, `${H(a), U(() => H(a).length) ?? ""}/5 bounded slots`), k = X(O, 1, "", null, k, { hold: H(o) }), q(j, H(o) ? "RECEIVE-ONLY BOUNDARY" : "READY FOR SEMANTIC REVIEW"), q(M, H(o) ? "CFG23 can receive and hash the packet now, but recovery must be resolved before it can become a checked plan." : "The packet is visible to the next bounded Sol planning turn; launch gates remain separate.");
+			i = X(r, 1, "", null, i, { hold: H(o) }), q(l, H(s)), q(_, H(c)), q(y, H(u) ? "Copied" : "Copy full path"), q(w, `${H(a), U(() => H(a).length) ?? ""}/5 bounded slots`), k = X(O, 1, "", null, k, { hold: H(o) }), q(j, H(o) ? "RECEIVE-ONLY BOUNDARY" : "READY FOR SEMANTIC REVIEW"), q(te, H(o) ? "CFG23 can receive and hash the packet now, but recovery must be resolved before it can become a checked plan." : "The packet is visible to the next bounded Sol planning turn; launch gates remain separate.");
 		}), W("click", v, p), K(e, t);
 	};
 	J(h, (e) => {
@@ -4568,9 +4568,9 @@ function bc(e, t) {
 		N(k);
 		var j = z(k, 2), ee = L(j, !0);
 		N(j);
-		var M = z(j, 2), te = L(M, !0);
-		N(M);
-		var ne = z(M, 2), re = L(ne, !0);
+		var te = z(j, 2), M = L(te, !0);
+		N(te);
+		var ne = z(te, 2), re = L(ne, !0);
 		N(ne), N(O), N(o);
 		var ie = z(o, 2), ae = (e) => {
 			var t = sc(), n = L(t), r = L(n), i = z(L(r)), a = L(i);
@@ -4741,7 +4741,7 @@ function bc(e, t) {
 		J(we, (e) => {
 			H(a) && e(Te);
 		}), Ke(2), N(oe), N(t), V((e, t, n, o) => {
-			X(r, 1, `source-${H(s), U(() => H(s).source) ?? ""}`), q(i, e), X(c, 1, `director-card objective state-${t ?? ""}`), q(u, (H(s), U(() => H(s).objective.kicker))), q(m, (H(s), U(() => H(s).objective.title))), q(g, (H(s), U(() => H(s).objective.summary))), q(v, (H(s), U(() => H(s).objective.state))), X(y, 1, `director-card quest state-${n ?? ""}`), q(x, (H(s), U(() => H(s).quest.kicker))), q(C, (H(s), U(() => H(s).quest.title))), q(T, (H(s), U(() => H(s).quest.why))), q(D, (H(s), U(() => H(s).quest.state))), X(O, 1, `director-card decision state-${o ?? ""}`), q(A, (H(s), U(() => H(s).decision.kicker))), q(ee, (H(s), U(() => H(s).decision.title))), q(te, (H(s), U(() => H(s).decision.summary))), q(re, (H(s), U(() => H(s).decision.state))), ue = X(le, 1, "", null, ue, { chosen: H(a)?.id === H(s).objective.id }), q(fe, (H(s), U(() => H(s).objective.title))), me = X(pe, 1, "", null, me, { chosen: H(a)?.id === H(s).quest.id }), q(ge, (H(s), U(() => H(s).quest.title))), ve = X(_e, 1, "", null, ve, { chosen: H(a)?.id === H(s).decision.id }), q(be, (H(s), U(() => H(s).decision.title)));
+			X(r, 1, `source-${H(s), U(() => H(s).source) ?? ""}`), q(i, e), X(c, 1, `director-card objective state-${t ?? ""}`), q(u, (H(s), U(() => H(s).objective.kicker))), q(m, (H(s), U(() => H(s).objective.title))), q(g, (H(s), U(() => H(s).objective.summary))), q(v, (H(s), U(() => H(s).objective.state))), X(y, 1, `director-card quest state-${n ?? ""}`), q(x, (H(s), U(() => H(s).quest.kicker))), q(C, (H(s), U(() => H(s).quest.title))), q(T, (H(s), U(() => H(s).quest.why))), q(D, (H(s), U(() => H(s).quest.state))), X(O, 1, `director-card decision state-${o ?? ""}`), q(A, (H(s), U(() => H(s).decision.kicker))), q(ee, (H(s), U(() => H(s).decision.title))), q(M, (H(s), U(() => H(s).decision.summary))), q(re, (H(s), U(() => H(s).decision.state))), ue = X(le, 1, "", null, ue, { chosen: H(a)?.id === H(s).objective.id }), q(fe, (H(s), U(() => H(s).objective.title))), me = X(pe, 1, "", null, me, { chosen: H(a)?.id === H(s).quest.id }), q(ge, (H(s), U(() => H(s).quest.title))), ve = X(_e, 1, "", null, ve, { chosen: H(a)?.id === H(s).decision.id }), q(be, (H(s), U(() => H(s).decision.title)));
 		}, [
 			() => (H(s), U(() => H(s).source.replaceAll("-", " "))),
 			() => (H(s), U(() => H(s).objective.state.toLowerCase())),
@@ -4873,7 +4873,7 @@ function Mc(e, t) {
 		tn(k);
 		var A = z(k, 2), j = z(L(A)), ee = L(j, !0);
 		N(j), N(A), N(d);
-		var M = z(d, 2), te = (e) => {
+		var te = z(d, 2), M = (e) => {
 			var t = Dc(), n = L(t), r = L(n), i = L(r), a = L(i);
 			N(i);
 			var l = z(i), u = L(l, !0);
@@ -4931,10 +4931,10 @@ function Mc(e, t) {
 				q(a, `${H(o), U(() => H(o).status) ?? ""} · ${e ?? ""}`), q(u, (H(o), U(() => H(o).title))), q(_, t);
 			}, [() => (H(o), U(() => C(H(o).updatedAt))), () => (H(s), H(o), U(() => H(s).summary || (H(o).status === "drafting" ? "Sol is comparing this input against the current evidence, plan, and campaign assumptions." : S(H(o).content, 360))))]), K(e, t);
 		};
-		J(M, (e) => {
-			H(o) && e(te);
+		J(te, (e) => {
+			H(o) && e(M);
 		});
-		var ne = z(M, 2), re = (e) => {
+		var ne = z(te, 2), re = (e) => {
 			var t = kc(), n = L(t), r = z(L(n)), i = L(r, !0);
 			N(r), N(n), Y(z(n), 1, () => (H(a), U(() => H(a).slice(1))), _a, (e, t) => {
 				var n = Oc(), r = L(n), i = L(r, !0);
@@ -5239,9 +5239,9 @@ function rl(e, t) {
 		A.value = A.__value = "bounded", N(E);
 		var j;
 		Va(E), N(T);
-		var ee = z(T, 2), M = L(ee), te = z(L(M)), ne = L(te, !0);
-		N(te), N(M);
-		var re = z(M, 2), ie = (e) => {
+		var ee = z(T, 2), te = L(ee), M = z(L(te)), ne = L(M, !0);
+		N(M), N(te);
+		var re = z(te, 2), ie = (e) => {
 			var t = Zc(), n = L(t, !0);
 			N(t), V(() => q(n, H(p))), K(e, t);
 		}, ae = (e) => {
@@ -9048,22 +9048,22 @@ var r_ = () => !0;
 function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i, edgeUpdaterType: a, isTarget: o, domNode: s, nodeLookup: c, lib: l, autoPanOnConnect: u, flowId: d, panBy: f, cancelConnection: p, onConnectStart: m, onConnect: h, onConnectEnd: g, isValidConnection: _ = r_, onReconnectEnd: v, updateConnection: y, getTransform: b, getFromHandle: x, autoPanSpeed: S, dragThreshold: C = 1, handleDomNode: w }) {
 	let T = Zh(e.target), E = 0, D, { x: O, y: k } = tg(e), A = t_(a, w), j = s?.getBoundingClientRect(), ee = !1;
 	if (!j || !A) return;
-	let M = e_(i, A, r, c, t);
-	if (!M) return;
-	let te = tg(e, j), ne = !1, re = null, ie = !1, ae = null;
+	let te = e_(i, A, r, c, t);
+	if (!te) return;
+	let M = tg(e, j), ne = !1, re = null, ie = !1, ae = null;
 	function oe() {
 		if (!u || !j) return;
-		let [e, t] = xh(te, j, S);
+		let [e, t] = xh(M, j, S);
 		f({
 			x: e,
 			y: t
 		}), E = requestAnimationFrame(oe);
 	}
 	let se = {
-		...M,
+		...te,
 		nodeId: i,
 		type: A,
-		position: M.position
+		position: te.position
 	}, ce = c.get(i), le = {
 		inProgress: !0,
 		isValid: null,
@@ -9071,11 +9071,11 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 		fromHandle: se,
 		fromPosition: se.position,
 		fromNode: ce,
-		to: te,
+		to: M,
 		toHandle: null,
 		toPosition: ih[se.position],
 		toNode: null,
-		pointer: te
+		pointer: M
 	};
 	function ue() {
 		ee = !0, y(le), m?.(e, {
@@ -9096,7 +9096,7 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 			return;
 		}
 		let a = b();
-		te = tg(e, j), D = $g(Ph(te, a, !1, [1, 1]), n, c, se), ne ||= (oe(), !0);
+		M = tg(e, j), D = $g(Ph(M, a, !1, [1, 1]), n, c, se), ne ||= (oe(), !0);
 		let s = a_(e, {
 			handle: D,
 			connectionMode: t,
@@ -9117,11 +9117,11 @@ function i_(e, { connectionMode: t, connectionRadius: n, handleId: r, nodeId: i,
 			to: s.toHandle && ie ? Fh({
 				x: s.toHandle.x,
 				y: s.toHandle.y
-			}, a) : te,
+			}, a) : M,
 			toHandle: s.toHandle,
 			toPosition: ie && s.toHandle ? s.toHandle.position : ih[se.position],
 			toNode: s.toHandle ? c.get(s.toHandle.nodeId) : null,
-			pointer: te
+			pointer: M
 		};
 		y(p), le = p;
 	}
@@ -9334,7 +9334,7 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			onTransformChange: T
 		});
 		f.on("zoom", ee);
-		let M = y_({
+		let te = y_({
 			zoomPanValues: l,
 			panOnDrag: u,
 			panOnScroll: i,
@@ -9342,8 +9342,8 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			onPanZoomEnd: s,
 			onDraggingChange: c
 		});
-		f.on("end", M);
-		let te = b_({
+		f.on("end", te);
+		let M = b_({
 			panActivationKeyPressed: S,
 			zoomActivationKeyPressed: C,
 			panOnDrag: u,
@@ -9357,7 +9357,7 @@ function x_({ domNode: e, minZoom: t, maxZoom: n, translateExtent: r, viewport: 
 			lib: w,
 			connectionInProgress: E
 		});
-		f.filter(te), x ? p.on("dblclick.zoom", h) : p.on("dblclick.zoom", null);
+		f.filter(M), x ? p.on("dblclick.zoom", h) : p.on("dblclick.zoom", null);
 	}
 	function v() {
 		f.on("zoom", null);
@@ -11332,13 +11332,13 @@ function zv(e, t) {
 	}), !0).width), b = /* @__PURE__ */ P(() => l(t.node.measured, () => ({
 		width: 0,
 		height: 0
-	}), !0).height), x = /* @__PURE__ */ P(() => t.node.initialWidth), S = /* @__PURE__ */ P(() => t.node.initialHeight), C = /* @__PURE__ */ P(() => t.node.width), w = /* @__PURE__ */ P(() => t.node.height), T = /* @__PURE__ */ P(() => t.node.dragHandle), E = /* @__PURE__ */ P(() => l(t.node.internals.z, 0)), D = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.x), O = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.y), k = /* @__PURE__ */ P(() => t.node.internals.userNode), { id: A } = t.node, j = /* @__PURE__ */ P(() => H(a) ?? n().nodesDraggable), ee = /* @__PURE__ */ P(() => H(o) ?? n().elementsSelectable), M = /* @__PURE__ */ P(() => H(c) ?? n().nodesConnectable), te = /* @__PURE__ */ P(() => Uh(t.node)), ne = /* @__PURE__ */ P(() => !!t.node.internals.handleBounds), re = /* @__PURE__ */ P(() => H(te) && H(ne)), ie = /* @__PURE__ */ P(() => H(u) ?? n().nodesFocusable);
+	}), !0).height), x = /* @__PURE__ */ P(() => t.node.initialWidth), S = /* @__PURE__ */ P(() => t.node.initialHeight), C = /* @__PURE__ */ P(() => t.node.width), w = /* @__PURE__ */ P(() => t.node.height), T = /* @__PURE__ */ P(() => t.node.dragHandle), E = /* @__PURE__ */ P(() => l(t.node.internals.z, 0)), D = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.x), O = /* @__PURE__ */ P(() => t.node.internals.positionAbsolute.y), k = /* @__PURE__ */ P(() => t.node.internals.userNode), { id: A } = t.node, j = /* @__PURE__ */ P(() => H(a) ?? n().nodesDraggable), ee = /* @__PURE__ */ P(() => H(o) ?? n().elementsSelectable), te = /* @__PURE__ */ P(() => H(c) ?? n().nodesConnectable), M = /* @__PURE__ */ P(() => Uh(t.node)), ne = /* @__PURE__ */ P(() => !!t.node.internals.handleBounds), re = /* @__PURE__ */ P(() => H(M) && H(ne)), ie = /* @__PURE__ */ P(() => H(u) ?? n().nodesFocusable);
 	function ae(e) {
 		return n().parentLookup.has(e);
 	}
 	let oe = /* @__PURE__ */ P(() => ae(A)), se = /* @__PURE__ */ tr(null), ce = null, le = H(h), ue = H(_), de = H(v), fe = /* @__PURE__ */ P(() => n().nodeTypes[H(h)] ?? I_), pe = /* @__PURE__ */ P(() => n().ariaLabelConfig);
 	D_(A), k_({ get value() {
-		return H(M);
+		return H(te);
 	} });
 	let me = /* @__PURE__ */ P(() => {
 		let e = H(y) === void 0 ? H(C) ?? H(x) : H(C), t = H(b) === void 0 ? H(w) ?? H(S) : H(w);
@@ -11428,7 +11428,7 @@ function zv(e, t) {
 				dragging: H(f),
 				selected: H(i),
 				draggable: H(j),
-				connectable: H(M),
+				connectable: H(te),
 				selectable: H(ee),
 				nopan: H(j),
 				parent: H(oe)
@@ -11436,7 +11436,7 @@ function zv(e, t) {
 			[Ga]: {
 				"z-index": H(E),
 				transform: `translate(${H(D) ?? ""}px, ${H(O) ?? ""}px)`,
-				visibility: H(te) ? "visible" : "hidden"
+				visibility: H(M) ? "visible" : "hidden"
 			}
 		})), Da(L(a), () => H(fe), (e, t) => {
 			t(e, {
@@ -11480,7 +11480,7 @@ function zv(e, t) {
 					return H(h);
 				},
 				get isConnectable() {
-					return H(M);
+					return H(te);
 				},
 				get positionAbsoluteX() {
 					return H(D);
@@ -11602,7 +11602,7 @@ function Uv(e, t) {
 	bt(t, !0);
 	let n = /* @__PURE__ */ P(() => t.edge.id), r = /* @__PURE__ */ P(() => t.edge.source), i = /* @__PURE__ */ P(() => t.edge.target), a = /* @__PURE__ */ P(() => t.edge.sourceX), o = /* @__PURE__ */ P(() => t.edge.sourceY), s = /* @__PURE__ */ P(() => t.edge.targetX), c = /* @__PURE__ */ P(() => t.edge.targetY), u = /* @__PURE__ */ P(() => t.edge.sourcePosition), d = /* @__PURE__ */ P(() => t.edge.targetPosition), f = /* @__PURE__ */ P(() => l(t.edge.animated, !1)), p = /* @__PURE__ */ P(() => l(t.edge.selected, !1)), m = /* @__PURE__ */ P(() => t.edge.label), h = /* @__PURE__ */ P(() => t.edge.labelStyle), g = /* @__PURE__ */ P(() => l(t.edge.data, () => ({}), !0)), _ = /* @__PURE__ */ P(() => t.edge.style), v = /* @__PURE__ */ P(() => t.edge.interactionWidth), y = /* @__PURE__ */ P(() => l(t.edge.type, "default")), b = /* @__PURE__ */ P(() => t.edge.sourceHandle), x = /* @__PURE__ */ P(() => t.edge.targetHandle), S = /* @__PURE__ */ P(() => t.edge.markerStart), C = /* @__PURE__ */ P(() => t.edge.markerEnd), w = /* @__PURE__ */ P(() => t.edge.selectable), T = /* @__PURE__ */ P(() => t.edge.focusable), E = /* @__PURE__ */ P(() => l(t.edge.deletable, !0)), D = /* @__PURE__ */ P(() => t.edge.hidden), O = /* @__PURE__ */ P(() => t.edge.zIndex), k = /* @__PURE__ */ P(() => t.edge.class), A = /* @__PURE__ */ P(() => t.edge.ariaLabel);
 	j_(H(n));
-	let j = null, ee = /* @__PURE__ */ P(() => H(w) ?? t.store.elementsSelectable), M = /* @__PURE__ */ P(() => H(T) ?? t.store.edgesFocusable), te = /* @__PURE__ */ P(() => t.store.edgeTypes[H(y)] ?? nv), ne = /* @__PURE__ */ P(() => H(S) ? `url('#${Tg(H(S), t.store.flowId)}')` : void 0), re = /* @__PURE__ */ P(() => H(C) ? `url('#${Tg(H(C), t.store.flowId)}')` : void 0);
+	let j = null, ee = /* @__PURE__ */ P(() => H(w) ?? t.store.elementsSelectable), te = /* @__PURE__ */ P(() => H(T) ?? t.store.edgesFocusable), M = /* @__PURE__ */ P(() => t.store.edgeTypes[H(y)] ?? nv), ne = /* @__PURE__ */ P(() => H(S) ? `url('#${Tg(H(S), t.store.flowId)}')` : void 0), re = /* @__PURE__ */ P(() => H(C) ? `url('#${Tg(H(C), t.store.flowId)}')` : void 0);
 	function ie(e) {
 		let r = t.store.edgeLookup.get(H(n));
 		r && (H(ee) && t.store.handleEdgeSelection(H(n)), t.onedgeclick?.({
@@ -11641,18 +11641,18 @@ function Uv(e, t) {
 				ae(e, t.onedgepointerleave);
 			} : void 0,
 			"aria-label": H(A) === null ? void 0 : H(A) ? H(A) : `Edge from ${H(r)} to ${H(i)}`,
-			"aria-describedby": H(M) ? `${Iv}-${t.store.flowId}` : void 0,
-			role: t.edge.ariaRole ?? (H(M) ? "group" : "img"),
+			"aria-describedby": H(te) ? `${Iv}-${t.store.flowId}` : void 0,
+			role: t.edge.ariaRole ?? (H(te) ? "group" : "img"),
 			"aria-roledescription": "edge",
-			onkeydown: H(M) ? oe : void 0,
-			tabindex: H(M) ? 0 : void 0,
+			onkeydown: H(te) ? oe : void 0,
+			tabindex: H(te) ? 0 : void 0,
 			...t.edge.domAttributes,
 			[Wa]: {
 				animated: H(f),
 				selected: H(p),
 				selectable: H(ee)
 			}
-		})), Da(L(C), () => H(te), (e, t) => {
+		})), Da(L(C), () => H(M), (e, t) => {
 			t(e, {
 				get id() {
 					return H(n);
@@ -13542,7 +13542,7 @@ function Ub(e, t) {
 	], g = /* @__PURE__ */ F(null), _ = /* @__PURE__ */ F("workflow"), v = /* @__PURE__ */ F("all"), y = /* @__PURE__ */ F(null), b = /* @__PURE__ */ F(null), x = /* @__PURE__ */ F(typeof window < "u" ? window.innerWidth : 1200), S = /* @__PURE__ */ F(H(x) <= 700), C = /* @__PURE__ */ F({
 		nodes: [],
 		edges: []
-	}), w = /* @__PURE__ */ F([]), T = /* @__PURE__ */ F(0), E = /* @__PURE__ */ F(null), D = /* @__PURE__ */ F(!1), O = null, k = /* @__PURE__ */ F(""), A = /* @__PURE__ */ F(""), j = /* @__PURE__ */ F([]), ee = 0, M = /* @__PURE__ */ F(null), te = /* @__PURE__ */ F(!1), ne = /* @__PURE__ */ F(""), re = 0, ie = /* @__PURE__ */ F(""), ae = /* @__PURE__ */ F(null), oe = /* @__PURE__ */ F(""), se = /* @__PURE__ */ F(!1), ce = /* @__PURE__ */ F(""), le = 0;
+	}), w = /* @__PURE__ */ F([]), T = /* @__PURE__ */ F(0), E = /* @__PURE__ */ F(null), D = /* @__PURE__ */ F(!1), O = null, k = /* @__PURE__ */ F(""), A = /* @__PURE__ */ F(""), j = /* @__PURE__ */ F([]), ee = 0, te = /* @__PURE__ */ F(null), M = /* @__PURE__ */ F(!1), ne = /* @__PURE__ */ F(""), re = 0, ie = /* @__PURE__ */ F(""), ae = /* @__PURE__ */ F(null), oe = /* @__PURE__ */ F(""), se = /* @__PURE__ */ F(!1), ce = /* @__PURE__ */ F(""), le = 0;
 	function ue(e, t, n, r, i = {}) {
 		return {
 			title: e,
@@ -13665,23 +13665,23 @@ function Ub(e, t) {
 		return H(A) === e.id ? ee : Number(e.workflowHistorySummary?.total || ye(e).length);
 	}
 	async function xe(e, t = !1) {
-		if (H(te) || t && !H(M)) return;
+		if (H(M) || t && !H(te)) return;
 		let n = ++re, r = t && ye(e).filter(fe)[H(T)]?.id || "";
-		(!t || H(A) !== e.id) && (I(A, e.id), I(j, []), I(M, null), ee = Number(e.workflowHistorySummary?.total || 0)), I(te, !0), I(ne, "");
+		(!t || H(A) !== e.id) && (I(A, e.id), I(j, []), I(te, null), ee = Number(e.workflowHistorySummary?.total || 0)), I(M, !0), I(ne, "");
 		try {
 			let i = new URL("/api/workflow-history", location.origin);
-			i.searchParams.set("project", e.id), i.searchParams.set("limit", "250"), t && H(M) && i.searchParams.set("cursor", H(M));
+			i.searchParams.set("project", e.id), i.searchParams.set("limit", "250"), t && H(te) && i.searchParams.set("cursor", H(te));
 			let a = await fetch(`${i.pathname}${i.search}`, { cache: "no-store" }), o = await a.json();
 			if (!a.ok) throw Error(o.error || `Could not load campaign history: ${a.status}`);
 			if (n !== re || H(g)?.id !== e.id) return;
 			let s = t ? [...o.items, ...H(j)] : o.items;
-			I(j, [...new Map(s.map((e) => [e.id, e])).values()]), ee = o.total, I(M, o.nextCursor);
+			I(j, [...new Map(s.map((e) => [e.id, e])).values()]), ee = o.total, I(te, o.nextCursor);
 			let c = H(j).filter(fe);
 			t && r ? I(T, Math.max(0, c.findIndex((e) => e.id === r))) : t || I(T, Math.max(0, c.length - 1));
 		} catch (e) {
 			n === re && I(ne, e instanceof Error ? e.message : String(e));
 		} finally {
-			n === re && I(te, !1);
+			n === re && I(M, !1);
 		}
 	}
 	async function Se(e) {
@@ -13788,8 +13788,8 @@ function Ub(e, t) {
 		I(g, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
 	}), B(() => H(x), () => {
 		I(S, H(x) <= 700);
-	}), B(() => (H(A), H(j), H(M), H(v), H(S)), () => {
-		I(ie, `${H(A)}:${H(j).length}:${H(M) || ""}:${H(v)}:${H(S)}`);
+	}), B(() => (H(A), H(j), H(te), H(v), H(S)), () => {
+		I(ie, `${H(A)}:${H(j).length}:${H(te) || ""}:${H(v)}:${H(S)}`);
 	}), B(() => (H(g), H(A), H(j)), () => {
 		I(w, H(g) ? (H(A) === H(g).id && H(j).length ? H(j) : Array.isArray(H(g).workflowHistory) ? H(g).workflowHistory : []).filter(fe) : []);
 	}), B(() => (H(g), H(k), H(w)), () => {
@@ -13834,18 +13834,18 @@ function Ub(e, t) {
 				W("click", t, () => xe(H(g), !0)), K(e, t);
 			};
 			J(i, (e) => {
-				H(M) && !H(te) && e(a);
+				H(te) && !H(M) && e(a);
 			});
 			var o = z(i, 2), s = (e) => {
 				var t = ib();
 				W("click", t, () => xe(H(g))), K(e, t);
 			};
 			J(o, (e) => {
-				H(ne) && !H(te) && e(s);
-			}), N(t), V((e) => q(r, e), [() => (H(te), H(ne), H(g), U(() => H(te) ? "Loading durable history…" : H(ne) || `${ye(H(g)).length} of ${be(H(g))} events loaded`))]), K(e, t);
+				H(ne) && !H(M) && e(s);
+			}), N(t), V((e) => q(r, e), [() => (H(M), H(ne), H(g), U(() => H(M) ? "Loading durable history…" : H(ne) || `${ye(H(g)).length} of ${be(H(g))} events loaded`))]), K(e, t);
 		};
 		J(j, (e) => {
-			H(_) !== "workflow" && (H(te) || H(ne) || H(M)) && e(ee);
+			H(_) !== "workflow" && (H(M) || H(ne) || H(te)) && e(ee);
 		});
 		var re = z(j, 2), ie = (e) => {
 			var t = ob(), n = L(t), r = z(L(n)), i = L(r, !0);
@@ -14221,10 +14221,10 @@ function Ub(e, t) {
 //#endregion
 //#region src/ui/LoopControl.svelte
 Zi(["click", "input"]), Ho();
-var Wb = /* @__PURE__ */ G("<div class=\"loop-error\" role=\"alert\"><strong>Paused safely</strong><span> </span></div>"), Gb = /* @__PURE__ */ G("<p> </p>"), Kb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span> </span> <strong> </strong> <!></div>"), qb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span>REQUIRED BEFORE AUTOPILOT CAN CONTINUE</span> <strong> </strong> <p> </p></div>"), Jb = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><span> </span><p> </p></div><i> </i></li>"), Yb = /* @__PURE__ */ G("<li><strong> </strong><span> </span></li>"), Xb = /* @__PURE__ */ G("<details class=\"schedule-deferred\"><summary>Deferred candidates <strong> </strong></summary><ul></ul></details>"), Zb = /* @__PURE__ */ G("<details class=\"scheduled-wave\"><summary><span> </span><strong> </strong></summary> <div class=\"scheduled-wave-body\"><div class=\"schedule-budget\"><span><b> </b> tokens reserved</span><span><b> </b> available slots</span><span><b> </b> schedule state</span></div> <ol></ol> <!> <footer><b> </b><span> </span></footer></div></details>"), Qb = /* @__PURE__ */ G("<button class=\"outline-button compact\">Stop & capture here</button>"), $b = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <!>", 1), ex = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button>"), tx = /* @__PURE__ */ G("<!> <!>", 1), nx = /* @__PURE__ */ G("<button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), rx = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), ix = /* @__PURE__ */ G("<button class=\"primary-button\"> </button>"), ax = /* @__PURE__ */ G("<button class=\"outline-button\" disabled=\"\">Loop start blocked by preflight</button>"), ox = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), sx = /* @__PURE__ */ G("<ol class=\"loop-context-steps\"></ol>"), cx = /* @__PURE__ */ G("<details class=\"loop-context\"><summary>Inspect captured loop boundary and steps <strong> </strong></summary> <div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <div class=\"loop-boundary pending\"><span>END · PENDING</span><strong>Captured when this run stops</strong></div></div> <!></details>"), lx = /* @__PURE__ */ G("<div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div>"), ux = /* @__PURE__ */ G("<div class=\"loop-boundary pending\"><span>END · PENDING</span><strong> </strong></div>"), dx = /* @__PURE__ */ G("<details class=\"loop-ledger\"><summary>Inspect loop steps <strong> </strong></summary> <ol></ol></details>"), fx = /* @__PURE__ */ G("<div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <!></div> <!>", 1), px = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), mx = /* @__PURE__ */ G("<section id=\"loop-control\" aria-live=\"polite\"><div class=\"loop-control-heading\"><div><p class=\"eyebrow\">ONE-LOOP AUTOPILOT</p> <h3> </h3> <p> </p></div> <span> </span></div> <!> <!> <!> <!> <div class=\"loop-control-row\"><div class=\"loop-now\"><span> </span> <strong> </strong></div> <div class=\"loop-buttons\"><!></div></div> <!> <!></section>");
+var Wb = /* @__PURE__ */ G("<div class=\"loop-error\" role=\"alert\"><strong>Paused safely</strong><span> </span></div>"), Gb = /* @__PURE__ */ G("<p> </p>"), Kb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span> </span> <strong> </strong> <!></div>"), qb = /* @__PURE__ */ G("<div class=\"loop-resolution\"><span>REQUIRED BEFORE AUTOPILOT CAN CONTINUE</span> <strong> </strong> <p> </p></div>"), Jb = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><span> </span><p> </p></div><i> </i></li>"), Yb = /* @__PURE__ */ G("<li><strong> </strong><span> </span></li>"), Xb = /* @__PURE__ */ G("<details class=\"schedule-deferred\"><summary>Deferred candidates <strong> </strong></summary><ul></ul></details>"), Zb = /* @__PURE__ */ G("<details class=\"scheduled-wave\"><summary><span> </span><strong> </strong></summary> <div class=\"scheduled-wave-body\"><div class=\"schedule-budget\"><span><b> </b> tokens reserved</span><span><b> </b> available slots</span><span><b> </b> schedule state</span></div> <ol></ol> <!> <footer><b> </b><span> </span></footer></div></details>"), Qb = /* @__PURE__ */ G("<button class=\"primary-button autopilot-start-button\" disabled=\"\">▶ Start one-loop autopilot</button> <button class=\"outline-button compact autopilot-unlock-button\"> </button>", 1), $b = /* @__PURE__ */ G("<button class=\"outline-button compact\">Stop & capture here</button>"), ex = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <!>", 1), tx = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button>"), nx = /* @__PURE__ */ G("<!> <!>", 1), rx = /* @__PURE__ */ G("<button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), ix = /* @__PURE__ */ G("<button class=\"primary-button compact\"> </button> <button class=\"outline-button compact\">Stop & capture here</button>", 1), ax = /* @__PURE__ */ G("<button class=\"primary-button\"> </button>"), ox = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), sx = /* @__PURE__ */ G("<ol class=\"loop-context-steps\"></ol>"), cx = /* @__PURE__ */ G("<details class=\"loop-context\"><summary>Inspect captured loop boundary and steps <strong> </strong></summary> <div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <div class=\"loop-boundary pending\"><span>END · PENDING</span><strong>Captured when this run stops</strong></div></div> <!></details>"), lx = /* @__PURE__ */ G("<div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div>"), ux = /* @__PURE__ */ G("<div class=\"loop-boundary pending\"><span>END · PENDING</span><strong> </strong></div>"), dx = /* @__PURE__ */ G("<details class=\"loop-ledger\"><summary>Inspect loop steps <strong> </strong></summary> <ol></ol></details>"), fx = /* @__PURE__ */ G("<div class=\"loop-boundaries\"><div class=\"loop-boundary\"><span> </span> <strong> </strong> <small> </small></div> <!></div> <!>", 1), px = /* @__PURE__ */ G("<div role=\"status\"><span> </span></div>"), mx = /* @__PURE__ */ G("<section id=\"loop-control\" aria-live=\"polite\"><div class=\"loop-control-heading\"><div><p class=\"eyebrow\">ONE-LOOP AUTOPILOT</p> <h3> </h3> <p> </p></div> <span> </span></div> <!> <!> <!> <!> <div class=\"loop-control-row\"><div class=\"loop-now\"><span> </span> <strong> </strong></div> <div class=\"loop-buttons\"><!></div></div> <!> <!></section>");
 function hx(e, t) {
 	bt(t, !1);
-	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(), f = /* @__PURE__ */ F(), p = /* @__PURE__ */ F(), m = /* @__PURE__ */ F(), h = /* @__PURE__ */ F(), g = /* @__PURE__ */ F(), _ = /* @__PURE__ */ F(), v = /* @__PURE__ */ F(), y = /* @__PURE__ */ F(), b = /* @__PURE__ */ F(), x = /* @__PURE__ */ F(null), S = /* @__PURE__ */ F(""), C = /* @__PURE__ */ F(""), w = /* @__PURE__ */ F("pending"), T = {
+	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(), u = /* @__PURE__ */ F(), d = /* @__PURE__ */ F(), f = /* @__PURE__ */ F(), p = /* @__PURE__ */ F(), m = /* @__PURE__ */ F(), h = /* @__PURE__ */ F(), g = /* @__PURE__ */ F(), _ = /* @__PURE__ */ F(), v = /* @__PURE__ */ F(), y = /* @__PURE__ */ F(), b = /* @__PURE__ */ F(), x = /* @__PURE__ */ F(), S = /* @__PURE__ */ F(null), C = /* @__PURE__ */ F(""), w = /* @__PURE__ */ F(""), T = /* @__PURE__ */ F("pending"), E = {
 		SYNTHESIS_READY: "results ready",
 		SYNTHESIZING: "synthesizing situation",
 		DECISION_REQUIRED: "direction decision",
@@ -14234,7 +14234,7 @@ function hx(e, t) {
 		RESEARCH_INTAKE: "landing and intake",
 		NEXT_WAVE_READY: "next wave ready",
 		PLANNING: "planning"
-	}, E = {
+	}, D = {
 		"loop.start": {
 			pending: "Starting one-loop autopilot…",
 			completed: "Autopilot started from the captured boundary."
@@ -14268,47 +14268,57 @@ function hx(e, t) {
 			completed: "The confirmed wave was dispatched under its fixed contracts."
 		}
 	};
-	function D(e = "PLANNING") {
-		return T[e] || e.toLowerCase().replaceAll("_", " ");
+	function O(e = "PLANNING") {
+		return E[e] || e.toLowerCase().replaceAll("_", " ");
 	}
-	function O(e) {
+	function k(e) {
 		if (!e) return "Pending";
 		let t = new Date(e);
 		return Number.isFinite(t.getTime()) ? t.toLocaleString() : "Pending";
 	}
-	function k(e) {
+	function A(e) {
 		let t = e?.runCounts || {}, n = Number(t.returned_to_sol || 0) + Number(t.evidence_ready || 0);
 		return e?.latestRun?.taskId ? `${e.latestRun.taskId} · ${e.latestRun.status || "recorded"}` : `${n} landed research receipt${n === 1 ? "" : "s"}`;
 	}
-	async function A(e, t = "", n = {}) {
-		if (!(!H(x) || H(S))) {
-			I(S, e), I(w, "pending"), I(C, E[e]?.pending || "Updating autopilot…");
+	async function j(e, t = "", n = {}) {
+		if (!(!H(S) || H(C))) {
+			I(C, e), I(T, "pending"), I(w, D[e]?.pending || "Updating autopilot…");
 			try {
 				await ns({
-					projectId: H(x).id,
+					projectId: H(S).id,
 					type: e,
 					targetId: t,
 					args: n,
 					scope: "loop-control",
 					pollLimit: e === "research.schedule.dispatch" ? 160 : 32
-				}), I(w, "success"), I(C, E[e]?.completed || "Autopilot updated.");
+				}), I(T, "success"), I(w, D[e]?.completed || "Autopilot updated.");
 			} catch (e) {
-				I(w, "error"), I(C, e instanceof Error ? e.message : String(e));
+				I(T, "error"), I(w, e instanceof Error ? e.message : String(e));
 			} finally {
-				I(S, "");
+				I(C, "");
 			}
 		}
 	}
-	function j() {
+	function ee() {
 		document.querySelector("#operator-gate, #next-action")?.scrollIntoView({
 			behavior: "smooth",
 			block: "start"
 		});
 	}
+	function te() {
+		for (let e of ["#strategy-workspaces", "#strategy-workspace"]) {
+			let t = document.querySelector(e);
+			t instanceof HTMLDetailsElement && (t.open = !0);
+		}
+		requestAnimationFrame(() => document.querySelector("#strategy-workspace")?.scrollIntoView({
+			behavior: "smooth",
+			block: "start"
+		}));
+	}
 	B(() => n(), () => {
-		I(x, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
-	}), B(() => H(x), () => {
-		I(a, H(x)?.loop || null);
+		I(S, n().control?.projects?.find((e) => e.id === n().selectedProject) || null);
+	}), B(() => H(S), () => {
+		I(a, H(S)?.loop || null);
 	}), B(() => H(a), () => {
 		I(o, !!(H(a) && [
 			"running",
@@ -14319,22 +14329,22 @@ function hx(e, t) {
 		I(s, H(a)?.steps || []);
 	}), B(() => (H(s), H(a)), () => {
 		I(c, H(s).find((e) => e.actionId === H(a)?.pendingActionId) || H(s).at(-1));
-	}), B(() => H(x), () => {
-		I(l, H(x)?.researchRuns?.find((e) => [
+	}), B(() => H(S), () => {
+		I(l, H(S)?.researchRuns?.find((e) => [
 			"launching",
 			"running",
 			"blocked"
 		].includes(e.status)) || null);
-	}), B(() => H(x), () => {
-		I(u, H(x)?.researchRuns?.filter((e) => [
+	}), B(() => H(S), () => {
+		I(u, H(S)?.researchRuns?.filter((e) => [
 			"launching",
 			"running",
 			"blocked"
 		].includes(e.status)) || []);
-	}), B(() => H(x), () => {
-		I(d, H(x)?.researchSchedule || null);
-	}), B(() => H(x), () => {
-		I(f, H(x)?.phase === "RESEARCH_READY");
+	}), B(() => H(S), () => {
+		I(d, H(S)?.researchSchedule || null);
+	}), B(() => H(S), () => {
+		I(f, H(S)?.phase === "RESEARCH_READY");
 	}), B(() => H(d), () => {
 		I(p, !!(H(d) && [
 			"completed",
@@ -14343,17 +14353,19 @@ function hx(e, t) {
 		].includes(H(d).status)));
 	}), B(() => (H(f), H(d), H(p)), () => {
 		I(m, H(f) && (!H(d) || H(p)));
-	}), B(() => (H(d), H(p), H(x)), () => {
+	}), B(() => (H(d), H(p), H(S)), () => {
 		I(h, !!(H(d) && !H(p) && [
 			"RESEARCH_READY",
 			"RESEARCH_RUNNING",
 			"RESEARCH_INTAKE",
 			"SYNTHESIZING"
-		].includes(H(x)?.phase || "")));
-	}), B(() => (H(x), H(o)), () => {
-		I(g, !!(H(x) && !H(o) && !H(x).canStartLoop && H(x).loopStart?.blocker));
+		].includes(H(S)?.phase || "")));
+	}), B(() => (H(S), H(o), H(f), H(d)), () => {
+		I(g, !!(H(S) && !H(o) && !H(S).canStartLoop && H(S).loopStart?.blocker && !(H(f) && H(d) && ["proposed", "confirmed"].includes(H(d).status))));
+	}), B(() => H(S), () => {
+		I(_, H(S)?.strategy?.workspace?.activeReview?.status === "drafted" ? H(S).strategy.workspace.activeReview.response?.proposal : null);
 	}), B(() => (H(g), H(f), H(d), H(a)), () => {
-		I(_, H(g) ? "PREFLIGHT BLOCKED" : H(f) && H(d)?.status === "proposed" ? "CONFIRM WAVE" : H(f) && H(d)?.status === "confirmed" ? "WAVE RESERVED" : {
+		I(v, H(g) ? "PREFLIGHT BLOCKED" : H(f) && H(d)?.status === "proposed" ? "CONFIRM WAVE" : H(f) && H(d)?.status === "confirmed" ? "WAVE RESERVED" : {
 			running: "RUNNING",
 			paused: "PAUSED",
 			attention: "NEEDS ATTENTION",
@@ -14361,56 +14373,56 @@ function hx(e, t) {
 			stopped: "STOPPED"
 		}[H(a)?.status || ""] || "READY");
 	}), B(() => (H(g), H(f), H(d), H(a)), () => {
-		I(v, H(g) || H(f) && H(d)?.status === "proposed" ? "attention" : H(f) && H(d)?.status === "confirmed" ? "paused" : H(a)?.status === "attention" ? "attention" : H(a)?.status === "completed" ? "complete" : H(a)?.status || "ready");
-	}), B(() => H(x), () => {
-		I(y, H(x)?.researchPlan?.response?.operatorGuidance || H(x)?.wave?.synthesis?.response?.operatorBrief?.nextDecision || "Resolve the required human gate, then autopilot can recheck the boundary.");
-	}), B(() => H(x), () => {
-		I(b, H(x)?.phase === "RESEARCH_REVIEW" && H(x)?.researchPlan?.status === "drafted" && H(x)?.researchPlan?.response?.decision === "BLOCKED" && H(x)?.researchPlan?.response?.lanes?.some((e) => e?.taskId === "operator-doc-a1-canonical-transition"));
+		I(y, H(g) || H(f) && H(d)?.status === "proposed" ? "attention" : H(f) && H(d)?.status === "confirmed" ? "paused" : H(a)?.status === "attention" ? "attention" : H(a)?.status === "completed" ? "complete" : H(a)?.status || "ready");
+	}), B(() => H(S), () => {
+		I(b, H(S)?.researchPlan?.response?.operatorGuidance || H(S)?.wave?.synthesis?.response?.operatorBrief?.nextDecision || "Resolve the required human gate, then autopilot can recheck the boundary.");
+	}), B(() => H(S), () => {
+		I(x, H(S)?.phase === "RESEARCH_REVIEW" && H(S)?.researchPlan?.status === "drafted" && H(S)?.researchPlan?.response?.decision === "BLOCKED" && H(S)?.researchPlan?.response?.lanes?.some((e) => e?.taskId === "operator-doc-a1-canonical-transition"));
 	}), Br(), vo();
-	var ee = ca(), M = R(ee), te = (e) => {
-		var t = mx(), n = L(t), r = L(n), i = z(L(r), 2), T = L(i, !0);
+	var M = ca(), ne = R(M), re = (e) => {
+		var t = mx(), n = L(t), r = L(n), i = z(L(r), 2), E = L(i, !0);
 		N(i);
-		var E = z(i, 2), ee = L(E, !0);
-		N(E), N(r);
-		var M = z(r, 2), te = L(M, !0);
-		N(M), N(n);
-		var ne = z(n, 2), re = (e) => {
+		var D = z(i, 2), M = L(D, !0);
+		N(D), N(r);
+		var ne = z(r, 2), re = L(ne, !0);
+		N(ne), N(n);
+		var ie = z(n, 2), ae = (e) => {
 			var t = Wb(), n = z(L(t)), r = L(n, !0);
 			N(n), N(t), V(() => q(r, (H(a), U(() => H(a).error)))), K(e, t);
 		};
-		J(ne, (e) => {
-			H(a), H(b), U(() => H(a)?.error && !H(b)) && e(re);
+		J(ie, (e) => {
+			H(a), H(x), U(() => H(a)?.error && !H(x)) && e(ae);
 		});
-		var ie = z(ne, 2), ae = (e) => {
+		var oe = z(ie, 2), se = (e) => {
 			var t = Kb(), n = L(t), r = L(n);
 			N(n);
 			var i = z(n, 2), a = L(i, !0);
 			N(i);
 			var o = z(i, 2), s = (e) => {
 				var t = Gb(), n = L(t);
-				N(t), V((e, t) => q(n, `${e ?? ""} required · ${t ?? ""} currently schedulable · no workflow transition was consumed.`), [() => (H(x), U(() => Number(H(x).loopStart.minimumRunnableTokenCap).toLocaleString())), () => (H(x), U(() => Number(H(x).loopStart.effectiveTokenLimit || 0).toLocaleString()))]), K(e, t);
+				N(t), V((e, t) => q(n, `${e ?? ""} required · ${t ?? ""} currently schedulable · no workflow transition was consumed.`), [() => (H(S), U(() => Number(H(S).loopStart.minimumRunnableTokenCap).toLocaleString())), () => (H(S), U(() => Number(H(S).loopStart.effectiveTokenLimit || 0).toLocaleString()))]), K(e, t);
 			};
 			J(o, (e) => {
-				H(x), U(() => H(x)?.loopStart?.minimumRunnableTokenCap) && e(s);
+				H(S), U(() => H(S)?.loopStart?.minimumRunnableTokenCap) && e(s);
 			}), N(t), V((e) => {
-				q(r, `AUTOMATION START PREFLIGHT · ${e ?? ""}`), q(a, (H(x), U(() => H(x)?.loopStart?.blocker)));
-			}, [() => (H(x), U(() => H(x)?.loopStart?.code?.replaceAll("_", " ")))]), K(e, t);
+				q(r, `AUTOMATION START PREFLIGHT · ${e ?? ""}`), q(a, (H(S), U(() => H(S)?.loopStart?.blocker)));
+			}, [() => (H(S), U(() => H(S)?.loopStart?.code?.replaceAll("_", " ")))]), K(e, t);
 		};
-		J(ie, (e) => {
-			H(g) && e(ae);
+		J(oe, (e) => {
+			H(g) && e(se);
 		});
-		var oe = z(ie, 2), se = (e) => {
+		var ce = z(oe, 2), le = (e) => {
 			var t = qb(), n = z(L(t), 2), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), o = L(i, !0);
 			N(i), N(t), V(() => {
-				q(r, (H(a), U(() => H(a).resumeBlocker))), q(o, H(y));
+				q(r, (H(a), U(() => H(a).resumeBlocker))), q(o, H(b));
 			}), K(e, t);
 		};
-		J(oe, (e) => {
-			H(a), H(b), U(() => H(a)?.status === "attention" && H(a).resumeBlocker && !H(b)) && e(se);
+		J(ce, (e) => {
+			H(a), H(x), U(() => H(a)?.status === "attention" && H(a).resumeBlocker && !H(x)) && e(le);
 		});
-		var ce = z(oe, 2), le = (e) => {
+		var ue = z(ce, 2), de = (e) => {
 			var t = Zb(), n = L(t), r = L(n), i = L(r);
 			N(r);
 			var a = z(r), o = L(a);
@@ -14463,61 +14475,64 @@ function hx(e, t) {
 				() => (H(d), U(() => H(d).status.toUpperCase()))
 			]), K(e, t);
 		};
-		J(ce, (e) => {
-			H(h) && e(le);
+		J(ue, (e) => {
+			H(h) && e(de);
 		});
-		var ue = z(ce, 2), de = L(ue), fe = L(de), pe = L(fe, !0);
-		N(fe);
-		var me = z(fe, 2), he = L(me, !0);
-		N(me), N(de);
-		var ge = z(de, 2), _e = L(ge), ve = (e) => {
-			var t = $b(), n = R(t), r = L(n, !0);
+		var fe = z(ue, 2), pe = L(fe), me = L(pe), he = L(me, !0);
+		N(me);
+		var ge = z(me, 2), _e = L(ge, !0);
+		N(ge), N(pe);
+		var ve = z(pe, 2), ye = L(ve), be = (e) => {
+			var t = Qb(), n = z(R(t), 2), r = L(n, !0);
+			N(n), V(() => q(r, (H(_), U(() => H(_)?.epochLabel ? "Review Epoch 2 resource proposal →" : "Open strategy & resources →")))), W("click", n, te), K(e, t);
+		}, xe = (e) => {
+			var t = ex(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), a = (e) => {
-				var t = Qb();
-				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
+				var t = $b();
+				V((e) => t.disabled = e, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("loop.stop")), K(e, t);
 			};
 			J(i, (e) => {
 				H(o) && e(a);
 			}), V((e) => {
-				n.disabled = e, q(r, H(S) ? "Freezing…" : "Freeze wave schedule");
-			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, () => A("research.schedule.prepare")), K(e, t);
-		}, ye = (e) => {
-			var t = $b(), n = R(t), r = L(n, !0);
+				n.disabled = e, q(r, H(C) ? "Freezing…" : "Freeze wave schedule");
+			}, [() => (H(C), U(() => !!H(C)))]), W("click", n, () => j("research.schedule.prepare")), K(e, t);
+		}, Se = (e) => {
+			var t = ex(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), a = (e) => {
-				var t = Qb();
-				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
+				var t = $b();
+				V((e) => t.disabled = e, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("loop.stop")), K(e, t);
 			};
 			J(i, (e) => {
 				H(o) && e(a);
 			}), V((e) => {
-				n.disabled = e, q(r, (H(S), H(d), U(() => H(S) ? "Confirming…" : `Confirm ${H(d).members?.length || 0}-lane schedule`)));
-			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, () => A("research.schedule.confirm", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
-		}, be = (e) => {
-			var t = tx(), n = R(t), r = (e) => {
-				var t = ex(), n = L(t, !0);
+				n.disabled = e, q(r, (H(C), H(d), U(() => H(C) ? "Confirming…" : `Confirm ${H(d).members?.length || 0}-lane schedule`)));
+			}, [() => (H(C), U(() => !!H(C)))]), W("click", n, () => j("research.schedule.confirm", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
+		}, Ce = (e) => {
+			var t = nx(), n = R(t), r = (e) => {
+				var t = tx(), n = L(t, !0);
 				N(t), V((e) => {
-					t.disabled = e, q(n, H(S) ? "Resuming…" : "Resume & dispatch wave");
-				}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.resume")), K(e, t);
+					t.disabled = e, q(n, H(C) ? "Resuming…" : "Resume & dispatch wave");
+				}, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("loop.resume")), K(e, t);
 			}, i = (e) => {
-				var t = ex(), n = L(t, !0);
+				var t = tx(), n = L(t, !0);
 				N(t), V((e) => {
-					t.disabled = e, q(n, (H(S), H(d), U(() => H(S) ? "Dispatching…" : `Dispatch ${H(d).members?.length || 0}-lane wave`)));
-				}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("research.schedule.dispatch", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
+					t.disabled = e, q(n, (H(C), H(d), U(() => H(C) ? "Dispatching…" : `Dispatch ${H(d).members?.length || 0}-lane wave`)));
+				}, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("research.schedule.dispatch", H(d).id, { scheduleDigest: H(d).digest })), K(e, t);
 			};
 			J(n, (e) => {
 				H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention") ? e(r) : (H(a), U(() => H(a)?.status !== "running") && e(i, 1));
 			});
 			var s = z(n, 2), c = (e) => {
-				var t = Qb();
-				V((e) => t.disabled = e, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.stop")), K(e, t);
+				var t = $b();
+				V((e) => t.disabled = e, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("loop.stop")), K(e, t);
 			};
 			J(s, (e) => {
 				H(o) && e(c);
 			}), K(e, t);
-		}, xe = (e) => {
-			var t = nx(), n = R(t), r = L(n, !0);
+		}, we = (e) => {
+			var t = rx(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2), o = L(i, !0);
 			N(i);
@@ -14525,36 +14540,34 @@ function hx(e, t) {
 			V((e, t, c) => {
 				n.disabled = e, q(r, H(l) ? "Pause automation" : "Pause now"), i.disabled = t, q(o, (H(a), U(() => H(a).pendingActionId ? "Halt after this step" : "Pause before next step"))), s.disabled = c;
 			}, [
-				() => (H(S), U(() => !!H(S))),
-				() => (H(S), U(() => !!H(S))),
-				() => (H(S), U(() => !!H(S)))
-			]), W("click", n, () => A("loop.pause")), W("click", i, () => A("loop.halt-after-step")), W("click", s, () => A("loop.stop")), K(e, t);
-		}, Se = (e) => {
-			var t = rx(), n = R(t), r = L(n, !0);
+				() => (H(C), U(() => !!H(C))),
+				() => (H(C), U(() => !!H(C))),
+				() => (H(C), U(() => !!H(C)))
+			]), W("click", n, () => j("loop.pause")), W("click", i, () => j("loop.halt-after-step")), W("click", s, () => j("loop.stop")), K(e, t);
+		}, Te = (e) => {
+			var t = ix(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2);
 			V((e, t) => {
-				n.disabled = e, q(r, H(S) === "loop.resume" ? "Rechecking…" : "Recheck & resume"), i.disabled = t;
-			}, [() => (H(S), U(() => !!H(S))), () => (H(S), U(() => !!H(S)))]), W("click", n, () => A("loop.resume")), W("click", i, () => A("loop.stop")), K(e, t);
-		}, Ce = (e) => {
-			var t = rx(), n = R(t), r = L(n, !0);
+				n.disabled = e, q(r, H(C) === "loop.resume" ? "Rechecking…" : "Recheck & resume"), i.disabled = t;
+			}, [() => (H(C), U(() => !!H(C))), () => (H(C), U(() => !!H(C)))]), W("click", n, () => j("loop.resume")), W("click", i, () => j("loop.stop")), K(e, t);
+		}, Ee = (e) => {
+			var t = ix(), n = R(t), r = L(n, !0);
 			N(n);
 			var i = z(n, 2);
 			V((e) => {
-				q(r, H(b) ? "Review & approve DOC-A1" : "Resolve the required gate"), i.disabled = e;
-			}, [() => (H(S), U(() => !!H(S)))]), W("click", n, j), W("click", i, () => A("loop.stop")), K(e, t);
-		}, we = (e) => {
-			var t = ix(), n = L(t, !0);
+				q(r, H(x) ? "Review & approve DOC-A1" : "Resolve the required gate"), i.disabled = e;
+			}, [() => (H(C), U(() => !!H(C)))]), W("click", n, ee), W("click", i, () => j("loop.stop")), K(e, t);
+		}, De = (e) => {
+			var t = ax(), n = L(t, !0);
 			N(t), V((e) => {
-				t.disabled = e, q(n, (H(S), H(a), H(x), U(() => H(S) === "loop.start" ? "Starting…" : H(a)?.status === "completed" ? "Run another complete loop" : H(x).phase === "DECISION_REQUIRED" ? "Run one complete loop" : "Continue this loop automatically")));
-			}, [() => (H(S), U(() => !!H(S)))]), W("click", t, () => A("loop.start")), K(e, t);
-		}, Te = (e) => {
-			K(e, ax());
+				t.disabled = e, q(n, (H(C), H(a), H(S), U(() => H(C) === "loop.start" ? "Starting…" : H(a)?.status === "completed" ? "Run another complete loop" : H(S).phase === "DECISION_REQUIRED" ? "Run one complete loop" : "Continue this loop automatically")));
+			}, [() => (H(C), U(() => !!H(C)))]), W("click", t, () => j("loop.start")), K(e, t);
 		};
-		J(_e, (e) => {
-			H(m) ? e(ve) : (H(f), H(d), U(() => H(f) && H(d)?.status === "proposed") ? e(ye, 1) : (H(f), H(d), U(() => H(f) && H(d)?.status === "confirmed") ? e(be, 2) : (H(a), U(() => H(a)?.status === "running") ? e(xe, 3) : (H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention" && H(a).canResume) ? e(Se, 4) : (H(a), U(() => H(a)?.status === "attention") ? e(Ce, 5) : (H(x), U(() => H(x).canStartLoop) ? e(we, 6) : H(g) && e(Te, 7)))))));
-		}), N(ge), N(ue);
-		var Ee = z(ue, 2), De = (e) => {
+		J(ye, (e) => {
+			H(g) ? e(be) : H(m) ? e(xe, 1) : (H(f), H(d), U(() => H(f) && H(d)?.status === "proposed") ? e(Se, 2) : (H(f), H(d), U(() => H(f) && H(d)?.status === "confirmed") ? e(Ce, 3) : (H(a), U(() => H(a)?.status === "running") ? e(we, 4) : (H(a), U(() => H(a)?.status === "paused" || H(a)?.status === "attention" && H(a).canResume) ? e(Te, 5) : (H(a), U(() => H(a)?.status === "attention") ? e(Ee, 6) : (H(S), U(() => H(S).canStartLoop) && e(De, 7)))))));
+		}), N(ve), N(fe);
+		var Oe = z(fe, 2), ke = (e) => {
 			var t = cx(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var o = z(n, 2), c = L(o), l = L(c), u = L(l);
@@ -14573,7 +14586,7 @@ function hx(e, t) {
 					var c = z(o), l = L(c);
 					N(c), N(a), N(n), V((e) => {
 						X(n, 1, Ma((H(t), U(() => H(t).status)))), q(i, (H(t), U(() => H(t).index))), q(s, (H(t), U(() => H(t).label))), q(l, `${H(t), U(() => H(t).status) ?? ""}${H(t), U(() => H(t).attemptCount && H(t).attemptCount > 1 ? ` · attempt ${H(t).attemptCount}` : "") ?? ""}${e ?? ""}`);
-					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${O(H(t).completedAt)}` : ""))]), K(e, n);
+					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${k(H(t).completedAt)}` : ""))]), K(e, n);
 				}), N(t), K(e, t);
 			};
 			J(h, (e) => {
@@ -14582,11 +14595,11 @@ function hx(e, t) {
 				q(i, `${e ?? ""}/${H(s), U(() => H(s).length) ?? ""} settled`), q(u, `START · ${t ?? ""}`), q(f, n), q(m, `${H(a), U(() => H(a)?.start?.waveLabel || "No named wave") ?? ""} · ${r ?? ""}`);
 			}, [
 				() => (H(s), U(() => H(s).filter((e) => e.status === "completed").length)),
-				() => (H(a), U(() => O(H(a)?.start?.capturedAt))),
-				() => (H(a), U(() => D(H(a)?.start?.phase))),
-				() => (H(a), U(() => k(H(a)?.start)))
+				() => (H(a), U(() => k(H(a)?.start?.capturedAt))),
+				() => (H(a), U(() => O(H(a)?.start?.phase))),
+				() => (H(a), U(() => A(H(a)?.start)))
 			]), K(e, t);
-		}, Oe = (e) => {
+		}, Ae = (e) => {
 			var t = fx(), n = R(t), r = L(n), i = L(r), c = L(i);
 			N(i);
 			var l = z(i, 2), u = L(l, !0);
@@ -14602,9 +14615,9 @@ function hx(e, t) {
 				N(s), N(t), V((e, t, n) => {
 					q(r, `END · ${e ?? ""}`), q(o, t), q(c, `${H(a), U(() => H(a).end.waveLabel || "No named wave") ?? ""} · ${n ?? ""}`);
 				}, [
-					() => (H(a), U(() => O(H(a).end.capturedAt))),
-					() => (H(a), U(() => D(H(a).end.phase))),
-					() => (H(a), U(() => k(H(a).end)))
+					() => (H(a), U(() => k(H(a).end.capturedAt))),
+					() => (H(a), U(() => O(H(a).end.phase))),
+					() => (H(a), U(() => A(H(a).end)))
 				]), K(e, t);
 			}, h = (e) => {
 				var t = ux(), n = z(L(t)), r = L(n, !0);
@@ -14625,7 +14638,7 @@ function hx(e, t) {
 					var c = z(o), l = L(c);
 					N(c), N(a), N(n), V((e) => {
 						X(n, 1, Ma((H(t), U(() => H(t).status)))), q(i, (H(t), U(() => H(t).index))), q(s, (H(t), U(() => H(t).label))), q(l, `${H(t), U(() => H(t).status) ?? ""}${H(t), U(() => H(t).attemptCount && H(t).attemptCount > 1 ? ` · attempt ${H(t).attemptCount}` : "") ?? ""}${e ?? ""}`);
-					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${O(H(t).completedAt)}` : ""))]), K(e, n);
+					}, [() => (H(t), U(() => H(t).completedAt ? ` · ${k(H(t).completedAt)}` : ""))]), K(e, n);
 				}), N(a), N(t), V((e) => {
 					t.open = H(o), q(i, `${e ?? ""}/${H(s), U(() => H(s).length) ?? ""} settled`);
 				}, [() => (H(s), U(() => H(s).filter((e) => e.status === "completed").length))]), K(e, t);
@@ -14635,29 +14648,29 @@ function hx(e, t) {
 			}), V((e, t, n) => {
 				q(c, `START · ${e ?? ""}`), q(u, t), q(f, `${H(a), U(() => H(a)?.start?.waveLabel || "No named wave") ?? ""} · ${n ?? ""}`);
 			}, [
-				() => (H(a), U(() => O(H(a)?.start?.capturedAt))),
-				() => (H(a), U(() => D(H(a)?.start?.phase))),
-				() => (H(a), U(() => k(H(a)?.start)))
+				() => (H(a), U(() => k(H(a)?.start?.capturedAt))),
+				() => (H(a), U(() => O(H(a)?.start?.phase))),
+				() => (H(a), U(() => A(H(a)?.start)))
 			]), K(e, t);
 		};
-		J(Ee, (e) => {
-			H(b) ? e(De) : e(Oe, -1);
+		J(Oe, (e) => {
+			H(x) ? e(ke) : e(Ae, -1);
 		});
-		var ke = z(Ee, 2), Ae = (e) => {
+		var je = z(Oe, 2), Me = (e) => {
 			var t = px(), n = L(t), r = L(n, !0);
 			N(n), N(t), V(() => {
-				X(t, 1, `gate-feedback loop-feedback ${H(w) ?? ""}`), q(r, H(C));
+				X(t, 1, `gate-feedback loop-feedback ${H(T) ?? ""}`), q(r, H(w));
 			}), K(e, t);
 		};
-		J(ke, (e) => {
-			H(C) && e(Ae);
+		J(je, (e) => {
+			H(w) && e(Me);
 		}), N(t), V((e) => {
-			X(t, 1, `loop-control ${H(v) ?? ""}`), q(T, (H(g), H(m), H(f), H(d), H(b), H(l), H(u), H(o), H(c), H(a), U(() => H(g) ? "Recenter resources before starting the loop" : H(m) ? "Freeze the resource-bounded wave" : H(f) && H(d)?.status === "proposed" ? `Confirm ${H(d).members?.length || 0} scheduled member${H(d).members?.length === 1 ? "" : "s"}` : H(f) && H(d)?.status === "confirmed" ? "Dispatch the confirmed wave" : H(b) ? "Paused for one operator approval" : H(l) ? `${H(u).length} bounded lane${H(u).length === 1 ? " is" : "s are"} working` : H(o) ? H(c)?.label || (H(a)?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step") : H(a)?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"))), q(ee, e), X(M, 1, `loop-status ${H(v) ?? ""}`), q(te, H(_)), q(pe, (H(f), H(a), H(o), U(() => H(f) ? "Current position" : H(a)?.haltAfterStep ? "Halt armed" : H(o) ? "Current position" : "Scope"))), q(he, (H(m), H(f), H(d), H(b), H(l), H(a), H(c), U(() => H(m) ? "Checked plan → freeze schedule" : H(f) && H(d)?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : H(f) && H(d)?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : H(b) ? "DOC-A1 preflight passed · your approval is next" : H(l) ? `${H(l).taskId} · ${H(l).status}` : H(a)?.haltAfterStep ? "Will pause when this step settles" : H(c) ? `${H(c).index}. ${H(c).label} · ${H(c).status}` : "One decision-to-decision cycle")));
-		}, [() => (H(g), H(x), H(m), H(p), H(f), H(d), H(b), H(l), H(u), U(() => H(g) ? H(x)?.loopStart?.blocker : H(m) ? `${H(p) ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : H(f) && H(d)?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : H(f) && H(d)?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : H(b) ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : H(l) ? `${H(u).map((e) => e.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."))]), K(e, t);
+			X(t, 1, `loop-control ${H(y) ?? ""}`), q(E, (H(g), H(m), H(f), H(d), H(x), H(l), H(u), H(o), H(c), H(a), U(() => H(g) ? "Recenter resources before starting the loop" : H(m) ? "Freeze the resource-bounded wave" : H(f) && H(d)?.status === "proposed" ? `Confirm ${H(d).members?.length || 0} scheduled member${H(d).members?.length === 1 ? "" : "s"}` : H(f) && H(d)?.status === "confirmed" ? "Dispatch the confirmed wave" : H(x) ? "Paused for one operator approval" : H(l) ? `${H(u).length} bounded lane${H(u).length === 1 ? " is" : "s are"} working` : H(o) ? H(c)?.label || (H(a)?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step") : H(a)?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"))), q(M, e), X(ne, 1, `loop-status ${H(y) ?? ""}`), q(re, H(v)), q(he, (H(f), H(a), H(o), U(() => H(f) ? "Current position" : H(a)?.haltAfterStep ? "Halt armed" : H(o) ? "Current position" : "Scope"))), q(_e, (H(g), H(m), H(f), H(d), H(x), H(l), H(a), H(c), U(() => H(g) ? "Resource gate → unlock autopilot" : H(m) ? "Checked plan → freeze schedule" : H(f) && H(d)?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : H(f) && H(d)?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : H(x) ? "DOC-A1 preflight passed · your approval is next" : H(l) ? `${H(l).taskId} · ${H(l).status}` : H(a)?.haltAfterStep ? "Will pause when this step settles" : H(c) ? `${H(c).index}. ${H(c).label} · ${H(c).status}` : "One decision-to-decision cycle")));
+		}, [() => (H(g), H(S), H(m), H(p), H(f), H(d), H(x), H(l), H(u), U(() => H(g) ? H(S)?.loopStart?.blocker : H(m) ? `${H(p) ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : H(f) && H(d)?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : H(f) && H(d)?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : H(x) ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : H(l) ? `${H(u).map((e) => e.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."))]), K(e, t);
 	};
-	J(M, (e) => {
-		H(x) && e(te);
-	}), K(e, ee), xt(), i();
+	J(ne, (e) => {
+		H(S) && e(re);
+	}), K(e, M), xt(), i();
 }
 //#endregion
 //#region src/ui/OperatorGate.svelte
@@ -14821,10 +14834,10 @@ function Ox(e, t) {
 		N(k);
 		var j = z(k), ee = L(j);
 		N(j), N(D);
-		var M = z(D, 2), te = z(L(M)), ne = L(te, !0);
-		N(te);
-		var re = z(te), ie = L(re, !0);
-		N(re), N(M), N(v);
+		var te = z(D, 2), M = z(L(te)), ne = L(M, !0);
+		N(M);
+		var re = z(M), ie = L(re, !0);
+		N(re), N(te), N(v);
 		var ae = z(v, 2);
 		Y(ae, 5, () => (H(o), U(() => H(o).tracks)), (e) => e.id, (e, t) => {
 			var n = Sx(), r = L(n), i = L(r), a = L(i, !0);
@@ -14952,11 +14965,11 @@ function Bx(e, t) {
 		N(k);
 		var j = z(k, 2), ee = L(j, !0);
 		N(j), N(O), Ke(2), N(D);
-		var M = z(D, 2), te = L(M), ne = L(te), re = L(ne);
+		var te = z(D, 2), M = L(te), ne = L(M), re = L(ne);
 		N(ne);
 		var ie = z(ne), ae = L(ie);
-		N(ie), N(te);
-		var oe = z(te, 2), se = L(oe), ce = z(se), le = z(ce);
+		N(ie), N(M);
+		var oe = z(M, 2), se = L(oe), ce = z(se), le = z(ce);
 		N(oe);
 		var ue = z(oe, 2), de = L(ue), fe = L(de);
 		N(de);
@@ -14965,8 +14978,8 @@ function Bx(e, t) {
 		var he = z(pe), ge = L(he);
 		N(he);
 		var _e = z(he), ve = L(_e);
-		N(_e), N(ue), N(M);
-		var ye = z(M, 2), be = L(ye);
+		N(_e), N(ue), N(te);
+		var ye = z(te, 2), be = L(ye);
 		Y(z(L(be), 2), 0, () => [
 			"strategy",
 			"research",
@@ -15255,10 +15268,10 @@ function oS(e, t) {
 			J(O, (e) => {
 				H(o), U(() => H(o).custodyCandidates?.length) && e(k);
 			});
-			var A = z(O, 2), j = L(A), ee = z(L(j)), M = L(ee, !0);
+			var A = z(O, 2), j = L(A), ee = z(L(j)), te = L(ee, !0);
 			N(ee);
-			var te = z(ee), ne = L(te);
-			N(te), N(j);
+			var M = z(ee), ne = L(M);
+			N(M), N(j);
 			var re = z(j, 2), ie = (e) => {
 				var t = Zx(), n = R(t), r = L(n);
 				$a(r), Ke(), N(n);
@@ -15273,22 +15286,22 @@ function oS(e, t) {
 			J(re, (e) => {
 				H(u), U(() => H(u).activationAvailable) ? e(ie) : e(ae, -1);
 			}), N(A), N(t), V((e, t) => {
-				q(c, `${e ?? ""} · ${H(a), U(() => H(a).assessment?.epochStatus || "COMPLETE") ?? ""}`), q(h, (H(a), U(() => H(a).summary || "Independent strategy proposal"))), q(_, t), q(x, (H(o), U(() => H(o).epochLabel))), q(T, (H(o), U(() => H(o).epochObjective))), q(M, (H(a), U(() => H(a).operatorDecision))), q(ne, `Activation records revision ${H(l), U(() => H(l).strategy.charter.revision + 1) ?? ""} and resets measurement boundaries. Campaign phase and dispatch state remain unchanged.`);
+				q(c, `${e ?? ""} · ${H(a), U(() => H(a).assessment?.epochStatus || "COMPLETE") ?? ""}`), q(h, (H(a), U(() => H(a).summary || "Independent strategy proposal"))), q(_, t), q(x, (H(o), U(() => H(o).epochLabel))), q(T, (H(o), U(() => H(o).epochObjective))), q(te, (H(a), U(() => H(a).operatorDecision))), q(ne, `Activation records revision ${H(l), U(() => H(l).strategy.charter.revision + 1) ?? ""} and resets measurement boundaries. Campaign phase and dispatch state remain unchanged.`);
 			}, [() => (H(d), U(() => H(d).reviewKind?.replaceAll("-", " ") || "REVIEW")), () => (H(a), U(() => H(a).recommendation?.replaceAll("_", " ")))]), K(e, t);
 		};
 		J(O, (e) => {
 			H(d) ? (H(d), U(() => H(d).status === "drafting" || H(d).status === "queued") ? e(A, 1) : (H(d), U(() => H(d).status === "drafted") && e(j, 2))) : e(k);
 		});
-		var ee = z(O, 2), M = (e) => {
+		var ee = z(O, 2), te = (e) => {
 			var t = eS(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `strategy-workspace-feedback ${H(y) ?? ""}`, "svelte-1ull9g0"), q(n, H(v));
 			}), K(e, t);
 		};
 		J(ee, (e) => {
-			H(v) && e(M);
+			H(v) && e(te);
 		});
-		var te = z(ee, 2), ne = (e) => {
+		var M = z(ee, 2), ne = (e) => {
 			var t = nS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
@@ -15303,10 +15316,10 @@ function oS(e, t) {
 				}, [() => (H(t), U(() => new Date(H(t).createdAt).toLocaleString()))]), K(e, n);
 			}), N(a), N(t), V(() => q(i, `${H(u), U(() => H(u).charterHistory.length) ?? ""} revision${H(u), U(() => H(u).charterHistory.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(te, (e) => {
+		J(M, (e) => {
 			H(u), U(() => H(u).charterHistory?.length) && e(ne);
 		});
-		var re = z(te, 2), ie = (e) => {
+		var re = z(M, 2), ie = (e) => {
 			var t = iS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
@@ -15409,8 +15422,8 @@ function kS(e, t) {
 					var n = sS(), r = L(n, !0);
 					N(n), V(() => q(r, H(t))), K(e, n);
 				}), N(j), N(A);
-				var ee = z(A, 2), M = z(L(ee)), te = L(M, !0);
-				N(M), N(ee);
+				var ee = z(A, 2), te = z(L(ee)), M = L(te, !0);
+				N(te), N(ee);
 				var ne = z(ee, 2), re = z(L(ne)), ie = L(re, !0);
 				N(re), N(ne), N(E);
 				var ae = z(E, 2), oe = (e) => {
@@ -15533,7 +15546,7 @@ function kS(e, t) {
 					r = X(n, 1, "svelte-pcnttw", null, r, {
 						blocking: H(t).blocksResearch,
 						parked: H(t).status === "parked"
-					}), q(l, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(f, (H(t), U(() => H(t).task))), X(p, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(m, e), q(g, (H(t), U(() => H(t).reason))), q(y, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(x, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(C, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(T, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(k, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(te, i), q(ie, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
+					}), q(l, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(f, (H(t), U(() => H(t).task))), X(p, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(m, e), q(g, (H(t), U(() => H(t).reason))), q(y, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(x, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(C, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(T, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(k, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(M, i), q(ie, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
 				}, [() => (H(t), U(() => H(t).status.toUpperCase())), () => (H(t), U(() => H(t).acceptance.allowedPaths.length ? H(t).acceptance.allowedPaths.join(" · ") : "No paths declared"))]), K(e, n);
 			}), N(t), K(e, t);
 		}, w = (e) => {

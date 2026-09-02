@@ -1,6 +1,6 @@
 # Lane Watch architecture and recovery handoff
 
-Captured: 2026-09-01 18:45 CDT
+Captured: 2026-09-01 21:16 CDT
 Workspace: `C:\Users\wstri\dev\math-research`  
 Application: `infrastructure\agent-observer`  
 Live project: `cfg23`  
@@ -1472,3 +1472,21 @@ bundles, receipts, or campaign worktrees. A build rewrites `public\ui.js` and
   `live-proofs/2026-09-01-v104/autopilot-preflight-mobile-v104.png`,
   `live-proofs/2026-09-01-v104/campaign-line-workflow-desktop-v104.png`, and
   `live-proofs/2026-09-01-v104/strategy-epoch-2-proposal-gate-v104.png`.
+
+## 2026-09-01 persistent autopilot control
+
+- The operator advanced the checked research plan to `RESEARCH_READY`, making
+  CFG23 version 183, but did not activate the drafted Epoch 2 charter. The old
+  epoch therefore still has only 4,906 schedulable tokens.
+- PWA cache v105 keeps **Start one-loop autopilot** visible while blocked,
+  removes the impossible **Freeze wave schedule** action, and provides a live
+  **Review Epoch 2 resource proposal** route that opens and scrolls to the
+  exact human activation gate.
+- Direct `research.schedule.prepare` calls now use the same shared readiness
+  contract and return the actionable resource-envelope blocker before schedule
+  construction instead of leaking `PARK_BUDGET` internals.
+- Verification remained 157 tests / 841 assertions with zero TypeScript or
+  Svelte diagnostics. All nine live Playwright scenarios passed as a set; the
+  final desktop and mobile focused checks also passed after the copy adjustment.
+  No live mutation was submitted during verification.
+- Proof: `live-proofs/2026-09-01-v105/autopilot-control-desktop-v105.png`.

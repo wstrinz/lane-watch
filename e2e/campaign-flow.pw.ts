@@ -26,7 +26,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(inbox).toContainText("STAGED FOR REVIEW");
   await expect(inbox).toContainText("READY FOR SEMANTIC REVIEW");
   await expect(inbox.locator(".packet-list li")).toHaveCount(5);
-  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v104.png` });
+  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v105.png` });
   const interpretation = page.getByRole("region", { name: "Campaign interpretation and research atlas" });
   await expect(interpretation).toBeVisible();
   await expect(interpretation.locator(".director-card")).toHaveCount(3);
@@ -42,7 +42,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(nextAction).toContainText(/CURRENT GROUNDING|Choose the campaign direction|operator|wave|lane/i);
   await page.setViewportSize({ width: 1440, height: 2200 });
   await page.locator(".topbar,#next-action").evaluateAll((elements) => elements.forEach((element) => element.remove()));
-  await interpretation.screenshot({ path: `${outputRoot}/campaign-interpretation-atlas-desktop-v104.png` });
+  await interpretation.screenshot({ path: `${outputRoot}/campaign-interpretation-atlas-desktop-v105.png` });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await expect(page.locator("#evidence-workspace")).not.toHaveAttribute("open", "");
   await expect(page.locator("#strategy-workspaces")).not.toHaveAttribute("open", "");
@@ -108,6 +108,13 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
       if (await loop.getByText("PREFLIGHT BLOCKED", { exact: true }).count()) {
         await expect(loop).toContainText("80,000 required");
         await expect(loop).toContainText("4,906 currently schedulable");
+        await expect(loop.getByRole("button", { name: "Start one-loop autopilot" })).toBeVisible();
+        await expect(loop.getByRole("button", { name: "Start one-loop autopilot" })).toBeDisabled();
+        const resourceGate = loop.getByRole("button", { name: "Review Epoch 2 resource proposal →" });
+        await expect(resourceGate).toBeVisible();
+        await expect(loop.getByRole("button", { name: "Freeze wave schedule" })).toHaveCount(0);
+        await resourceGate.click();
+        await expect(strategyWorkspace).toBeInViewport();
       }
     }
   }
@@ -120,7 +127,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(map.locator(".journey-branch")).toHaveCount(3);
   await map.locator(".journey-stop.current").click();
   await expect(map.locator(".flow-inspector")).not.toHaveClass(/empty/);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v104.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v105.png` });
   const historyResponse = page.waitForResponse((response) => /\/api\/workflow-history\?/.test(response.url()) && response.ok());
   await map.getByRole("button", { name: "Replay", exact: true }).click();
   await historyResponse;
@@ -172,7 +179,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(settings.locator(".dispatch-profile")).toHaveCount(3);
   await expect(settings).toContainText("Defaults, never active mutations");
   await expect(settings).toContainText(/Coordinator interface · (observe-only|imported-wave|controller-owned-execution)/);
-  await loop.screenshot({ path: `${outputRoot}/campaign-loop-svelte-desktop-v73.png` });
+  await loop.screenshot({ path: `${outputRoot}/autopilot-control-desktop-v105.png` });
   if (await operatorGate.count()) await operatorGate.screenshot({ path: `${outputRoot}/campaign-operator-gate-desktop-v76.png` });
 });
 
@@ -184,10 +191,10 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeVisible();
   await openWorkspace(page, "#evidence-workspace");
   await expect(page.locator("#observer-lanes")).toBeVisible();
-  await expect(page.locator('script[src="/ui.js?v=104"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/styles.css?v=104"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/ui.css?v=104"]')).toHaveCount(1);
-  expect(await page.evaluate(() => fetch("/sw.js?v=104", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v104")))).toBe(true);
+  await expect(page.locator('script[src="/ui.js?v=105"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/styles.css?v=105"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/ui.css?v=105"]')).toHaveCount(1);
+  expect(await page.evaluate(() => fetch("/sw.js?v=105", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v105")))).toBe(true);
   expect(legacyRequests).toEqual([]);
 
   const readModel = await page.evaluate(async () => {
@@ -278,7 +285,7 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeInViewport();
   const railButtons = page.locator("#next-action .rail-actions button");
   if (await railButtons.count()) await expect(railButtons.first()).toBeInViewport();
-  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v104-mobile-ready.png`, fullPage: true });
+  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v105-mobile-ready.png`, fullPage: true });
 });
 
 test("campaign map and redirect intake are workable on mobile", async ({ page }) => {
@@ -334,7 +341,7 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
     const loopAction = loop.getByRole("button", { name: /Pause now|Pause automation|Recheck & resume|Run (one|another) complete loop|Continue this loop automatically|Confirm \d+-lane schedule/ });
     if (await loopAction.count()) await expect(loopAction).toBeVisible();
     else await expect(loop).toContainText(/LOOP COMPLETE|PREFLIGHT BLOCKED/);
-    await loop.screenshot({ path: `${outputRoot}/campaign-loop-mobile-current-v76.png` });
+    await loop.screenshot({ path: `${outputRoot}/autopilot-control-mobile-v105.png` });
   }
   const redirect = page.locator("#external-perspective");
   await expect(redirect).toBeVisible();
@@ -365,8 +372,8 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
   await map.screenshot({ path: `${outputRoot}/campaign-flow-xyflow-replay-mobile-v78.png` });
   await map.getByRole("button", { name: "Workflow" }).click();
   await expect(map.locator(".journey-stop")).toHaveCount(5);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v104.png` });
-  await page.locator("#loop-control").screenshot({ path: `${outputRoot}/campaign-loop-svelte-mobile-v73.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v105.png` });
+  await page.locator("#loop-control").screenshot({ path: `${outputRoot}/autopilot-control-mobile-v105.png` });
 });
 
 test("a proposed multi-member schedule is clear and actionable on desktop and mobile", async ({ page }) => {
