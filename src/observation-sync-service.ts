@@ -29,6 +29,15 @@ interface ResearchRunRow {
   measurement_at: string;
 }
 
+export function matchResearchRunLane(
+  run: Pick<ResearchRunRow, "status" | "task_id" | "lane_id" | "job_id">,
+  lanes: LaneSnapshot[],
+): LaneSnapshot | undefined {
+  if (run.job_id) return lanes.find((candidate) => candidate.jobId === run.job_id);
+  if (run.status === "launching") return undefined;
+  return lanes.find((candidate) => candidate.task === run.task_id || candidate.id === run.lane_id);
+}
+
 export function deriveReceiptBoundMeasurement(input: {
   evidenceSha256: string;
   observedTokens: number | null;
@@ -219,7 +228,11 @@ export class ObservationSyncService {
     if (!runs.length) return;
     let changed = false;
     for (const run of runs) {
-      const lane = lanes.find((candidate) => candidate.task === run.task_id || candidate.id === run.lane_id || candidate.jobId === run.job_id);
+      // A retry reuses the logical task ID, so the collector may still expose
+      // the previous terminal job while the launcher is compiling the new one.
+      // Never settle an unbound `launching` row by task name alone; once the
+      // launcher records its job ID, exact job identity becomes authoritative.
+      const lane = matchResearchRunLane(run, lanes);
       if (!lane) continue;
       const terminal = TERMINAL_DAEMONS.has(String(lane.daemon).toLowerCase());
       const terminalFailure = terminal && laneFailure(lane);

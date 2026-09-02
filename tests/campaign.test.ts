@@ -1886,7 +1886,7 @@ test("an explicit synthesis request advances through App Server completion", asy
     id: "demo:windows:trade37-pin-lf-independent-audit-v1",
     task: "trade37-pin-lf-independent-audit-v1",
     lane: "DKW-LOA",
-    jobId: "blocked1",
+    jobId: "deadbeef",
     daemon: "working",
     tempo: "blocked",
     severity: "working",
@@ -1897,7 +1897,7 @@ test("an explicit synthesis request advances through App Server completion", asy
   })]));
   project = (control.snapshot() as any).projects[0];
   expect(project.phase).toBe("RESEARCH_RUNNING");
-  expect(project.researchRuns[0]).toMatchObject({ status: "blocked", jobId: "blocked1", error: "stuck on a startup dialog" });
+  expect(project.researchRuns[0]).toMatchObject({ status: "blocked", jobId: "deadbeef", error: "stuck on a startup dialog" });
   mkdirSync(join(researchWorktree, "artifacts", "trade37-pin-lf-independent-audit-v1"), { recursive: true });
   git(researchWorktree, "init");
   git(researchWorktree, "config", "user.name", "Lane Watch Test");
@@ -1921,7 +1921,7 @@ test("an explicit synthesis request advances through App Server completion", asy
     id: "demo:windows:trade37-pin-lf-independent-audit-v1",
     task: "trade37-pin-lf-independent-audit-v1",
     lane: "DKW-LOA",
-    jobId: "blocked1",
+    jobId: "deadbeef",
     daemon: "working",
     tempo: "blocked",
     severity: "attention",
@@ -1940,7 +1940,7 @@ test("an explicit synthesis request advances through App Server completion", asy
     id: "demo:windows:trade37-pin-lf-independent-audit-v1",
     task: "trade37-pin-lf-independent-audit-v1",
     lane: "DKW-LOA",
-    jobId: "blocked1",
+    jobId: "deadbeef",
     daemon: "working",
     tempo: "blocked",
     severity: "attention",
@@ -1952,7 +1952,7 @@ test("an explicit synthesis request advances through App Server completion", asy
   expect((await waitForAction(control, "demo", "research.evidence.return")).status).toBe("completed");
   project = (control.snapshot() as any).projects[0];
   expect(project.phase).toBe("SYNTHESIZING");
-  expect(project.researchRuns[0]).toMatchObject({ status: "returned_to_sol", jobId: "blocked1", error: "" });
+  expect(project.researchRuns[0]).toMatchObject({ status: "returned_to_sol", jobId: "deadbeef", error: "" });
   expect(git(researchWorktree, "status", "--porcelain=v1", "--untracked-files=all")).toBe("");
   expect(git(researchWorktree, "log", "-1", "--format=%s")).toBe("Freeze trade37-pin-lf-independent-audit-v1 research evidence");
   await control.observe(observer([lane({

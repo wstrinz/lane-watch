@@ -50,7 +50,10 @@
   {:else}
     <CampaignProcessTracker />
     <PrimaryActionRail />
-    <LoopControl />
+    <details class="autopilot-ledger">
+      <summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary>
+      <LoopControl />
+    </details>
     <OperatorGate />
 
     <section class="workspace-switchboard" aria-label="Campaign detail drawers">

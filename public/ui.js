@@ -3716,7 +3716,7 @@ function Ds(e, t) {
 //#endregion
 //#region src/ui/PrimaryActionRail.svelte
 Zi(["click", "change"]), Ho();
-var Os = /* @__PURE__ */ G("<div class=\"rail-direction\"><span>CURRENT GROUNDING</span><strong> </strong></div>"), ks = /* @__PURE__ */ G("<div class=\"rail-observation\"><span>OBSERVED ACTIVITY · NON-AUTHORITATIVE</span><strong> </strong></div>"), As = /* @__PURE__ */ G("<button> </button>"), js = /* @__PURE__ */ G("<li><b> </b><span> </span></li>"), Ms = /* @__PURE__ */ G("<ul></ul>"), Ns = /* @__PURE__ */ G("<p> </p> <!>", 1), Ps = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><p> </p><small> </small></div></li>"), Fs = /* @__PURE__ */ G("<ol></ol>"), Is = /* @__PURE__ */ G("<details class=\"rail-inspector\"><summary><span>Inspect the decision packet</span><strong> </strong></summary> <div class=\"rail-packet\"><!> <label class=\"rail-note\"><span>Operator note or revision direction</span><textarea rows=\"3\" placeholder=\"Optional, but useful when redirecting or requesting revision\"></textarea></label></div></details>"), Ls = /* @__PURE__ */ G("<div class=\"recovery-report\"><div class=\"recovery-report-grid\"><div><span>WORKFLOW</span><strong> </strong></div> <div><span>FROZEN WAVE</span><strong> </strong></div> <div><span>ACCOUNTING</span><strong> </strong></div> <div><span>CONTROLLED EXECUTION</span><strong> </strong></div></div> <p class=\"recovery-digest\"><span>BOUND REPORT</span><code> </code></p> <p> </p> <label class=\"recovery-choice\"><span>Explicit recovery decision</span><select><option>Preserve the current hold</option><option>Align the historical wave to the workflow</option><option>Align the workflow to the frozen wave</option><option>Apply terminal-evidence projection repair</option></select></label> <label class=\"rail-note\"><span>Recovery rationale</span><textarea rows=\"3\" placeholder=\"Why this historical boundary—not the research direction—should change\"></textarea></label> <label class=\"recovery-confirm\"><input type=\"checkbox\"/><span>I reviewed the exact digest and authorize only this historical recovery decision.</span></label> <div class=\"recovery-boundary\"><strong>No inferred authority</strong><span>This command cannot infer a worker result, dispatch work, promote claims, merge, or push.</span></div> <button class=\"primary-button recovery-apply\"> </button></div>"), Rs = /* @__PURE__ */ G("<div class=\"recovery-report empty\"><p>Freeze a fresh report before choosing a transition. Preparation is read-only with respect to campaign workflow, workers, claims, Git, and publication.</p></div>"), zs = /* @__PURE__ */ G("<details class=\"rail-inspector rail-recovery\"><summary><span>Historical recovery protocol</span><strong> </strong></summary> <!></details>"), Bs = /* @__PURE__ */ G("<div role=\"status\"> </div>"), Vs = /* @__PURE__ */ G("<section class=\"lifecycle-focus primary-action-rail\" id=\"next-action\" aria-live=\"polite\"><div class=\"rail-copy\"><div class=\"rail-kicker\"><span> </span><strong> </strong><i> </i></div> <h2> </h2> <p> </p> <!> <!></div> <div class=\"lifecycle-actions rail-actions\"></div> <!> <!> <!></section>"), Hs = /* @__PURE__ */ G("<button><strong> </strong><span> </span><small> </small></button>"), Us = /* @__PURE__ */ G("<section class=\"project-picker\" aria-label=\"Campaign projects\"><div><p class=\"eyebrow\">CAMPAIGNS</p><h2>Choose a campaign control surface</h2></div> <div></div></section>");
+var Os = /* @__PURE__ */ G("<div class=\"rail-direction\"><span>CURRENT GROUNDING</span><strong> </strong></div>"), ks = /* @__PURE__ */ G("<div class=\"rail-observation\"><span>OBSERVED ACTIVITY · NON-AUTHORITATIVE</span><strong> </strong></div>"), As = /* @__PURE__ */ G("<button> </button>"), js = /* @__PURE__ */ G("<li><b> </b><span> </span></li>"), Ms = /* @__PURE__ */ G("<ul></ul>"), Ns = /* @__PURE__ */ G("<p> </p> <!>", 1), Ps = /* @__PURE__ */ G("<li><b> </b><div><strong> </strong><p> </p><small> </small></div></li>"), Fs = /* @__PURE__ */ G("<ol></ol>"), Is = /* @__PURE__ */ G("<details class=\"rail-inspector\"><summary><span>Inspect the decision packet</span><strong> </strong></summary> <div class=\"rail-packet\"><!> <label class=\"rail-note\"><span>Operator note or revision direction</span><textarea rows=\"3\" placeholder=\"Optional, but useful when redirecting or requesting revision\"></textarea></label></div></details>"), Ls = /* @__PURE__ */ G("<div class=\"recovery-report\"><div class=\"recovery-report-grid\"><div><span>WORKFLOW</span><strong> </strong></div> <div><span>FROZEN WAVE</span><strong> </strong></div> <div><span>ACCOUNTING</span><strong> </strong></div> <div><span>CONTROLLED EXECUTION</span><strong> </strong></div></div> <p class=\"recovery-digest\"><span>BOUND REPORT</span><code> </code></p> <p> </p> <label class=\"recovery-choice\"><span>Explicit recovery decision</span><select><option>Preserve the current hold</option><option>Align the historical wave to the workflow</option><option>Align the workflow to the frozen wave</option><option>Apply terminal-evidence projection repair</option></select></label> <label class=\"rail-note\"><span>Recovery rationale</span><textarea rows=\"3\" placeholder=\"Why this historical boundary—not the research direction—should change\"></textarea></label> <label class=\"recovery-confirm\"><input type=\"checkbox\"/><span>I reviewed the exact digest and authorize only this historical recovery decision.</span></label> <div class=\"recovery-boundary\"><strong>No inferred authority</strong><span>This command cannot infer a worker result, dispatch work, promote claims, merge, or push.</span></div> <button class=\"primary-button recovery-apply\"> </button></div>"), Rs = /* @__PURE__ */ G("<div class=\"recovery-report empty\"><p>Freeze a fresh report before choosing a transition. Preparation is read-only with respect to campaign workflow, workers, claims, Git, and publication.</p></div>"), zs = /* @__PURE__ */ G("<details class=\"rail-inspector rail-recovery\"><summary><span>Historical recovery protocol</span><strong> </strong></summary> <!></details>"), Bs = /* @__PURE__ */ G("<div role=\"status\"> </div>"), Vs = /* @__PURE__ */ G("<section class=\"lifecycle-focus primary-action-rail\" id=\"next-action\" aria-live=\"polite\"><div class=\"rail-copy\"><div class=\"rail-kicker\"><span> </span><strong> </strong><i> </i></div> <h2> </h2> <p> </p> <!> <!> <details class=\"rail-hint\"><summary><span>WHY THIS MATTERS</span><strong>Plain-language hint + mathematical connection</strong></summary> <div><p><b>What this state means.</b> </p> <p><b>Mathematical connection.</b> </p> <p><b>What your click changes.</b> </p></div></details></div> <div class=\"lifecycle-actions rail-actions\"></div> <!> <!> <!></section>"), Hs = /* @__PURE__ */ G("<button><strong> </strong><span> </span><small> </small></button>"), Us = /* @__PURE__ */ G("<section class=\"project-picker\" aria-label=\"Campaign projects\"><div><p class=\"eyebrow\">CAMPAIGNS</p><h2>Choose a campaign control surface</h2></div> <div></div></section>");
 function Ws(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(null), u = /* @__PURE__ */ F(""), d = /* @__PURE__ */ F(""), f = /* @__PURE__ */ F("pending"), p = /* @__PURE__ */ F(""), m = /* @__PURE__ */ F("PRESERVE_HOLD"), h = /* @__PURE__ */ F(""), g = /* @__PURE__ */ F(!1), _ = /* @__PURE__ */ F(""), v = {
@@ -3748,7 +3748,18 @@ function Ws(e, t) {
 		return e?.action === "DROP" || e?.contract?.status === "NOT_LAUNCHABLE" ? "excluded" : e?.contract?.status === "AFTER_DEPENDENCY" || e?.dependsOnTaskIds?.length ? "followup" : e?.contract?.status === "READY" && /^[0-9a-f]{40}$/i.test(String(e.contract.baseRef || "")) ? "ready" : "contract";
 	}
 	function S(e) {
-		let t = e.controlState?.recovery;
+		let t = e.controlState?.recovery, n = (e.researchRuns || []).find((e) => e.status === "failed" && !e.evidenceSha256);
+		if (t?.required && n && e.researchSchedule?.status === "failed") return {
+			status: "SAFE RETRY READY",
+			title: "Return the failed launch to one checked gate",
+			detail: y(n.error || "The worker stopped before validated evidence landed. Its attempt remains preserved, and no mathematical claim was inferred."),
+			actions: [{
+				key: "research.failure.requeue",
+				targetId: n.id,
+				label: "Stage fresh retry",
+				style: "primary-button"
+			}]
+		};
 		if (t?.required) {
 			let n = e.recoveryReport;
 			return {
@@ -3781,11 +3792,11 @@ function Ws(e, t) {
 				]
 			};
 		}
-		let n = e.wave?.accounting, r = n ? `${n.accounted}/${n.total}` : "no adopted wave";
+		let r = e.wave?.accounting, i = r ? `${r.accounted}/${r.total}` : "no adopted wave";
 		if (e.canApplyWaveTriage) return {
 			status: "HUMAN GATE",
 			title: "Apply the checked accounting repair",
-			detail: `Sol’s triage is ready, but only ${r} source lanes are accounted. Applying the proposal records dispositions; it does not promote claims.`,
+			detail: `Sol’s triage is ready, but only ${i} source lanes are accounted. Applying the proposal records dispositions; it does not promote claims.`,
 			actions: [{
 				key: "wave.triage.apply",
 				label: "Apply Sol recommendations",
@@ -3799,7 +3810,7 @@ function Ws(e, t) {
 		if (e.canRequestWaveTriage) return {
 			status: "ACCOUNTING GAP",
 			title: "Ask Sol for bounded wave triage",
-			detail: `Workers have stopped, but only ${r} source lanes are accounted. The triage pass is read-only until a second human apply gate.`,
+			detail: `Workers have stopped, but only ${i} source lanes are accounted. The triage pass is read-only until a second human apply gate.`,
 			actions: [{
 				key: "wave.triage.request",
 				label: "Ask Sol to triage",
@@ -3809,7 +3820,7 @@ function Ws(e, t) {
 		if (e.canPrepareSynthesis) return {
 			status: "READY",
 			title: "Freeze the synthesis boundary",
-			detail: `The wave is closed at ${r}. Freeze its evidence and campaign context before any synthesis job starts.`,
+			detail: `The wave is closed at ${i}. Freeze its evidence and campaign context before any synthesis job starts.`,
 			actions: [{
 				key: "synthesis.prepare",
 				label: "Prepare synthesis bundle",
@@ -3923,17 +3934,39 @@ function Ws(e, t) {
 				}]
 			};
 		}
-		if (e.phase === "RESEARCH_READY") return {
-			status: "HUMAN LAUNCH GATE",
-			title: "Freeze, inspect, and confirm the bounded wave",
-			detail: "The checked plan is staged. Use the one-loop rail below to freeze the dependency-safe schedule, confirm its exact digest, and dispatch only those members.",
-			actions: [{
-				key: "scroll",
-				label: "Open wave launch gate",
-				target: "#loop-control",
-				style: "primary-button"
-			}]
-		};
+		if (e.phase === "RESEARCH_READY") {
+			let t = e.researchSchedule;
+			return t?.status === "proposed" ? {
+				status: "HUMAN LAUNCH GATE",
+				title: `Confirm ${t.members?.length || 0} checked lane${t.members?.length === 1 ? "" : "s"}`,
+				detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.",
+				actions: [{
+					key: "research.schedule.confirm",
+					targetId: t.id,
+					args: { scheduleDigest: t.digest },
+					label: "Confirm checked wave",
+					style: "primary-button"
+				}]
+			} : t?.status === "confirmed" ? {
+				status: "READY TO DISPATCH",
+				title: "Launch the confirmed bounded wave",
+				detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.",
+				actions: [{
+					key: "loop.resume",
+					label: "Resume & dispatch",
+					style: "primary-button"
+				}]
+			} : {
+				status: "LAUNCH PREPARATION",
+				title: "Freeze the dependency-safe retry schedule",
+				detail: "The failed attempt is preserved. Rechecking autopilot will create a fresh immutable schedule for the same checked mathematical contract, without launching it.",
+				actions: [{
+					key: "loop.resume",
+					label: "Prepare checked schedule",
+					style: "primary-button"
+				}]
+			};
+		}
 		if (e.phase === "RESEARCH_RUNNING") {
 			let t = (e.researchRuns || []).filter((e) => [
 				"launching",
@@ -4026,7 +4059,12 @@ function Ws(e, t) {
 					scope: "primary-rail",
 					pollLimit: ["synthesis.request", "research.review.start"].includes(e.key) ? 160 : 80
 				});
-				e.key === "synthesis.review" && e.args?.decision === "research" && n.project.phase === "RESEARCH_REVIEW" && await ns({
+				e.key === "research.failure.requeue" && n.project.phase === "RESEARCH_READY" && await ns({
+					projectId: H(l).id,
+					type: "loop.resume",
+					scope: "primary-rail-retry",
+					pollLimit: 80
+				}), e.key === "synthesis.review" && e.args?.decision === "research" && n.project.phase === "RESEARCH_REVIEW" && await ns({
 					projectId: H(l).id,
 					type: "research.review.start",
 					scope: "primary-rail",
@@ -4100,15 +4138,21 @@ function Ws(e, t) {
 		};
 		J(te, (e) => {
 			H(l), U(() => H(l).controlState?.observation) && e(M);
-		}), N(n);
-		var ne = z(n, 2);
-		Y(ne, 5, () => (H(a), U(() => H(a).actions)), _a, (e, t) => {
+		});
+		var ne = z(te, 2), re = z(L(ne), 2), ie = L(re), ae = z(L(ie));
+		N(ie);
+		var oe = z(ie, 2), se = z(L(oe));
+		N(oe);
+		var ce = z(oe, 2), le = z(L(ce));
+		N(ce), N(re), N(ne), N(n);
+		var ue = z(n, 2);
+		Y(ue, 5, () => (H(a), U(() => H(a).actions)), _a, (e, t) => {
 			var n = As(), r = L(n, !0);
 			N(n), V((e) => {
 				X(n, 1, Ma((H(t), U(() => H(t).style || "outline-button")))), n.disabled = e, q(r, (H(u), H(t), U(() => H(u) === H(t).key ? "Working…" : H(t).label)));
 			}, [() => (H(u), U(() => !!H(u)))]), W("click", n, () => C(H(t))), K(e, n);
-		}), N(ne);
-		var re = z(ne, 2), ie = (e) => {
+		}), N(ue);
+		var de = z(ue, 2), fe = (e) => {
 			var t = Is(), n = L(t), r = z(L(n)), i = L(r, !0);
 			N(r), N(n);
 			var a = z(n, 2), c = L(a), u = (e) => {
@@ -4148,11 +4192,11 @@ function Ws(e, t) {
 			});
 			var f = z(c, 2), m = z(L(f));
 			tn(m), N(f), N(a), N(t), V(() => q(i, (H(l), H(s), H(o), U(() => H(l).phase === "DECISION_REQUIRED" ? `${H(s)?.nextWave?.lanes?.length || 0} proposed next lanes` : `${H(o).length} checked plan records`)))), so(m, () => H(p), (e) => I(p, e)), K(e, t);
-		}, ae = /* @__PURE__ */ P(() => (H(l), U(() => ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(H(l).phase))));
-		J(re, (e) => {
-			H(ae) && e(ie);
+		}, pe = /* @__PURE__ */ P(() => (H(l), U(() => ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(H(l).phase))));
+		J(de, (e) => {
+			H(pe) && e(fe);
 		});
-		var oe = z(re, 2), se = (e) => {
+		var me = z(de, 2), he = (e) => {
 			var t = zs(), n = L(t), r = z(L(n)), i = L(r, !0);
 			N(r), N(n);
 			var a = z(n, 2), o = (e) => {
@@ -4193,20 +4237,20 @@ function Ws(e, t) {
 				t.open = (H(l), U(() => H(l).recoveryReport?.status === "prepared")), q(i, (H(l), U(() => H(l).recoveryReport?.status === "prepared" ? "DIGEST FROZEN" : "REPORT REQUIRED")));
 			}), K(e, t);
 		};
-		J(oe, (e) => {
-			H(l), U(() => H(l).controlState?.recovery?.required) && e(se);
+		J(me, (e) => {
+			H(l), H(a), U(() => H(l).controlState?.recovery?.required && H(a).status !== "SAFE RETRY READY") && e(he);
 		});
-		var ce = z(oe, 2), le = (e) => {
+		var ge = z(me, 2), _e = (e) => {
 			var t = Bs(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `gate-feedback ${H(f) ?? ""}`), q(n, H(d));
 			}), K(e, t);
 		};
-		J(ce, (e) => {
-			H(d) && e(le);
-		}), N(t), V((e) => {
-			q(_, (H(l), U(() => H(l).id))), q(S, e), q(E, (H(a), U(() => H(a).status))), q(O, (H(a), U(() => H(a).title))), q(A, (H(a), U(() => H(a).detail)));
-		}, [() => (H(l), U(() => v[H(l).phase] || H(l).phase?.toLowerCase().replaceAll("_", " ")))]), K(e, t);
+		J(ge, (e) => {
+			H(d) && e(_e);
+		}), N(t), V((e, t) => {
+			q(_, (H(l), U(() => H(l).id))), q(S, e), q(E, (H(a), U(() => H(a).status))), q(O, (H(a), U(() => H(a).title))), q(A, (H(a), U(() => H(a).detail))), q(ae, ` ${H(l), U(() => H(l).phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : H(l).phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it.") ?? ""}`), q(se, ` ${t ?? ""}`), q(le, ` ${H(a), U(() => H(a).actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : H(a).actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated.") ?? ""}`);
+		}, [() => (H(l), U(() => v[H(l).phase] || H(l).phase?.toLowerCase().replaceAll("_", " "))), () => (H(l), H(c), U(() => y(H(l).researchSchedule?.members?.[0]?.expectedDelta || H(l).researchPlan?.response?.lanes?.[0]?.evidenceExpected || H(c) || H(l).role, 420)))]), K(e, t);
 	}, O = (e) => {
 		var t = Us(), r = z(L(t), 2);
 		Y(r, 5, () => (n(), U(() => n().control.projectIndex)), _a, (e, t) => {
@@ -15759,7 +15803,7 @@ function jS(e, t) {
 //#endregion
 //#region src/ui/App.svelte
 Zi(["click"]), Ho();
-var MS = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), NS = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), PS = /* @__PURE__ */ G("<!> <!> <!> <!> <section class=\"workspace-switchboard\" aria-label=\"Campaign detail drawers\"><header><div><p class=\"eyebrow\">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header> <details id=\"campaign-context\" class=\"workspace-group\"><summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details> <details id=\"process-history\" class=\"workspace-group\"><summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!></div></details> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), FS = /* @__PURE__ */ G("<header class=\"topbar\"><div class=\"topbar-brand\"><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></div> <!> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!></main>", 1);
+var MS = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), NS = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), PS = /* @__PURE__ */ G("<!> <!> <details class=\"autopilot-ledger\"><summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary> <!></details> <!> <section class=\"workspace-switchboard\" aria-label=\"Campaign detail drawers\"><header><div><p class=\"eyebrow\">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header> <details id=\"campaign-context\" class=\"workspace-group\"><summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details> <details id=\"process-history\" class=\"workspace-group\"><summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!></div></details> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), FS = /* @__PURE__ */ G("<header class=\"topbar\"><div class=\"topbar-brand\"><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></div> <!> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!></main>", 1);
 function IS(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt();
@@ -15797,7 +15841,7 @@ function IS(e, t) {
 		var r = z(n, 2);
 		Ws(r, {});
 		var i = z(r, 2);
-		fx(i, {});
+		fx(z(L(i), 2), {}), N(i);
 		var a = z(i, 2);
 		Cx(a, {});
 		var o = z(a, 2), s = z(L(o), 2), c = z(L(s), 2), l = L(c);

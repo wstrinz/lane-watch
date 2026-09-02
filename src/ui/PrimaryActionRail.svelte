@@ -45,6 +45,15 @@
 
   function focusFor(value: any): RailFocus {
     const recovery = value.controlState?.recovery;
+    const failedRun = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed" && !candidate.evidenceSha256);
+    if (recovery?.required && failedRun && value.researchSchedule?.status === "failed") {
+      return {
+        status: "SAFE RETRY READY",
+        title: "Return the failed launch to one checked gate",
+        detail: compact(failedRun.error || "The worker stopped before validated evidence landed. Its attempt remains preserved, and no mathematical claim was inferred."),
+        actions: [{ key: "research.failure.requeue", targetId: failedRun.id, label: "Stage fresh retry", style: "primary-button" }],
+      };
+    }
     if (recovery?.required) {
       const report = value.recoveryReport;
       return {
@@ -93,7 +102,12 @@
       ] };
       return { status: "PLAN INPUT READY", title: "Ask Sol to shape the wave", detail: `${currentRequests(value).filter((request: any) => request.status === "proposed").length} candidate lane records are ready for dependency, staffing, resource, and breadth checks.`, actions: [{ key: "research.review.start", label: "Check & shape lane plan", style: "primary-button" }] };
     }
-    if (value.phase === "RESEARCH_READY") return { status: "HUMAN LAUNCH GATE", title: "Freeze, inspect, and confirm the bounded wave", detail: "The checked plan is staged. Use the one-loop rail below to freeze the dependency-safe schedule, confirm its exact digest, and dispatch only those members.", actions: [{ key: "scroll", label: "Open wave launch gate", target: "#loop-control", style: "primary-button" }] };
+    if (value.phase === "RESEARCH_READY") {
+      const schedule = value.researchSchedule;
+      if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
+      if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
+      return { status: "LAUNCH PREPARATION", title: "Freeze the dependency-safe retry schedule", detail: "The failed attempt is preserved. Rechecking autopilot will create a fresh immutable schedule for the same checked mathematical contract, without launching it.", actions: [{ key: "loop.resume", label: "Prepare checked schedule", style: "primary-button" }] };
+    }
     if (value.phase === "RESEARCH_RUNNING") {
       const runs = (value.researchRuns || []).filter((run: any) => ["launching", "running", "blocked"].includes(run.status));
       return { status: "WAVE OUT", title: `${runs.length || 1} bounded lane${runs.length === 1 ? " is" : "s are"} active`, detail: runs.map((run: any) => run.taskId).join(" · ") || "The observer is waiting for terminal receipts.", actions: [{ key: "scroll", label: "Inspect live lanes", target: "#observer-lanes", style: "outline-button" }] };
@@ -136,6 +150,9 @@
     try {
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };
       const result = await settleCampaignAction({ projectId: project.id, type: item.key, targetId: item.targetId || "", args, scope: "primary-rail", pollLimit: ["synthesis.request", "research.review.start"].includes(item.key) ? 160 : 80 });
+      if (item.key === "research.failure.requeue" && result.project.phase === "RESEARCH_READY") {
+        await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-retry", pollLimit: 80 });
+      }
       if (item.key === "synthesis.review" && item.args?.decision === "research" && result.project.phase === "RESEARCH_REVIEW") {
         await settleCampaignAction({ projectId: project.id, type: "research.review.start", scope: "primary-rail", pollLimit: 160 });
       }
@@ -204,6 +221,14 @@
       {#if project.controlState?.observation}
         <div class="rail-observation"><span>OBSERVED ACTIVITY · NON-AUTHORITATIVE</span><strong>{phaseLabels[project.controlState.observation.phase] || project.controlState.observation.phase?.toLowerCase().replaceAll("_", " ")} · {project.controlState.observation.active} active</strong></div>
       {/if}
+      <details class="rail-hint">
+        <summary><span>WHY THIS MATTERS</span><strong>Plain-language hint + mathematical connection</strong></summary>
+        <div>
+          <p><b>What this state means.</b> {project.phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : project.phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it."}</p>
+          <p><b>Mathematical connection.</b> {compact(project.researchSchedule?.members?.[0]?.expectedDelta || project.researchPlan?.response?.lanes?.[0]?.evidenceExpected || direction || project.role, 420)}</p>
+          <p><b>What your click changes.</b> {focus.actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : focus.actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated."}</p>
+        </div>
+      </details>
     </div>
     <div class="lifecycle-actions rail-actions">
       {#each focus.actions as item}
@@ -224,7 +249,7 @@
         </div>
       </details>
     {/if}
-    {#if project.controlState?.recovery?.required}
+    {#if project.controlState?.recovery?.required && focus.status !== "SAFE RETRY READY"}
       <details class="rail-inspector rail-recovery" open={project.recoveryReport?.status === "prepared"}>
         <summary><span>Historical recovery protocol</span><strong>{project.recoveryReport?.status === "prepared" ? "DIGEST FROZEN" : "REPORT REQUIRED"}</strong></summary>
         {#if project.recoveryReport?.status === "prepared"}
