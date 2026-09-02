@@ -103,9 +103,11 @@ export function assertTerminalResearchReceipt(receipt: Record<string, any>, task
   if (receipt?.schema !== "cfg23-research-evidence/v1") throw new Error("Receipt schema must be cfg23-research-evidence/v1");
   if (receipt?.task_id !== taskId) throw new Error("Receipt task_id does not match the durable run");
   const status = String(receipt?.status || "").toLowerCase();
-  const verdict = String(receipt?.verdict || "").toUpperCase();
+  // Early cfg23 producers called the terminal verdict `terminal_state`. It is
+  // the same bounded four-value field, not a weaker substitute for a verdict.
+  const verdict = String(receipt?.verdict || receipt?.terminal_state || "").toUpperCase();
   if (!["complete", "blocked"].includes(status) && !["SUPPORTED", "REFUTED", "INCONCLUSIVE", "BLOCKED"].includes(verdict)) {
-    throw new Error("Receipt must declare status complete|blocked or verdict SUPPORTED|REFUTED|INCONCLUSIVE|BLOCKED");
+    throw new Error("Receipt must declare status complete|blocked or verdict/terminal_state SUPPORTED|REFUTED|INCONCLUSIVE|BLOCKED");
   }
 }
 

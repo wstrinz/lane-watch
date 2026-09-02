@@ -3986,11 +3986,11 @@ function Ws(e, t) {
 			};
 		}
 		if (e.phase === "RESEARCH_INTAKE") {
-			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready"), n = (e.researchRuns || []).find((e) => e.status === "failed");
+			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready"), n = (e.researchRuns || []).find((e) => e.status === "failed"), r = (e.researchRuns || []).find((e) => e.status === "awaiting_evidence");
 			return {
 				status: t ? "LANDING GATE" : n ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
-				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : "Inspect the landing blocker",
-				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : n ? y(n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.") : "The worker is terminal, but its validated evidence receipt has not landed yet.",
+				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : r?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
+				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : y(n ? n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate." : r?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
 				actions: t ? [{
 					key: "research.evidence.return",
 					targetId: t.id,
@@ -4001,7 +4001,16 @@ function Ws(e, t) {
 					targetId: n.id,
 					label: "Stage a fresh retry",
 					style: "primary-button"
-				}] : []
+				}] : [{
+					key: "refresh",
+					label: "Recheck receipt",
+					style: "primary-button"
+				}, {
+					key: "reveal",
+					label: "Inspect worker & receipt",
+					target: "#evidence-workspace",
+					style: "outline-button"
+				}]
 			};
 		}
 		return e.phase === "REVISING" ? {
@@ -4038,6 +4047,14 @@ function Ws(e, t) {
 				});
 				return;
 			}
+			if (e.key === "reveal") {
+				let t = document.querySelector(e.target || "");
+				t && (t.open = !0, t.scrollIntoView({
+					behavior: "smooth",
+					block: "start"
+				}));
+				return;
+			}
 			if (e.key === "inspect") {
 				let e = document.querySelector("#next-action .rail-inspector");
 				e && (e.open = !0, e.scrollIntoView({
@@ -4046,8 +4063,12 @@ function Ws(e, t) {
 				}));
 				return;
 			}
-			I(u, e.key), I(f, "pending"), I(d, "Applying the checked transition…");
+			I(u, e.key), I(f, "pending"), I(d, e.key === "refresh" ? "Rechecking the worker and receipt boundary…" : "Applying the checked transition…");
 			try {
+				if (e.key === "refresh") {
+					await Ro(), I(f, "success"), I(d, "The worker and receipt boundary is current.");
+					return;
+				}
 				let t = {
 					...e.args || {},
 					...["synthesis.review", "research.review.resolve"].includes(e.key) ? { note: H(p) } : {}

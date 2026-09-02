@@ -79,7 +79,7 @@ export class CampaignProjectReader {
               measured_tokens, measured_wall_seconds, measurement_source, measurement_at, created_at, updated_at, completed_at,
               CASE WHEN json_valid(evidence_json) THEN COALESCE(json_extract(evidence_json, '$.schema'), '') ELSE '' END AS evidence_schema,
               CASE WHEN json_valid(evidence_json) THEN COALESCE(json_extract(evidence_json, '$.status'), '') ELSE '' END AS evidence_status,
-              CASE WHEN json_valid(evidence_json) THEN COALESCE(json_extract(evidence_json, '$.verdict'), '') ELSE '' END AS evidence_verdict,
+              CASE WHEN json_valid(evidence_json) THEN COALESCE(json_extract(evidence_json, '$.verdict'), json_extract(evidence_json, '$.terminal_state'), '') ELSE '' END AS evidence_verdict,
               CASE WHEN json_valid(evidence_json) THEN COALESCE(json_extract(evidence_json, '$.summary'), '') ELSE '' END AS evidence_summary,
               CASE WHEN evidence_json NOT IN ('', '{}', 'null') THEN 1 ELSE 0 END AS evidence_detail_available
             FROM campaign_research_runs WHERE project_id = $project ORDER BY created_at DESC LIMIT 20

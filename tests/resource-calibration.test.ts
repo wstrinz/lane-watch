@@ -15,8 +15,9 @@ function measured(id: string, tokens: number, profile = "sonnet-worker", layer: 
 describe("receipt-bound resource calibration", () => {
   test("validates the terminal verdict and hashes campaign artifacts as canonical LF bytes", () => {
     assertTerminalResearchReceipt({ schema: "cfg23-research-evidence/v1", task_id: "task-1", verdict: "INCONCLUSIVE" }, "task-1");
-    expect(() => assertTerminalResearchReceipt({ schema: "cfg23-research-evidence/v1", task_id: "task-1", terminal_state: "INCONCLUSIVE" }, "task-1"))
-      .toThrow("Receipt must declare status complete|blocked or verdict");
+    assertTerminalResearchReceipt({ schema: "cfg23-research-evidence/v1", task_id: "task-1", terminal_state: "INCONCLUSIVE" }, "task-1");
+    expect(() => assertTerminalResearchReceipt({ schema: "cfg23-research-evidence/v1", task_id: "task-1", terminal_state: "DONE" }, "task-1"))
+      .toThrow("Receipt must declare status complete|blocked or verdict/terminal_state");
 
     const encoder = new TextEncoder();
     const canonical = { artifact_paths_note: "SHA-256 over canonical LF bytes." };

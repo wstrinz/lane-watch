@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { campaignState, selectProject } from "./campaign-state";
+  import { campaignState, refreshAll, selectProject } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
 
   type RailAction = { key: string; label: string; style?: string; args?: Record<string, any>; targetId?: string; target?: string };
@@ -115,17 +115,21 @@
     if (value.phase === "RESEARCH_INTAKE") {
       const run = (value.researchRuns || []).find((candidate: any) => candidate.status === "evidence_ready");
       const failed = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed");
+      const waiting = (value.researchRuns || []).find((candidate: any) => candidate.status === "awaiting_evidence");
       return {
         status: run ? "LANDING GATE" : failed ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
-        title: run ? "Accept the landed research receipt" : failed ? "Retry from a fresh checked schedule" : "Inspect the landing blocker",
+        title: run ? "Accept the landed research receipt" : failed ? "Retry from a fresh checked schedule" : waiting?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
         detail: run
           ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane."
           : failed
             ? compact(failed.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.")
-            : "The worker is terminal, but its validated evidence receipt has not landed yet.",
+            : compact(waiting?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
         actions: run
           ? [{ key: "research.evidence.return", targetId: run.id, label: "Accept receipt & continue", style: "primary-button" }]
-          : failed ? [{ key: "research.failure.requeue", targetId: failed.id, label: "Stage a fresh retry", style: "primary-button" }] : [],
+          : failed ? [{ key: "research.failure.requeue", targetId: failed.id, label: "Stage a fresh retry", style: "primary-button" }] : [
+            { key: "refresh", label: "Recheck receipt", style: "primary-button" },
+            { key: "reveal", label: "Inspect worker & receipt", target: "#evidence-workspace", style: "outline-button" },
+          ],
       };
     }
     if (value.phase === "REVISING") return { status: "REVISION READY", title: "Rerun the corrected plan check", detail: "Your revision direction is recorded and no lanes were staged.", actions: [{ key: "research.review.start", label: "Run corrected plan check", style: "primary-button" }] };
@@ -139,6 +143,11 @@
       document.querySelector(item.target || "")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
+    if (item.key === "reveal") {
+      const target = document.querySelector(item.target || "") as HTMLDetailsElement | null;
+      if (target) { target.open = true; target.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      return;
+    }
     if (item.key === "inspect") {
       const inspector = document.querySelector("#next-action .rail-inspector") as HTMLDetailsElement | null;
       if (inspector) { inspector.open = true; inspector.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
@@ -146,8 +155,14 @@
     }
     working = item.key;
     feedbackKind = "pending";
-    feedback = "Applying the checked transition…";
+    feedback = item.key === "refresh" ? "Rechecking the worker and receipt boundary…" : "Applying the checked transition…";
     try {
+      if (item.key === "refresh") {
+        await refreshAll();
+        feedbackKind = "success";
+        feedback = "The worker and receipt boundary is current.";
+        return;
+      }
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };
       const result = await settleCampaignAction({ projectId: project.id, type: item.key, targetId: item.targetId || "", args, scope: "primary-rail", pollLimit: ["synthesis.request", "research.review.start"].includes(item.key) ? 160 : 80 });
       if (item.key === "research.failure.requeue" && result.project.phase === "RESEARCH_READY") {
