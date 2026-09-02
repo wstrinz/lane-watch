@@ -587,6 +587,7 @@ export class ResearchExecutionService {
     const stamp = this.port.now();
     this.database.query("UPDATE campaign_research_requests SET status = 'approved_for_dispatch', updated_at = $now WHERE request_id = $request")
       .run({ $now: stamp, $request: run.request_id });
+    this.schedules.transitionSchedule(schedule.schedule_id, "failed", stamp);
     this.port.touchProject(projectId, "RESEARCH_READY");
     this.port.recordEvent(projectId, "research_run", runId, "research.failure.requeued", {
       requestId: run.request_id,
