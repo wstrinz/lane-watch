@@ -10,6 +10,8 @@
   import WaveAccounting from "./WaveAccounting.svelte";
   import CampaignFlow from "./CampaignFlow.svelte";
   import LoopControl from "./LoopControl.svelte";
+  import HeaderAutopilot from "./HeaderAutopilot.svelte";
+  import CampaignProcessTracker from "./CampaignProcessTracker.svelte";
   import OperatorGate from "./OperatorGate.svelte";
   import StrategyOverview from "./StrategyOverview.svelte";
   import ResourceEconomy from "./ResourceEconomy.svelte";
@@ -26,10 +28,11 @@
 </script>
 
 <header class="topbar">
-  <div>
+  <div class="topbar-brand">
     <p class="eyebrow">CAMPAIGN CONTROL</p>
     <h1>Lane Watch</h1>
   </div>
+  <HeaderAutopilot />
   <div class="connection-wrap">
     {#if $campaignState.access}<span class="access-identity" title={`${$campaignState.access.projects.includes("*") ? "Read all projects" : `Read ${$campaignState.access.projects.join(", ")}`} · ${$campaignState.access.mutableProjects.includes("*") ? "change all projects" : `change ${$campaignState.access.mutableProjects.join(", ") || "none"}`}`}><b>{$campaignState.access.role}</b>{$campaignState.access.identity}</span>{/if}
     <button class="refresh-button" class:refreshing={$campaignState.connection === "refreshing"} disabled={$campaignState.connection === "refreshing" || $campaignState.access?.canMutate === false} aria-label="Refresh all campaign and lane states" title={$campaignState.access?.canMutate === false ? "Viewer access is read-only" : "Refresh all campaign and lane states"} onclick={() => refreshAll().catch(() => undefined)}>↻</button>
@@ -39,21 +42,32 @@
 </header>
 
 <main>
-  <PrimaryActionRail />
   {#if !$campaignState.selectedProject}
     <section id="observer-lanes" class="observer-surface all-jobs-surface" aria-label="All observed agent lanes">
       <header><div><p class="eyebrow">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header>
       <ObserverDashboard />
     </section>
   {:else}
-    <PacketInbox />
-    <CampaignInterpretation />
-    <CampaignFlow />
+    <CampaignProcessTracker />
+    <PrimaryActionRail />
     <LoopControl />
     <OperatorGate />
 
-    <section class="workspace-switchboard" aria-label="Supporting campaign workspaces">
-    <header><div><p class="eyebrow">SUPPORTING WORKSPACES</p><h2>Open detail only when the main line calls for it</h2></div><span>Evidence · strategy · system</span></header>
+    <section class="workspace-switchboard" aria-label="Campaign detail drawers">
+    <header><div><p class="eyebrow">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header>
+    <details id="campaign-context" class="workspace-group">
+      <summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary>
+      <div class="workspace-group-body">
+        <PacketInbox />
+        <CampaignInterpretation />
+      </div>
+    </details>
+    <details id="process-history" class="workspace-group">
+      <summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary>
+      <div class="workspace-group-body">
+        <CampaignFlow />
+      </div>
+    </details>
     <details id="evidence-workspace" class="workspace-group">
       <summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary>
       <div class="workspace-group-body">

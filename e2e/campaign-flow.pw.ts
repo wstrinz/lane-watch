@@ -20,13 +20,25 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await page.goto(url);
   await page.waitForTimeout(500);
   expect(pageErrors).toEqual([]);
+  const headerAutopilot = page.locator(".header-autopilot");
+  await expect(headerAutopilot).toBeVisible();
+  await expect(headerAutopilot).toContainText(/AUTOPILOT/);
+  await expect(headerAutopilot.getByRole("button", { name: /one-loop autopilot/ })).toBeVisible();
+  const processTracker = page.getByRole("region", { name: "Campaign process tracker" });
+  await expect(processTracker).toBeVisible();
+  await expect(processTracker.locator("li")).toHaveCount(5);
+  await expect(processTracker.locator("li.current")).toHaveCount(1);
+  await expect(processTracker.locator("li.current")).toContainText(/Plan|Launch|Run|Land|Decide/);
+  await expect(page.locator("#campaign-context")).not.toHaveAttribute("open", "");
+  await expect(page.locator("#process-history")).not.toHaveAttribute("open", "");
+  await openWorkspace(page, "#campaign-context");
   const inbox = page.getByRole("region", { name: "Research packet inbox" });
   await expect(inbox).toBeVisible();
   await expect(inbox).toContainText("campaigns/cfg23/packets/queue/");
   await expect(inbox).toContainText("STAGED FOR REVIEW");
   await expect(inbox).toContainText("READY FOR SEMANTIC REVIEW");
   await expect(inbox.locator(".packet-list li")).toHaveCount(5);
-  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v105.png` });
+  await inbox.screenshot({ path: `${outputRoot}/campaign-packet-inbox-desktop-v106.png` });
   const interpretation = page.getByRole("region", { name: "Campaign interpretation and research atlas" });
   await expect(interpretation).toBeVisible();
   await expect(interpretation.locator(".director-card")).toHaveCount(3);
@@ -42,7 +54,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(nextAction).toContainText(/CURRENT GROUNDING|Choose the campaign direction|operator|wave|lane/i);
   await page.setViewportSize({ width: 1440, height: 2200 });
   await page.locator(".topbar,#next-action").evaluateAll((elements) => elements.forEach((element) => element.remove()));
-  await interpretation.screenshot({ path: `${outputRoot}/campaign-interpretation-atlas-desktop-v105.png` });
+  await interpretation.screenshot({ path: `${outputRoot}/campaign-interpretation-atlas-desktop-v106.png` });
   await page.setViewportSize({ width: 1440, height: 1000 });
   await expect(page.locator("#evidence-workspace")).not.toHaveAttribute("open", "");
   await expect(page.locator("#strategy-workspaces")).not.toHaveAttribute("open", "");
@@ -50,6 +62,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await openWorkspace(page, "#strategy-workspaces");
   await openWorkspace(page, "#evidence-workspace");
   await openWorkspace(page, "#system-workspace");
+  await openWorkspace(page, "#process-history");
   const strategy = page.locator("#campaign-strategy");
   await expect(strategy).toBeVisible();
   await expect(strategy).toContainText("CAMPAIGN STRATEGY");
@@ -77,7 +90,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(custody).toBeVisible();
   if (!await custody.locator(".custody-body").isVisible()) await custody.locator("summary").first().click();
   await expect(custody).toContainText("Terra local steward");
-  await expect(custody).toContainText("No custody contracts are queued");
+  await expect(custody).toContainText(/No custody contracts are queued|items? in the service inbox/);
   await custody.screenshot({ path: `${outputRoot}/campaign-custody-service-desktop-v82.png` });
   const map = page.locator(".campaign-map");
   await expect(map).toBeVisible();
@@ -120,14 +133,14 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   }
   expect(await map.evaluate((element) => {
     const loopElement = document.querySelector("#loop-control");
-    return Boolean(loopElement && (element.compareDocumentPosition(loopElement) & Node.DOCUMENT_POSITION_FOLLOWING));
+    return Boolean(loopElement && (loopElement.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING));
   })).toBe(true);
   await expect(map.getByRole("button", { name: /Packet inbox/ })).toBeVisible();
   await expect(map.locator(".journey-stop")).toHaveCount(5);
   await expect(map.locator(".journey-branch")).toHaveCount(3);
   await map.locator(".journey-stop.current").click();
   await expect(map.locator(".flow-inspector")).not.toHaveClass(/empty/);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v105.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-desktop-v106.png` });
   const historyResponse = page.waitForResponse((response) => /\/api\/workflow-history\?/.test(response.url()) && response.ok());
   await map.getByRole("button", { name: "Replay", exact: true }).click();
   await historyResponse;
@@ -156,9 +169,9 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   const programHistory = map.getByRole("region", { name: "Program history hierarchy" });
   await expect(programHistory).toBeVisible();
   await expect(programHistory).toContainText("Epoch → wave → lane and custody");
-  await expect(programHistory.locator(".program-epoch")).toHaveCount(1);
+  await expect.poll(() => programHistory.locator(".program-epoch").count()).toBeGreaterThanOrEqual(1);
   await expect(programHistory).toContainText(/pre epoch historical import|explicit strategy snapshot|created at containment/);
-  await expect(programHistory.locator(".epoch-boundary")).toContainText("START / END COMPARISON");
+  await expect(programHistory.locator(".epoch-boundary").first()).toContainText("START / END COMPARISON");
   await map.locator(".history-filters").getByRole("button", { name: "Evidence" }).click();
   await expect.poll(async () => map.locator(".svelte-flow__node").count()).toBeGreaterThan(4);
   await map.locator(".svelte-flow__node.current").first().click();
@@ -179,7 +192,7 @@ test("campaign workflow and durable history remain inspectable on desktop", asyn
   await expect(settings.locator(".dispatch-profile")).toHaveCount(3);
   await expect(settings).toContainText("Defaults, never active mutations");
   await expect(settings).toContainText(/Coordinator interface · (observe-only|imported-wave|controller-owned-execution)/);
-  await loop.screenshot({ path: `${outputRoot}/autopilot-control-desktop-v105.png` });
+  await loop.screenshot({ path: `${outputRoot}/autopilot-control-desktop-v106.png` });
   if (await operatorGate.count()) await operatorGate.screenshot({ path: `${outputRoot}/campaign-operator-gate-desktop-v76.png` });
 });
 
@@ -191,10 +204,10 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeVisible();
   await openWorkspace(page, "#evidence-workspace");
   await expect(page.locator("#observer-lanes")).toBeVisible();
-  await expect(page.locator('script[src="/ui.js?v=105"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/styles.css?v=105"]')).toHaveCount(1);
-  await expect(page.locator('link[href="/ui.css?v=105"]')).toHaveCount(1);
-  expect(await page.evaluate(() => fetch("/sw.js?v=105", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v105")))).toBe(true);
+  await expect(page.locator('script[src="/ui.js?v=106"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/styles.css?v=106"]')).toHaveCount(1);
+  await expect(page.locator('link[href="/ui.css?v=106"]')).toHaveCount(1);
+  expect(await page.evaluate(() => fetch("/sw.js?v=106", { cache: "no-store" }).then((response) => response.text()).then((body) => body.includes("lane-watch-v106")))).toBe(true);
   expect(legacyRequests).toEqual([]);
 
   const readModel = await page.evaluate(async () => {
@@ -285,15 +298,18 @@ test("the Svelte-owned shell keeps the primary rail and lane drill-down stable",
   await expect(page.locator("#next-action")).toBeInViewport();
   const railButtons = page.locator("#next-action .rail-actions button");
   if (await railButtons.count()) await expect(railButtons.first()).toBeInViewport();
-  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v105-mobile-ready.png`, fullPage: true });
+  await page.screenshot({ path: `${outputRoot}/lane-watch-svelte-v106-mobile-ready.png`, fullPage: true });
 });
 
 test("campaign map and redirect intake are workable on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(url);
+  await expect(page.locator(".header-autopilot")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Campaign process tracker" })).toBeVisible();
   await openWorkspace(page, "#strategy-workspaces");
   await openWorkspace(page, "#evidence-workspace");
   await openWorkspace(page, "#system-workspace");
+  await openWorkspace(page, "#process-history");
   const strategy = page.locator("#campaign-strategy");
   await expect(strategy).toBeVisible();
   await expect(strategy.locator(".strategy-vitals > div")).toHaveCount(4);
@@ -320,7 +336,7 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
   await expect(custody).toBeVisible();
   if (!await custody.locator(".custody-body").isVisible()) await custody.locator("summary").first().click();
   await expect(custody).toContainText("Terra local steward");
-  await expect(custody).toContainText("No custody contracts are queued");
+  await expect(custody).toContainText(/No custody contracts are queued|items? in the service inbox/);
   await custody.screenshot({ path: `${outputRoot}/campaign-custody-service-mobile-v82.png` });
   const loop = page.locator("#loop-control");
   const operatorGate = page.locator("#operator-gate");
@@ -341,7 +357,7 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
     const loopAction = loop.getByRole("button", { name: /Pause now|Pause automation|Recheck & resume|Run (one|another) complete loop|Continue this loop automatically|Confirm \d+-lane schedule/ });
     if (await loopAction.count()) await expect(loopAction).toBeVisible();
     else await expect(loop).toContainText(/LOOP COMPLETE|PREFLIGHT BLOCKED/);
-    await loop.screenshot({ path: `${outputRoot}/autopilot-control-mobile-v105.png` });
+    await loop.screenshot({ path: `${outputRoot}/autopilot-control-mobile-v106.png` });
   }
   const redirect = page.locator("#external-perspective");
   await expect(redirect).toBeVisible();
@@ -372,8 +388,8 @@ test("campaign map and redirect intake are workable on mobile", async ({ page })
   await map.screenshot({ path: `${outputRoot}/campaign-flow-xyflow-replay-mobile-v78.png` });
   await map.getByRole("button", { name: "Workflow" }).click();
   await expect(map.locator(".journey-stop")).toHaveCount(5);
-  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v105.png` });
-  await page.locator("#loop-control").screenshot({ path: `${outputRoot}/autopilot-control-mobile-v105.png` });
+  await map.screenshot({ path: `${outputRoot}/campaign-line-workflow-mobile-v106.png` });
+  await page.locator("#loop-control").screenshot({ path: `${outputRoot}/autopilot-control-mobile-v106.png` });
 });
 
 test("a proposed multi-member schedule is clear and actionable on desktop and mobile", async ({ page }) => {

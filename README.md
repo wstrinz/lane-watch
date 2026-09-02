@@ -99,6 +99,14 @@ The primary autopilot control remains visible in that state, impossible
 schedule actions are suppressed, and an enabled resource-gate action opens the
 exact strategy proposal needed to unlock the loop.
 
+The campaign page is organized as one stable command center. Autopilot lives in
+the sticky application header and exposes Start, Pause, Resume, or the current
+blocker without requiring page navigation. A compact five-stage tracker keeps
+Plan → Launch → Run → Land → Decide visible above the current action and loop
+controls. Objective grounding, packet intake, the full branching map and
+history, evidence, strategy, and system controls remain available in collapsed
+drawers instead of competing with the active process.
+
 The History surface mirrors that hierarchy from durable rows and keeps the
 chronological event graph alongside it. Each epoch shows recorded metric, cost,
 and drift values at its start and latest end boundary; an active baseline-only

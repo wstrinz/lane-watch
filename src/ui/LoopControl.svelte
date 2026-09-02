@@ -226,46 +226,28 @@
       </div>
     </div>
 
-    {#if operatorTransitionRequired}
-      <details class="loop-context">
-        <summary>Inspect captured loop boundary and steps <strong>{steps.filter((step) => step.status === "completed").length}/{steps.length} settled</strong></summary>
-        <div class="loop-boundaries">
-          <div class="loop-boundary">
-            <span>START · {timestamp(loop?.start?.capturedAt)}</span>
-            <strong>{phaseLabel(loop?.start?.phase)}</strong>
-            <small>{loop?.start?.waveLabel || "No named wave"} · {boundaryNote(loop?.start)}</small>
-          </div>
-          <div class="loop-boundary pending"><span>END · PENDING</span><strong>Captured when this run stops</strong></div>
-        </div>
-        {#if steps.length}
-          <ol class="loop-context-steps">{#each steps as step (step.actionId)}<li class={step.status}><span>{step.index}</span><div><strong>{step.label}</strong><small>{step.status}{step.attemptCount && step.attemptCount > 1 ? ` · attempt ${step.attemptCount}` : ""}{step.completedAt ? ` · ${timestamp(step.completedAt)}` : ""}</small></div></li>{/each}</ol>
-        {/if}
-      </details>
-    {:else}
-    <div class="loop-boundaries">
-      <div class="loop-boundary">
-        <span>START · {timestamp(loop?.start?.capturedAt)}</span>
-        <strong>{phaseLabel(loop?.start?.phase)}</strong>
-        <small>{loop?.start?.waveLabel || "No named wave"} · {boundaryNote(loop?.start)}</small>
-      </div>
-      {#if loop?.end?.capturedAt}
+    <details class="loop-context">
+      <summary>Loop record & step ledger <strong>{steps.filter((step) => step.status === "completed").length}/{steps.length} settled</strong></summary>
+      <div class="loop-boundaries">
         <div class="loop-boundary">
-          <span>END · {timestamp(loop.end.capturedAt)}</span>
-          <strong>{phaseLabel(loop.end.phase)}</strong>
-          <small>{loop.end.waveLabel || "No named wave"} · {boundaryNote(loop.end)}</small>
+          <span>START · {timestamp(loop?.start?.capturedAt)}</span>
+          <strong>{phaseLabel(loop?.start?.phase)}</strong>
+          <small>{loop?.start?.waveLabel || "No named wave"} · {boundaryNote(loop?.start)}</small>
         </div>
-      {:else}
-        <div class="loop-boundary pending"><span>END · PENDING</span><strong>{active ? "Captured when this run stops" : "Not captured"}</strong></div>
+        {#if loop?.end?.capturedAt}
+          <div class="loop-boundary">
+            <span>END · {timestamp(loop.end.capturedAt)}</span>
+            <strong>{phaseLabel(loop.end.phase)}</strong>
+            <small>{loop.end.waveLabel || "No named wave"} · {boundaryNote(loop.end)}</small>
+          </div>
+        {:else}
+          <div class="loop-boundary pending"><span>END · PENDING</span><strong>{active ? "Captured when this run stops" : "Not captured"}</strong></div>
+        {/if}
+      </div>
+      {#if steps.length}
+        <ol class="loop-context-steps">{#each steps as step (step.actionId)}<li class={step.status}><span>{step.index}</span><div><strong>{step.label}</strong><small>{step.status}{step.attemptCount && step.attemptCount > 1 ? ` · attempt ${step.attemptCount}` : ""}{step.completedAt ? ` · ${timestamp(step.completedAt)}` : ""}</small></div></li>{/each}</ol>
       {/if}
-    </div>
-
-    {#if steps.length}
-      <details class="loop-ledger" open={active}>
-        <summary>Inspect loop steps <strong>{steps.filter((step) => step.status === "completed").length}/{steps.length} settled</strong></summary>
-        <ol>{#each steps as step (step.actionId)}<li class={step.status}><span>{step.index}</span><div><strong>{step.label}</strong><small>{step.status}{step.attemptCount && step.attemptCount > 1 ? ` · attempt ${step.attemptCount}` : ""}{step.completedAt ? ` · ${timestamp(step.completedAt)}` : ""}</small></div></li>{/each}</ol>
-      </details>
-    {/if}
-    {/if}
+    </details>
     {#if feedback}<div class="gate-feedback loop-feedback {feedbackKind}" role="status"><span>{feedback}</span></div>{/if}
   </section>
 {/if}

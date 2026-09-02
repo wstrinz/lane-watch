@@ -1490,3 +1490,27 @@ bundles, receipts, or campaign worktrees. A build rewrites `public\ui.js` and
   final desktop and mobile focused checks also passed after the copy adjustment.
   No live mutation was submitted during verification.
 - Proof: `live-proofs/2026-09-01-v105/autopilot-control-desktop-v105.png`.
+
+## 2026-09-02 focused command center
+
+- PWA cache v106 moves autopilot into the persistent application header. The
+  header control derives the live loop state and presents Start, Pause, Resume,
+  or Manage blocker; it never bypasses the existing schedule, resource, or
+  operator gates.
+- The primary campaign surface is now a compact Plan → Launch → Run → Land →
+  Decide tracker followed by the current action rail and loop control. The old
+  sticky action rail is now in normal document flow, and the historical loop
+  boundary/step ledger is collapsed by default.
+- Packet intake and mathematical interpretation are retained under Objective &
+  inputs. The full branching map and replay are retained under Process map &
+  history. Evidence, strategy, and system controls remain separate collapsed
+  drawers. No control or evidence surface was removed.
+- The live campaign advanced independently during this UI work and was observed
+  at version 189 / `RESEARCH_INTAKE`, with Epoch 2 visible in the read model,
+  zero queued or running actions, and zero active research runs. This deployment
+  submitted no campaign mutation.
+- Verification: 157 tests / 841 assertions, clean TypeScript and Svelte checks,
+  a successful production build, and all 9 live Playwright scenarios. The final
+  supervised listener is Bun 1.3.14 PID 35792.
+- Proofs: `live-proofs/2026-09-02-v106/command-center-desktop-v106.png` and
+  `live-proofs/2026-09-02-v106/command-center-mobile-v106.png`.
