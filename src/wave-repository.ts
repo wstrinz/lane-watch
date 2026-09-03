@@ -37,12 +37,94 @@ export interface WaveDispositionResult {
   phase: string;
 }
 
+type HistoricalWaveMember = WaveMemberRecord & { project_id: string; wave_created_at: string; wave_phase: string };
+
+function parseSnapshot(value: string): Partial<LaneSnapshot> {
+  try { return JSON.parse(value || "{}") as Partial<LaneSnapshot>; } catch { return {}; }
+}
+
+export function sameLaneExecution(current: LaneSnapshot, historical: WaveMemberRecord): boolean {
+  const prior = parseSnapshot(historical.snapshot_json);
+  if (current.jobId && prior.jobId) return current.jobId === prior.jobId;
+  return Boolean(current.completedAt && prior.completedAt
+    && current.completedAt === prior.completedAt
+    && current.task === prior.task
+    && current.branch === prior.branch);
+}
+
+export function waveAdoptionCandidates(lanes: LaneSnapshot[], history: WaveMemberRecord[]): LaneSnapshot[] {
+  return lanes.filter((lane) => {
+    const prior = history.find((member) => member.lane_id === lane.id && sameLaneExecution(lane, member));
+    return !prior || prior.disposition === "CARRY_FORWARD" || !waveLaneAccounted(prior);
+  });
+}
+
 export class WaveRepository {
   constructor(private readonly database: Database) {}
 
   latest(projectId: string): WaveRecord | null {
+    return this.database.query("SELECT * FROM campaign_waves WHERE project_id = $id AND phase != 'VOIDED' ORDER BY created_at DESC LIMIT 1")
+      .get({ $id: projectId }) as WaveRecord | null;
+  }
+
+  latestIncludingVoided(projectId: string): WaveRecord | null {
     return this.database.query("SELECT * FROM campaign_waves WHERE project_id = $id ORDER BY created_at DESC LIMIT 1")
       .get({ $id: projectId }) as WaveRecord | null;
+  }
+
+  adoptionCandidates(projectId: string, lanes: LaneSnapshot[]): LaneSnapshot[] {
+    const history = this.database.query(`
+      SELECT member.*, wave.project_id, wave.created_at AS wave_created_at, wave.phase AS wave_phase
+      FROM campaign_wave_lanes member
+      JOIN campaign_waves wave ON wave.wave_id = member.wave_id
+      WHERE wave.project_id = $project AND wave.phase != 'VOIDED'
+      ORDER BY wave.created_at DESC, member.updated_at DESC
+    `).all({ $project: projectId }) as HistoricalWaveMember[];
+    return waveAdoptionCandidates(lanes, history);
+  }
+
+  duplicatePredecessors(waveId: string): Array<{ member: WaveMemberRecord; prior: HistoricalWaveMember }> {
+    const wave = this.database.query("SELECT * FROM campaign_waves WHERE wave_id = $wave").get({ $wave: waveId }) as WaveRecord | null;
+    if (!wave) throw new Error(`Unknown wave: ${waveId}`);
+    const history = this.database.query(`
+      SELECT member.*, prior.project_id, prior.created_at AS wave_created_at, prior.phase AS wave_phase
+      FROM campaign_wave_lanes member
+      JOIN campaign_waves prior ON prior.wave_id = member.wave_id
+      WHERE prior.project_id = $project AND member.wave_id != $wave AND prior.phase != 'VOIDED'
+      ORDER BY prior.created_at DESC, member.updated_at DESC
+    `).all({ $project: wave.project_id, $wave: waveId }) as HistoricalWaveMember[];
+    return this.members(waveId).map((member) => {
+      const current = parseSnapshot(member.snapshot_json) as LaneSnapshot;
+      const prior = history.find((candidate) => candidate.lane_id === member.lane_id
+        && candidate.disposition !== "CARRY_FORWARD"
+        && waveLaneAccounted(candidate)
+        && sameLaneExecution(current, candidate));
+      if (!prior) throw new Error(`Wave ${waveId} contains a lane execution that was not previously accounted: ${member.lane_id}`);
+      return { member, prior };
+    });
+  }
+
+  voidDuplicate(waveId: string, updatedAt: string): Array<{ laneId: string; priorWaveId: string }> {
+    const matches = this.duplicatePredecessors(waveId);
+    if (!matches.length) throw new Error("The current wave has no members to classify as duplicates");
+    const apply = this.database.transaction(() => {
+      const update = this.database.query(`
+        UPDATE campaign_wave_lanes SET disposition = 'DUPLICATE', reason = $reason, updated_at = $now
+        WHERE wave_id = $wave AND lane_id = $lane
+      `);
+      for (const match of matches) {
+        update.run({
+          $wave: waveId,
+          $lane: match.member.lane_id,
+          $reason: `Same execution already accounted in ${match.prior.wave_id}; no new evidence or claim transition.`,
+          $now: updatedAt,
+        });
+      }
+      this.database.query("UPDATE campaign_waves SET phase = 'VOIDED', updated_at = $now WHERE wave_id = $wave")
+        .run({ $wave: waveId, $now: updatedAt });
+    });
+    apply();
+    return matches.map((match) => ({ laneId: match.member.lane_id, priorWaveId: match.prior.wave_id }));
   }
 
   members(waveId: string): WaveMemberRecord[] {

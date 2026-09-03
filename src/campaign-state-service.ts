@@ -98,7 +98,11 @@ export class CampaignStateService {
       const row = this.project(projectId);
       const phase = changes.phase ?? row.current_phase;
       if (!isPhase(phase)) throw new Error(`Unknown campaign workflow phase: ${String(phase)}`);
-      if (phase !== row.current_phase && !TRANSITIONS[row.current_phase].has(phase)) {
+      const duplicateWaveRestore = row.current_phase === "RECONCILING"
+        && phase === "DECISION_REQUIRED"
+        && context.authority === "human-confirmed"
+        && context.cause === "duplicate-wave-voided";
+      if (phase !== row.current_phase && !TRANSITIONS[row.current_phase].has(phase) && !duplicateWaveRestore) {
         throw new Error(`Illegal campaign workflow transition: ${row.current_phase} -> ${phase} (${context.cause})`);
       }
       const stamp = this.port.now();

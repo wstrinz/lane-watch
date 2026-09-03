@@ -27,7 +27,9 @@ export class WaveCommandService {
     createdAt: string;
   }): WaveCommandResult {
     if (!input.lanes.length) throw new Error("No active lanes are available to adopt");
-    const laneIds = input.lanes.map((lane) => lane.id);
+    const eligibleLanes = this.repository.adoptionCandidates(input.projectId, input.lanes);
+    if (!eligibleLanes.length) throw new Error("No new lane executions are available to adopt; the visible terminal lanes were already accounted in an earlier wave");
+    const laneIds = eligibleLanes.map((lane) => lane.id);
     if (new Set(laneIds).size !== laneIds.length) throw new Error("A wave cannot contain duplicate lane members");
     const current = this.repository.latest(input.projectId);
     if (current && current.phase !== "NEXT_WAVE_READY") {
@@ -35,10 +37,16 @@ export class WaveCommandService {
     }
     const wave = this.repository.adopt({
       ...input,
+      lanes: eligibleLanes,
       label: input.label.trim() || `Adopted wave ${input.createdAt.slice(0, 10)}`,
-      phase: deriveCampaignPhase(input.lanes),
+      phase: deriveCampaignPhase(eligibleLanes),
     });
     return { wave, accounting: this.accounting(wave.wave_id), created: true };
+  }
+
+  voidDuplicate(wave: WaveRecord, updatedAt: string) {
+    const duplicates = this.repository.voidDuplicate(wave.wave_id, updatedAt);
+    return { waveId: wave.wave_id, duplicates, phase: "VOIDED" };
   }
 
   syncObservedMembers(wave: WaveRecord, lanes: LaneSnapshot[], updatedAt: string): WaveAccounting {

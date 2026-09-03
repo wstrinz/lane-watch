@@ -246,7 +246,7 @@ export class StrategyCommandService {
       $now: stamp,
     });
     const wave = this.database.query(
-      "SELECT * FROM campaign_waves WHERE project_id = $project ORDER BY created_at DESC LIMIT 1",
+      "SELECT * FROM campaign_waves WHERE project_id = $project AND phase != 'VOIDED' ORDER BY created_at DESC LIMIT 1",
     ).get({ $project: projectId }) as Record<string, any> | null;
     const synthesis = wave
       ? this.database.query("SELECT response_json FROM campaign_syntheses WHERE wave_id = $wave").get({ $wave: wave.wave_id }) as { response_json: string } | null

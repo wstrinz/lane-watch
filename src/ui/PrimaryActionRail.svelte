@@ -44,6 +44,15 @@
     return "contract";
   }
 
+  function duplicateWave(value: any): boolean {
+    const response = value?.wave?.triage?.response;
+    const recommendations = Array.isArray(response?.laneRecommendations) ? response.laneRecommendations : [];
+    return value?.phase === "RECONCILING"
+      && recommendations.length > 0
+      && recommendations.every((item: any) => String(item?.disposition || "").toUpperCase() === "NONE")
+      && /duplicate|already (?:accounted|synthesized)/i.test(`${response?.campaignAssessment || ""} ${response?.nextStep || ""}`);
+  }
+
   function focusFor(value: any): RailFocus {
     const recovery = value.controlState?.recovery;
     const failedRun = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed" && !candidate.evidenceSha256);
@@ -72,6 +81,12 @@
     }
     const accounting = value.wave?.accounting;
     const count = accounting ? `${accounting.accounted}/${accounting.total}` : "no adopted wave";
+    if (duplicateWave(value)) return {
+      status: "CONTROL-PLANE REPAIR",
+      title: "Remove the duplicate wave from the live loop",
+      detail: "These exact lane executions were already dispositioned and synthesized. Closing this duplicate restores the prior decision boundary without changing evidence, claims, Git, or worker state.",
+      actions: [{ key: "wave.duplicate.close", label: "Close duplicate & restore decision", style: "primary-button" }],
+    };
     if (value.canApplyWaveTriage) return { status: "HUMAN GATE", title: "Apply the checked accounting repair", detail: `Sol’s triage is ready, but only ${count} source lanes are accounted. Applying the proposal records dispositions; it does not promote claims.`, actions: [{ key: "wave.triage.apply", label: "Apply Sol recommendations", style: "primary-button", args: { waveId: value.wave?.id, evidenceDigest: value.wave?.triage?.evidenceDigest } }] };
     if (value.canRequestWaveTriage) return { status: "ACCOUNTING GAP", title: "Ask Sol for bounded wave triage", detail: `Workers have stopped, but only ${count} source lanes are accounted. The triage pass is read-only until a second human apply gate.`, actions: [{ key: "wave.triage.request", label: "Ask Sol to triage", style: "primary-button" }] };
     if (value.canPrepareSynthesis) return { status: "READY", title: "Freeze the synthesis boundary", detail: `The wave is closed at ${count}. Freeze its evidence and campaign context before any synthesis job starts.`, actions: [{ key: "synthesis.prepare", label: "Prepare synthesis bundle", style: "primary-button" }] };
@@ -80,7 +95,7 @@
     if (value.phase === "DECISION_REQUIRED") {
       const synthesis = value.wave?.synthesis?.response || {};
       const next = Array.isArray(synthesis?.nextWave?.lanes) ? synthesis.nextWave.lanes : [];
-      const research = synthesis.decision === "RESEARCH_REQUIRED" || synthesis.decision === "BLOCKED";
+      const research = next.length > 0 || synthesis.decision === "RESEARCH_REQUIRED" || synthesis.decision === "BLOCKED";
       return { status: "HUMAN DIRECTION GATE", title: "Choose the campaign direction", detail: compact(synthesis?.operatorBrief?.nextDecision || synthesis?.waveReview?.summary || `Sol proposes ${next.length} follow-up lanes.`), actions: [
         ...(research ? [{ key: "synthesis.review", label: next.length ? `Plan ${next.length} bounded follow-up${next.length === 1 ? "" : "s"}` : "Open idea-search planning", style: "primary-button", args: { decision: "research" } }] : []),
         { key: "synthesis.review", label: research ? "Close wave without follow-up" : "Approve direction", style: research ? "outline-button" : "primary-button", args: { decision: "accept" } },

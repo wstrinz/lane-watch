@@ -85,4 +85,51 @@ describe("transactional wave commands", () => {
     ], "2026-08-28T12:10:00.000Z")).toThrow("not a member");
     expect(repository.member("wave-3", "lane-a")).toMatchObject({ disposition: "", reason: "" });
   });
+
+  test("does not re-adopt an execution already accounted by an earlier wave", () => {
+    const db = database(); open.push(db);
+    const repository = new WaveRepository(db);
+    const commands = new WaveCommandService(repository);
+    const execution = { ...observedLane("lane-a", "done"), jobId: "job-1", completedAt: "2026-08-28T13:00:00.000Z" };
+    const first = commands.adopt({
+      waveId: "wave-first", projectId: "demo", label: "First",
+      lanes: [execution], createdAt: "2026-08-28T12:00:00.000Z",
+    }).wave;
+    commands.recordDisposition(first, { laneId: "lane-a", disposition: "REPAIR", reason: "Custody follows separately." }, "2026-08-28T13:01:00.000Z");
+    db.query("UPDATE campaign_waves SET phase = 'NEXT_WAVE_READY' WHERE wave_id = 'wave-first'").run();
+
+    expect(() => commands.adopt({
+      waveId: "wave-duplicate", projectId: "demo", label: "Duplicate",
+      lanes: [execution], createdAt: "2026-08-28T14:00:00.000Z",
+    })).toThrow("already accounted");
+
+    const fresh = commands.adopt({
+      waveId: "wave-fresh", projectId: "demo", label: "Fresh rerun",
+      lanes: [{ ...execution, jobId: "job-2", completedAt: "2026-08-28T14:30:00.000Z" }], createdAt: "2026-08-28T14:31:00.000Z",
+    });
+    expect(fresh).toMatchObject({ created: true, wave: { wave_id: "wave-fresh" } });
+  });
+
+  test("voids a fully duplicated wave and reveals the prior live boundary", () => {
+    const db = database(); open.push(db);
+    const repository = new WaveRepository(db);
+    const commands = new WaveCommandService(repository);
+    const execution = { ...observedLane("lane-a", "done"), jobId: "job-1", completedAt: "2026-08-28T13:00:00.000Z" };
+    const first = commands.adopt({
+      waveId: "wave-first", projectId: "demo", label: "First",
+      lanes: [execution], createdAt: "2026-08-28T12:00:00.000Z",
+    }).wave;
+    commands.recordDisposition(first, { laneId: "lane-a", disposition: "SUPERSEDE", reason: "Later evidence owns the claim." }, "2026-08-28T13:01:00.000Z");
+    db.query("UPDATE campaign_waves SET phase = 'NEXT_WAVE_READY' WHERE wave_id = 'wave-first'").run();
+    repository.adopt({
+      waveId: "wave-duplicate", projectId: "demo", label: "Duplicate", phase: "RECONCILING",
+      lanes: [execution], createdAt: "2026-08-28T14:00:00.000Z",
+    });
+
+    expect(commands.voidDuplicate(repository.latest("demo")!, "2026-08-28T14:05:00.000Z")).toMatchObject({
+      phase: "VOIDED", duplicates: [{ laneId: "lane-a", priorWaveId: "wave-first" }],
+    });
+    expect(repository.member("wave-duplicate", "lane-a")?.disposition).toBe("DUPLICATE");
+    expect(repository.latest("demo")?.wave_id).toBe("wave-first");
+  });
 });

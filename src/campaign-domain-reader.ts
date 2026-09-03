@@ -493,7 +493,7 @@ export class CampaignDomainReader {
 
     const candidates: ResourceCandidate[] = [];
     const wave = this.port.queryOne<{ wave_id: string }>(
-      "SELECT wave_id FROM campaign_waves WHERE project_id = $project ORDER BY created_at DESC LIMIT 1",
+      "SELECT wave_id FROM campaign_waves WHERE project_id = $project AND phase != 'VOIDED' ORDER BY created_at DESC LIMIT 1",
       { $project: projectId },
     );
     const activeSchedule = wave ? this.port.queryOne<{ schedule_id: string; status: string }>(

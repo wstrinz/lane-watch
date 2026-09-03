@@ -15,6 +15,7 @@
   import OperatorGate from "./OperatorGate.svelte";
   import ActiveLaneStrip from "./ActiveLaneStrip.svelte";
   import StrategyOverview from "./StrategyOverview.svelte";
+  import ProgramCompass from "./ProgramCompass.svelte";
   import ResourceEconomy from "./ResourceEconomy.svelte";
   import StrategyWorkspace from "./StrategyWorkspace.svelte";
   import CustodyService from "./CustodyService.svelte";
@@ -50,6 +51,7 @@
     </section>
   {:else}
     <CampaignProcessTracker />
+    <ProgramCompass />
     <ActiveLaneStrip />
     <PrimaryActionRail />
     <details class="autopilot-ledger">

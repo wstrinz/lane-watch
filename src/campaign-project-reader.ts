@@ -1,6 +1,7 @@
 import { TERMINAL_DAEMONS, laneFailure, planWaveProjectionRepair, projectWaveAggregate, waveAccounting, waveLaneAccounted } from "./wave";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
 import type { LaneSnapshot, ObserverSnapshot } from "./types";
+import { waveAdoptionCandidates } from "./wave-repository";
 
 export interface CampaignProjectReadOptions {
   projectId?: string;
@@ -59,6 +60,13 @@ export class CampaignProjectReader {
       const accounting = wave ? waveAccounting(waveLaneRows) : null;
       const lanes = observer?.lanes.filter((lane) => lane.project === definition.id) ?? [];
       const active = lanes.filter((lane) => lane.lifecycle === "active");
+      const historicalWaveMembers = this.port.queryAll<any>(`
+        SELECT member.* FROM campaign_wave_lanes member
+        JOIN campaign_waves historical_wave ON historical_wave.wave_id = member.wave_id
+        WHERE historical_wave.project_id = $project AND historical_wave.phase != 'VOIDED'
+        ORDER BY historical_wave.created_at DESC, member.updated_at DESC
+      `, { $project: definition.id });
+      const adoptable = waveAdoptionCandidates(active, historicalWaveMembers);
       const coordinationInterface = this.port.coordinationInterface(definition.id, active);
       const laneOwnership = this.port.laneOwnership(definition.id, active);
       const approvals = this.port.queryAll<any>("SELECT * FROM codex_approvals WHERE project_id = $project ORDER BY created_at", { $project: definition.id });
@@ -173,7 +181,7 @@ export class CampaignProjectReader {
             evidenceDigest: triage.evidence_digest, response: parseJson(triage.response_json, triage.response_json), updatedAt: triage.updated_at,
           } : null,
         } : null,
-        canAdoptWave: Boolean(coordinationInterface.capabilities?.importWave && active.length > 0 && (!wave || wave.phase === "NEXT_WAVE_READY")),
+        canAdoptWave: Boolean(coordinationInterface.capabilities?.importWave && adoptable.length > 0 && (!wave || wave.phase === "NEXT_WAVE_READY")),
         canRequestWaveTriage: Boolean(coordinationInterface.capabilities?.account && wave && coordinator && accounting && Number(accounting.unaccounted) > 0 && Number(accounting.running) === 0 && !["drafting", "drafted"].includes(triage?.status ?? "")),
         canApplyWaveTriage: Boolean(coordinationInterface.capabilities?.account && wave && accounting && Number(accounting.unaccounted) > 0 && triage?.status === "drafted"),
         canPrepareSynthesis: Boolean(coordinationInterface.capabilities?.synthesize && wave && accounting?.complete && !wave.bundle_path),

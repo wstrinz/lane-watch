@@ -1,7 +1,7 @@
 import type { LaneSnapshot } from "./types";
 
-export const WAVE_DISPOSITIONS = new Set<string>(["REPAIR", "SUPERSEDE", "ABANDON", "CARRY_FORWARD"]);
-export type WaveDisposition = "REPAIR" | "SUPERSEDE" | "ABANDON" | "CARRY_FORWARD";
+export const WAVE_DISPOSITIONS = new Set<string>(["REPAIR", "SUPERSEDE", "ABANDON", "CARRY_FORWARD", "DUPLICATE"]);
+export type WaveDisposition = "REPAIR" | "SUPERSEDE" | "ABANDON" | "CARRY_FORWARD" | "DUPLICATE";
 
 export const TERMINAL_DAEMONS = new Set([
   "done", "stopped", "failed", "error", "crashed", "cancelled", "canceled", "complete", "completed",

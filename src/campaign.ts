@@ -1336,6 +1336,7 @@ export class CampaignControl {
       "project.automation.set": (action, args) => this.setAutomation(action.project_id, args),
       "project.dispatch-profile.set": (action, args) => this.setDispatchProfile(action.project_id, args, action.created_by),
       "wave.adopt": (action, args) => this.adoptWave(action.project_id, args),
+      "wave.duplicate.close": (action) => this.closeDuplicateWave(action.project_id, action.created_by),
       "wave.triage.request": (action) => this.waveSemantics.requestTriage(action.project_id),
       "wave.triage.apply": (action, args) => this.waveSemantics.applyTriage(action.project_id, args, action.created_by),
       "synthesis.prepare": (action) => this.waveSemantics.prepareSynthesis(action.project_id),
@@ -1399,6 +1400,33 @@ export class CampaignControl {
       .sort((a, b) => a.id.localeCompare(b.id));
     const wave = this.adoptWaveFromLanes(projectId, lanes, typeof args.label === "string" ? args.label : "");
     return { waveId: wave.wave_id, laneCount: this.waveLanes(wave.wave_id).length, accounting: waveAccounting(this.waveLanes(wave.wave_id)) };
+  }
+
+  private async closeDuplicateWave(projectId: string, actor: string): Promise<Record<string, unknown>> {
+    return this.database.transaction(() => {
+      const wave = this.waveRepository.latestIncludingVoided(projectId) as WaveRow | null;
+      if (!wave) throw new Error("No wave is available to classify as a duplicate");
+      const result = String(wave.phase) === "VOIDED"
+        ? {
+            waveId: wave.wave_id,
+            phase: "VOIDED",
+            duplicates: this.waveLanes(wave.wave_id).filter((member) => member.disposition === "DUPLICATE").map((member) => ({ laneId: member.lane_id, priorWaveId: member.reason.match(/accounted in ([^;]+)/)?.[1] || "" })),
+          }
+        : this.waveCommands.voidDuplicate(wave, now());
+      if (!result.duplicates.length) throw new Error("The latest voided wave has no verified duplicate execution records");
+      const restoredWave = this.latestWave(projectId);
+      const restoredSynthesis = restoredWave
+        ? this.database.query("SELECT status FROM campaign_syntheses WHERE wave_id = $wave").get({ $wave: restoredWave.wave_id }) as { status: string } | null
+        : null;
+      if (!restoredWave || restoredSynthesis?.status !== "drafted") {
+        throw new Error("A duplicate wave can restore only a prior wave with a drafted synthesis decision");
+      }
+      this.database.query("UPDATE campaign_waves SET phase = 'DECISION_REQUIRED', updated_at = $now WHERE wave_id = $wave")
+        .run({ $wave: restoredWave.wave_id, $now: now() });
+      this.updateProject(projectId, { phase: "DECISION_REQUIRED" }, { authority: "human-confirmed", cause: "duplicate-wave-voided", actor });
+      this.recordEvent(projectId, "wave", wave.wave_id, "wave.duplicate.voided", { actor, duplicates: result.duplicates });
+      return result;
+    })();
   }
 
   private async setLaneDisposition(projectId: string, laneId: string, args: Record<string, any>, actor: string): Promise<Record<string, unknown>> {

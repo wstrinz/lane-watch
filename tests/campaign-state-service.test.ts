@@ -139,6 +139,19 @@ describe("CampaignStateService", () => {
     expect(item.state.project("demo")).toMatchObject({ current_phase: "PLANNING", version: 0 });
   });
 
+  test("permits only the exact human-confirmed duplicate-wave restore jump", () => {
+    const item = fixture("RECONCILING");
+    databases.push(item.database);
+
+    expect(() => item.state.change("demo", { phase: "DECISION_REQUIRED" }, {
+      authority: "system", cause: "duplicate-wave-voided",
+    })).toThrow("Illegal campaign workflow transition");
+    item.state.change("demo", { phase: "DECISION_REQUIRED" }, {
+      authority: "human-confirmed", cause: "duplicate-wave-voided", actor: "operator",
+    });
+    expect(item.state.project("demo")).toMatchObject({ current_phase: "DECISION_REQUIRED", version: 1 });
+  });
+
   test("requires human reconciliation for an idle durable wave mismatch", () => {
     const item = fixture("BLOCKED");
     databases.push(item.database);

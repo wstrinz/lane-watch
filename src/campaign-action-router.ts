@@ -9,6 +9,7 @@ export const CAMPAIGN_ACTION_TYPES = [
   "project.automation.set",
   "project.dispatch-profile.set",
   "wave.adopt",
+  "wave.duplicate.close",
   "wave.triage.request",
   "wave.triage.apply",
   "synthesis.prepare",
