@@ -4019,11 +4019,11 @@ function Ws(e, t) {
 			};
 		}
 		if (e.phase === "RESEARCH_INTAKE") {
-			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready"), n = (e.researchRuns || []).find((e) => e.status === "failed"), r = (e.researchRuns || []).find((e) => e.status === "awaiting_evidence");
+			let t = (e.researchRuns || []).find((e) => e.status === "evidence_ready"), n = (e.researchRuns || []).find((e) => e.status === "failed"), r = (e.researchRuns || []).find((e) => e.status === "awaiting_evidence"), i = r && /hash-mode declaration mismatch:/i.test(String(r.error || ""));
 			return {
-				status: t ? "LANDING GATE" : n ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
-				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : r?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
-				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : S(n ? n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate." : r?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
+				status: t ? "LANDING GATE" : n ? "LAUNCH FAILED SAFELY" : i ? "BOUNDED CUSTODY REPAIR" : "LANDING GATE",
+				title: t ? "Accept the landed research receipt" : n ? "Retry from a fresh checked schedule" : i ? "Correct the receipt’s hashing declaration" : r?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
+				detail: t ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane." : n ? S(n.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.") : i ? "The artifact bytes already match every recorded digest. The receipt mislabeled raw Windows bytes as canonical LF; this repair changes only that declaration, freezes an audit commit, and leaves the mathematical result untouched." : S(r?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
 				actions: t ? [{
 					key: "research.evidence.return",
 					targetId: t.id,
@@ -4034,6 +4034,16 @@ function Ws(e, t) {
 					targetId: n.id,
 					label: "Stage a fresh retry",
 					style: "primary-button"
+				}] : i ? [{
+					key: "research.receipt.reconcile",
+					targetId: r.id,
+					label: "Repair receipt custody",
+					style: "primary-button"
+				}, {
+					key: "reveal",
+					label: "Inspect exact mismatch",
+					target: "#evidence-workspace",
+					style: "outline-button"
 				}] : [{
 					key: "refresh",
 					label: "Recheck receipt",
@@ -4172,7 +4182,12 @@ function Ws(e, t) {
 	}), B(() => H(d), () => {
 		I(l, H(d)?.wave?.synthesis?.response || null);
 	}), B(() => (H(d), H(l)), () => {
-		I(u, H(d)?.researchPlan?.response?.operatorGuidance || H(l)?.waveReview?.coordinatorGuidance || H(l)?.nextWave?.objective || H(d)?.role || "");
+		I(u, [
+			"DECISION_REQUIRED",
+			"NEXT_WAVE_READY",
+			"SYNTHESIZING",
+			"SYNTHESIS_READY"
+		].includes(String(H(d)?.phase || "")) ? H(l)?.waveReview?.coordinatorGuidance || H(l)?.operatorBrief?.nextDecision || H(l)?.nextWave?.objective || H(d)?.researchPlan?.response?.operatorGuidance || H(d)?.role || "" : H(d)?.researchPlan?.response?.operatorGuidance || H(l)?.waveReview?.coordinatorGuidance || H(l)?.nextWave?.objective || H(d)?.role || "");
 	}), B(() => (H(d), H(y)), () => {
 		(H(d)?.recoveryReport?.id || "") !== H(y) && (I(y, H(d)?.recoveryReport?.id || ""), I(g, "PRESERVE_HOLD"), I(_, ""), I(v, !1));
 	}), Br(), vo();

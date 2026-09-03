@@ -23,6 +23,7 @@ describe("campaign composition boundaries", () => {
     expect(source).toContain('"research.schedule.prepare": (action) => this.researchExecution.prepareSchedule');
     expect(source).toContain('"research.schedule.dispatch": (action, args) => this.researchExecution.dispatchSchedule');
     expect(source).toContain('"research.failure.requeue": (action) => this.researchExecution.requeueFailed');
+    expect(source).toContain('"research.receipt.reconcile": async (action) =>');
     expect(source).toContain('"research.evidence.return": (action) => this.researchExecution.returnEvidence');
     expect(source).not.toContain("private async dispatchScheduledWave(");
     expect(source).not.toContain("private async returnResearchEvidence(");
@@ -62,6 +63,7 @@ describe("campaign composition boundaries", () => {
 
     expect(source).toContain('"wave.triage.request": (action) => this.waveSemantics.requestTriage');
     expect(source).toContain('"synthesis.prepare": (action) => this.waveSemantics.prepareSynthesis');
+    expect(source).toContain('"synthesis.reconcile": (action) => this.waveSemantics.reconcileSynthesis');
     expect(source).toContain('"synthesis.review": (action, args) => this.waveSemantics.reviewSynthesis');
     expect(source).toContain('"campaign.redirect.submit": (action, args) => this.waveSemantics.submitRedirect');
     expect(source).not.toContain("private async requestWaveTriage(");

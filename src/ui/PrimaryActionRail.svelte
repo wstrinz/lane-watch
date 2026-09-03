@@ -136,17 +136,23 @@
       const run = (value.researchRuns || []).find((candidate: any) => candidate.status === "evidence_ready");
       const failed = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed");
       const waiting = (value.researchRuns || []).find((candidate: any) => candidate.status === "awaiting_evidence");
+      const repairable = waiting && /hash-mode declaration mismatch:/i.test(String(waiting.error || ""));
       return {
-        status: run ? "LANDING GATE" : failed ? "LAUNCH FAILED SAFELY" : "LANDING GATE",
-        title: run ? "Accept the landed research receipt" : failed ? "Retry from a fresh checked schedule" : waiting?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
+        status: run ? "LANDING GATE" : failed ? "LAUNCH FAILED SAFELY" : repairable ? "BOUNDED CUSTODY REPAIR" : "LANDING GATE",
+        title: run ? "Accept the landed research receipt" : failed ? "Retry from a fresh checked schedule" : repairable ? "Correct the receipt’s hashing declaration" : waiting?.error ? "Resolve the receipt check" : "Recheck the landing boundary",
         detail: run
           ? "Returning evidence preserves custody and starts read-only synthesis. It does not promote claims, merge, push, or dispatch another lane."
           : failed
             ? compact(failed.error || "The worker stopped before producing validated evidence. The failed attempt is preserved; retry returns the same frozen contract to a new schedule and launch gate.")
-            : compact(waiting?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
+            : repairable
+              ? "The artifact bytes already match every recorded digest. The receipt mislabeled raw Windows bytes as canonical LF; this repair changes only that declaration, freezes an audit commit, and leaves the mathematical result untouched."
+              : compact(waiting?.error || "The worker is terminal, but its validated evidence receipt has not landed yet. Recheck once, or inspect the worker and receipt without leaving this control area."),
         actions: run
           ? [{ key: "research.evidence.return", targetId: run.id, label: "Accept receipt & continue", style: "primary-button" }]
-          : failed ? [{ key: "research.failure.requeue", targetId: failed.id, label: "Stage a fresh retry", style: "primary-button" }] : [
+          : failed ? [{ key: "research.failure.requeue", targetId: failed.id, label: "Stage a fresh retry", style: "primary-button" }] : repairable ? [
+            { key: "research.receipt.reconcile", targetId: waiting.id, label: "Repair receipt custody", style: "primary-button" },
+            { key: "reveal", label: "Inspect exact mismatch", target: "#evidence-workspace", style: "outline-button" },
+          ] : [
             { key: "refresh", label: "Recheck receipt", style: "primary-button" },
             { key: "reveal", label: "Inspect worker & receipt", target: "#evidence-workspace", style: "outline-button" },
           ],
@@ -245,7 +251,9 @@
   $: focus = project ? focusFor(project) : null;
   $: planLanes = Array.isArray(project?.researchPlan?.response?.lanes) ? project.researchPlan.response.lanes : [];
   $: synthesis = project?.wave?.synthesis?.response || null;
-  $: direction = project?.researchPlan?.response?.operatorGuidance || synthesis?.waveReview?.coordinatorGuidance || synthesis?.nextWave?.objective || project?.role || "";
+  $: direction = ["DECISION_REQUIRED", "NEXT_WAVE_READY", "SYNTHESIZING", "SYNTHESIS_READY"].includes(String(project?.phase || ""))
+    ? synthesis?.waveReview?.coordinatorGuidance || synthesis?.operatorBrief?.nextDecision || synthesis?.nextWave?.objective || project?.researchPlan?.response?.operatorGuidance || project?.role || ""
+    : project?.researchPlan?.response?.operatorGuidance || synthesis?.waveReview?.coordinatorGuidance || synthesis?.nextWave?.objective || project?.role || "";
   $: if ((project?.recoveryReport?.id || "") !== recoveryReportId) {
     recoveryReportId = project?.recoveryReport?.id || "";
     recoveryDecision = "PRESERVE_HOLD";

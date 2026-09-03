@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { assertTerminalResearchReceipt, deriveReceiptBoundMeasurement, sha256ReceiptArtifact } from "../src/observation-sync-service";
+import { assertTerminalResearchReceipt, classifyReceiptArtifactHash, deriveReceiptBoundMeasurement, sha256ReceiptArtifact } from "../src/observation-sync-service";
 import { deriveResourceCalibration } from "../src/resource-calibration";
 import { defaultResourcePolicy, type ResourceUsage } from "../src/resources";
 
@@ -25,6 +25,11 @@ describe("receipt-bound resource calibration", () => {
       .toBe(sha256ReceiptArtifact({}, encoder.encode("alpha\nbeta\n")));
     expect(sha256ReceiptArtifact({}, encoder.encode("alpha\r\nbeta\r\n")))
       .not.toBe(sha256ReceiptArtifact({}, encoder.encode("alpha\nbeta\n")));
+    const windowsBytes = encoder.encode("alpha\r\nbeta\r\n");
+    const rawDigest = sha256ReceiptArtifact({}, windowsBytes);
+    expect(classifyReceiptArtifactHash(canonical, windowsBytes, rawDigest)).toBe("raw-fallback");
+    expect(classifyReceiptArtifactHash(canonical, windowsBytes, sha256ReceiptArtifact(canonical, windowsBytes))).toBe("declared");
+    expect(classifyReceiptArtifactHash(canonical, windowsBytes, "0".repeat(64))).toBe("mismatch");
   });
 
   test("freezes a positive observer token measurement only at an evidence settlement boundary", () => {

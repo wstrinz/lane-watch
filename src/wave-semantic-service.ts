@@ -387,13 +387,14 @@ export class WaveSemanticService {
     return { waveId: wave.wave_id, evidenceDigest: `sha256:${evidenceHash}`, bundlePath, reused: false, accounting, contextCount: contexts.length };
   }
 
-  async requestSynthesis(projectId: string): Promise<Record<string, unknown>> {
+  async requestSynthesis(projectId: string, retry: { turnId: string; status: string } | null = null): Promise<Record<string, unknown>> {
     if (!this.port.coordinationInterface(projectId).capabilities.synthesize) {
       throw new Error("Synthesis requires an aligned imported-wave or controller-owned boundary");
     }
     const project = this.port.project(projectId);
     const wave = this.waves.latest(projectId);
-    if (project.current_phase !== "SYNTHESIS_READY") throw new Error(`Synthesis request requires SYNTHESIS_READY, currently ${project.current_phase}`);
+    const requiredPhase = retry ? "SYNTHESIZING" : "SYNTHESIS_READY";
+    if (project.current_phase !== requiredPhase) throw new Error(`Synthesis request requires ${requiredPhase}, currently ${project.current_phase}`);
     if (!this.coordinators.get(projectId)) throw new Error("Attach a Sol coordinator before requesting synthesis");
     if (!wave?.bundle_path) throw new Error("Prepare a synthesis bundle before requesting synthesis");
     const coordinator = await this.coordinators.writable(projectId);
@@ -433,8 +434,35 @@ export class WaveSemanticService {
     this.database.query("UPDATE campaign_coordinators SET status = 'working', last_turn_id = $turn, last_event_at = $now WHERE project_id = $project")
       .run({ $turn: turn.id, $now: stamp, $project: projectId });
     this.port.touchProject(projectId, "SYNTHESIZING");
-    this.port.recordEvent(projectId, "synthesis", wave.wave_id, "synthesis.requested", { threadId: coordinator.thread_id, turnId: turn.id });
-    return { waveId: wave.wave_id, threadId: coordinator.thread_id, turnId: turn.id };
+    this.port.recordEvent(projectId, "synthesis", wave.wave_id, retry ? "synthesis.retried" : "synthesis.requested", {
+      threadId: coordinator.thread_id,
+      turnId: turn.id,
+      ...(retry ? { priorTurnId: retry.turnId, priorStatus: retry.status, immutableBundleReused: true } : {}),
+    });
+    return { waveId: wave.wave_id, threadId: coordinator.thread_id, turnId: turn.id, retried: Boolean(retry), priorTurnId: retry?.turnId || "" };
+  }
+
+  async reconcileSynthesis(projectId: string): Promise<Record<string, unknown>> {
+    if (this.port.project(projectId).current_phase !== "SYNTHESIZING") throw new Error("Synthesis reconciliation requires SYNTHESIZING");
+    const wave = this.waves.latest(projectId);
+    if (!wave) throw new Error("No wave is available for synthesis reconciliation");
+    const synthesis = this.database.query("SELECT thread_id, turn_id, status FROM campaign_syntheses WHERE wave_id = $wave")
+      .get({ $wave: wave.wave_id }) as { thread_id: string; turn_id: string; status: string } | null;
+    if (!synthesis || synthesis.status !== "drafting" || !synthesis.thread_id || !synthesis.turn_id) {
+      throw new Error("No drafting synthesis turn is available to reconcile");
+    }
+    const detail = await this.codex.readThreadDetail(synthesis.thread_id);
+    const turns = Array.isArray(detail.turns) ? detail.turns : [];
+    const turn = turns.find((candidate: any) => candidate?.id === synthesis.turn_id);
+    const status = typeof turn?.status === "string" ? turn.status : String(turn?.status?.type || "unknown");
+    if (!["completed", "failed", "interrupted", "cancelled", "canceled"].includes(status)) {
+      const stamp = this.port.now();
+      this.database.query("UPDATE campaign_syntheses SET updated_at = $now WHERE wave_id = $wave")
+        .run({ $now: stamp, $wave: wave.wave_id });
+      this.port.recordEvent(projectId, "synthesis", wave.wave_id, "synthesis.turn.rechecked", { turnId: synthesis.turn_id, status, restarted: false });
+      return { waveId: wave.wave_id, turnId: synthesis.turn_id, status, restarted: false };
+    }
+    return this.requestSynthesis(projectId, { turnId: synthesis.turn_id, status });
   }
 
   reviewSynthesis(projectId: string, args: Record<string, any>, actor: string): Record<string, unknown> {

@@ -284,7 +284,14 @@ export class AutopilotService {
       const wave = this.waves.latest(projectId);
       return this.enqueueStep(loop, wave?.bundle_path ? "synthesis.request" : "synthesis.prepare");
     }
-    if (["SYNTHESIZING", "RESEARCH_RUNNING", "RUNNING"].includes(phase)) return;
+    if (phase === "SYNTHESIZING") {
+      const synthesis = this.database.query("SELECT wave_id, status, updated_at FROM campaign_syntheses WHERE wave_id = (SELECT wave_id FROM campaign_waves WHERE project_id = $project ORDER BY created_at DESC LIMIT 1)")
+        .get({ $project: projectId }) as { wave_id: string; status: string; updated_at: string } | null;
+      const stale = synthesis?.status === "drafting" && Date.now() - Date.parse(synthesis.updated_at) >= 90_000;
+      if (stale) return this.enqueueStep(loop, "synthesis.reconcile", synthesis.wave_id);
+      return;
+    }
+    if (["RESEARCH_RUNNING", "RUNNING"].includes(phase)) return;
     if (phase === "PLANNING") {
       const active = this.activeObserverLanes(projectId);
       if (!active.length) return this.attention(loop, "No active wave is available to adopt");
@@ -307,6 +314,9 @@ export class AutopilotService {
       const run = this.database.query("SELECT run_id FROM campaign_research_runs WHERE project_id = $project AND status = 'evidence_ready' ORDER BY created_at DESC LIMIT 1")
         .get({ $project: projectId }) as { run_id: string } | null;
       if (!run) {
+        const repairable = this.database.query("SELECT run_id FROM campaign_research_runs WHERE project_id = $project AND status = 'awaiting_evidence' AND error LIKE '%hash-mode declaration mismatch:%' ORDER BY created_at DESC LIMIT 1")
+          .get({ $project: projectId }) as { run_id: string } | null;
+        if (repairable) return this.enqueueStep(loop, "research.receipt.reconcile", repairable.run_id);
         const failed = this.database.query("SELECT task_id FROM campaign_research_runs WHERE project_id = $project AND status = 'failed' ORDER BY created_at DESC LIMIT 1")
           .get({ $project: projectId }) as { task_id: string } | null;
         return this.attention(loop, failed
@@ -436,11 +446,11 @@ export class AutopilotService {
 
   private stepLabel(type: string): string {
     return ({
-      "synthesis.prepare": "Freeze synthesis input", "synthesis.request": "Synthesize the situation", "synthesis.review": "Follow synthesis direction",
+      "synthesis.prepare": "Freeze synthesis input", "synthesis.request": "Synthesize the situation", "synthesis.reconcile": "Recheck or retry an interrupted synthesis", "synthesis.review": "Follow synthesis direction",
       "research.review.start": "Coordinator checks the lane plan", "research.review.resolve": "Apply the checked lane plan",
       "research.schedule.prepare": "Freeze the resource-bounded wave schedule", "research.schedule.confirm": "Confirm the exact wave schedule",
       "research.schedule.dispatch": "Dispatch the confirmed wave", "research.dispatch.start": "Dispatch one bounded lane",
-      "research.failure.requeue": "Stage a failed launch for a fresh schedule", "research.evidence.return": "Return landed evidence to synthesis", "wave.adopt": "Adopt the active wave", "lane.reconcile": "Reconcile a terminal lane",
+      "research.failure.requeue": "Stage a failed launch for a fresh schedule", "research.receipt.reconcile": "Reconcile exact receipt custody metadata", "research.evidence.return": "Return landed evidence to synthesis", "wave.adopt": "Adopt the active wave", "lane.reconcile": "Reconcile a terminal lane",
       "wave.triage.request": "Ask Sol to triage unresolved custody", "wave.triage.apply": "Apply Sol's custody recommendations",
     } as Record<string, string>)[type] || type;
   }

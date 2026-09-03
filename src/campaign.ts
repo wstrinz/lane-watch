@@ -1341,6 +1341,7 @@ export class CampaignControl {
       "wave.triage.apply": (action, args) => this.waveSemantics.applyTriage(action.project_id, args, action.created_by),
       "synthesis.prepare": (action) => this.waveSemantics.prepareSynthesis(action.project_id),
       "synthesis.request": (action) => this.waveSemantics.requestSynthesis(action.project_id),
+      "synthesis.reconcile": (action) => this.waveSemantics.reconcileSynthesis(action.project_id),
       "synthesis.review": (action, args) => this.waveSemantics.reviewSynthesis(action.project_id, args, action.created_by),
       "research.review.start": (action) => this.researchPlanning.startReview(action.project_id, action.created_by),
       "research.review.resolve": (action, args) => this.researchPlanning.resolveReview(action.project_id, args, action.created_by),
@@ -1349,6 +1350,12 @@ export class CampaignControl {
       "research.schedule.dispatch": (action, args) => this.researchExecution.dispatchSchedule(action.project_id, action.target_id, args, action.created_by),
       "research.dispatch.start": () => { throw new Error("Direct one-lane dispatch is retired; freeze, confirm, and dispatch the resource-bounded wave schedule instead"); },
       "research.failure.requeue": (action) => this.researchExecution.requeueFailed(action.project_id, action.target_id, action.created_by),
+      "research.receipt.reconcile": async (action) => {
+        const result = await this.observationSync.reconcileReceiptHashMode(action.project_id, action.target_id, action.created_by);
+        const lanes = (this.latestObserver?.lanes || []).filter((lane) => lane.project === action.project_id);
+        await this.observationSync.synchronizeProject(action.project_id, lanes);
+        return result;
+      },
       "research.evidence.return": (action) => this.researchExecution.returnEvidence(action.project_id, action.target_id, action.created_by),
       "loop.start": (action) => this.autopilot.start(action.project_id, action.created_by),
       "loop.pause": (action) => this.autopilot.pause(action.project_id, action.created_by),

@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { runGit } from "./git";
 import { TERMINAL_DAEMONS, deriveCampaignPhase, laneFailure, waveAccounting } from "./wave";
@@ -93,6 +93,17 @@ export function sha256ReceiptArtifact(receipt: Record<string, any>, value: Uint8
   return sha256Bytes(normalized.subarray(0, write));
 }
 
+export function classifyReceiptArtifactHash(
+  receipt: Record<string, any>,
+  value: Uint8Array,
+  expected: string,
+): "declared" | "raw-fallback" | "mismatch" {
+  const expectedHash = expected.toLowerCase();
+  if (sha256ReceiptArtifact(receipt, value) === expectedHash) return "declared";
+  if (/canonical LF/i.test(String(receipt?.artifact_paths_note || "")) && sha256Bytes(value) === expectedHash) return "raw-fallback";
+  return "mismatch";
+}
+
 function gitStatusPath(line: string): string {
   const value = line.slice(3).trim();
   const destination = value.includes(" -> ") ? value.split(" -> ").at(-1)! : value;
@@ -120,14 +131,21 @@ async function validateReceiptArtifacts(
   const allowedRoot = normalizedEvidence.replace(/\/[^/]+$/, "");
   if (!allowedRoot || allowedRoot === normalizedEvidence) throw new Error("Evidence receipt path has no bounded task directory");
   const artifacts = receipt.artifact_paths && typeof receipt.artifact_paths === "object" ? receipt.artifact_paths as Record<string, unknown> : {};
+  const hashModeMismatches: string[] = [];
   for (const [path, expected] of Object.entries(artifacts)) {
     const normalized = path.replace(/\\/g, "/");
     if (normalized !== allowedRoot && !normalized.startsWith(`${allowedRoot}/`)) throw new Error(`Receipt artifact escapes the authorized task directory: ${normalized}`);
     if (!/^[0-9a-f]{64}$/i.test(String(expected))) throw new Error(`Receipt artifact has an invalid SHA-256: ${normalized}`);
     const absolute = resolve(worktree, normalized);
     if (!within(worktree, absolute)) throw new Error(`Receipt artifact escapes the worktree: ${normalized}`);
-    const actual = sha256ReceiptArtifact(receipt, await readFile(absolute));
-    if (actual !== String(expected).toLowerCase()) throw new Error(`Receipt artifact hash mismatch: ${normalized}`);
+    const bytes = await readFile(absolute);
+    const expectedHash = String(expected).toLowerCase();
+    const match = classifyReceiptArtifactHash(receipt, bytes, expectedHash);
+    if (match === "raw-fallback") hashModeMismatches.push(normalized);
+    if (match === "mismatch") throw new Error(`Receipt artifact hash mismatch: ${normalized}`);
+  }
+  if (hashModeMismatches.length) {
+    throw new Error(`Receipt artifact hash-mode declaration mismatch: ${hashModeMismatches.join(", ")} match preserved raw bytes, not declared canonical LF bytes`);
   }
 }
 
@@ -219,6 +237,82 @@ export class ObservationSyncService {
 
   syncWaveMembers(projectId: string, lanes: LaneSnapshot[]): Record<string, number | boolean> | null {
     return this.syncWaveLanes(projectId, lanes);
+  }
+
+  async reconcileReceiptHashMode(projectId: string, runId: string, actor: string): Promise<Record<string, unknown>> {
+    if (this.port.project(projectId).current_phase !== "RESEARCH_INTAKE") throw new Error("Receipt custody reconciliation requires RESEARCH_INTAKE");
+    const run = this.database.query("SELECT * FROM campaign_research_runs WHERE run_id = $run AND project_id = $project")
+      .get({ $run: runId, $project: projectId }) as ResearchRunRow | null;
+    if (!run || run.status !== "awaiting_evidence") throw new Error("Select a research run awaiting receipt validation");
+    if (!run.worktree || !run.evidence_path) throw new Error("The research run has no isolated receipt workspace");
+
+    const evidencePath = resolve(run.worktree, run.evidence_path);
+    if (!within(run.worktree, evidencePath)) throw new Error("Evidence receipt escapes the isolated research worktree");
+    const clean = await runGit(run.worktree, ["status", "--porcelain=v1", "--untracked-files=all"]);
+    if (clean.exitCode !== 0 || clean.stdout) throw new Error("Receipt custody reconciliation requires a clean terminal research worktree");
+    const receiptCommitted = await committedWorktreeFileMatches(
+      run.worktree,
+      run.evidence_path,
+    );
+    if (!receiptCommitted) throw new Error("Receipt custody reconciliation requires the exact committed terminal receipt");
+
+    const originalContent = await readFile(evidencePath, "utf8");
+    const receipt = JSON.parse(originalContent.replace(/^\uFEFF/, "")) as Record<string, any>;
+    assertTerminalResearchReceipt(receipt, run.task_id);
+    const validateBoundedArtifacts = (candidate: Record<string, any>) => validateReceiptArtifacts(run.worktree, run.evidence_path, candidate);
+    try {
+      await validateBoundedArtifacts(receipt);
+      throw new Error("The receipt artifact manifest is already valid and needs no custody repair");
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.startsWith("Receipt artifact hash-mode declaration mismatch:")) throw error;
+    }
+
+    const previousNote = String(receipt.artifact_paths_note || "");
+    const stamp = this.port.now();
+    const repairedReceipt = {
+      ...receipt,
+      artifact_paths_note: "SHA-256 over preserved raw file bytes.",
+      lane_watch_custody_reconciliation: {
+        schema: "lane-watch-receipt-custody-reconciliation/v1",
+        kind: "hash-mode-declaration",
+        scope: "receipt-metadata-only",
+        previousArtifactPathsNote: previousNote,
+        resolution: "The declared digests already matched every preserved raw artifact byte; only the hashing-mode declaration was corrected.",
+        reconciledBy: actor,
+        reconciledAt: stamp,
+      },
+    };
+    await validateBoundedArtifacts(repairedReceipt);
+    const repairedContent = `${JSON.stringify(repairedReceipt, null, 2)}\n`;
+    await writeFile(evidencePath, repairedContent, "utf8");
+
+    const changed = await runGit(run.worktree, ["status", "--porcelain=v1", "--untracked-files=all"]);
+    const changedPaths = changed.stdout ? changed.stdout.split(/\r?\n/).filter(Boolean).map(gitStatusPath) : [];
+    const normalizedEvidence = run.evidence_path.replace(/\\/g, "/");
+    if (changed.exitCode !== 0 || changedPaths.length !== 1 || changedPaths[0] !== normalizedEvidence) {
+      throw new Error("Receipt custody reconciliation produced changes outside the exact receipt metadata file");
+    }
+    const add = await runGit(run.worktree, ["add", "--", normalizedEvidence]);
+    if (add.exitCode !== 0) throw new Error(`Could not stage the reconciled receipt: ${add.stderr || add.stdout}`);
+    const commit = await runGit(run.worktree, ["commit", "-m", `Reconcile ${run.task_id} receipt hash mode`, "--", normalizedEvidence]);
+    if (commit.exitCode !== 0) throw new Error(`Could not freeze the reconciled receipt: ${commit.stderr || commit.stdout}`);
+    const head = await runGit(run.worktree, ["rev-parse", "HEAD"]);
+    if (head.exitCode !== 0 || !/^[0-9a-f]{40}$/i.test(head.stdout)) throw new Error("Could not resolve the reconciled receipt commit");
+    const remaining = await runGit(run.worktree, ["status", "--porcelain=v1", "--untracked-files=all"]);
+    if (remaining.exitCode !== 0 || remaining.stdout) throw new Error("Receipt custody reconciliation did not leave a clean isolated worktree");
+
+    this.port.recordEvent(projectId, "research_run", runId, "research.receipt.custody-reconciled", {
+      actor,
+      taskId: run.task_id,
+      kind: "hash-mode-declaration",
+      scope: "receipt-metadata-only",
+      previousArtifactPathsNote: previousNote,
+      artifactPathsNote: repairedReceipt.artifact_paths_note,
+      producerCommit: head.stdout,
+      artifactBytesChanged: false,
+      mathematicalAuthorityChanged: false,
+    });
+    return { runId, taskId: run.task_id, status: "reconciled", producerCommit: head.stdout, artifactBytesChanged: false, mathematicalAuthorityChanged: false };
   }
 
   private async syncResearchRuns(projectId: string, lanes: LaneSnapshot[]): Promise<void> {
