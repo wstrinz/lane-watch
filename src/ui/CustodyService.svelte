@@ -1,6 +1,7 @@
 <script lang="ts">
   import { campaignState } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
+  import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
   let project: Project | null = null;
   let custody: Record<string, any> | null = null;
@@ -33,6 +34,14 @@
       tokens: lastMeasured,
       kind: "reshape",
     };
+    if (custodyNeedsReshape(item)) return {
+      state: "CONTRACT TOO LARGE",
+      summary: informative.summary || "The custody executor crossed this contract's fixed token ceiling without landing changes.",
+      next: "Replace this oversized contract with smaller dependency-preserving checks. Do not retry the same shape.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "reshape",
+    };
     if (item.capability === "portability" && /macOS|Windows/i.test(`${informative.summary || ""} ${informative.stopReason || ""}`)) return {
       state: "ADAPTER UNAVAILABLE",
       summary: informative.summary || "This Windows steward cannot perform a genuine macOS verification.",
@@ -59,6 +68,13 @@
     };
   }
 
+  function custodySlotHolder(item: Record<string, any>): Record<string, any> | null {
+    return (custody?.items || []).find((candidate: any) => candidate.id !== item.id && (
+      ["assigned", "verifying"].includes(candidate.status)
+      || ["confirmed", "dispatching", "running", "finalizing", "awaiting_review"].includes(candidate.activeLease?.status)
+    )) || null;
+  }
+
   async function stopAtBoundary(): Promise<void> {
     if (!project || working || !["running", "paused", "attention"].includes(project.loop?.status || "")) return;
     working = "loop:stop";
@@ -68,6 +84,29 @@
       await settleCampaignAction({ projectId: project.id, type: "loop.stop", scope: "custody-contract-reshape" });
       feedbackKind = "success";
       feedback = "Autopilot stopped here. The failed receipts and dependency remain preserved for contract splitting.";
+    } catch (error) {
+      feedbackKind = "error";
+      feedback = error instanceof Error ? error.message : String(error);
+    } finally {
+      working = "";
+    }
+  }
+
+  async function reshape(item: Record<string, any>, children: Record<string, any>[]): Promise<void> {
+    if (!project || working || children.length < 2) return;
+    working = `${item.id}:reshape`;
+    feedbackKind = "pending";
+    feedback = `Replacing the oversized contract with ${children.length} bounded successors…`;
+    try {
+      await settleCampaignAction({
+        projectId: project.id,
+        type: "custody.item.reshape",
+        targetId: item.id,
+        args: { children },
+        scope: "custody-contract-reshape",
+      });
+      feedbackKind = "success";
+      feedback = `The oversized contract was superseded by ${children.length} bounded checks. No steward was started and no campaign artifact changed.`;
     } catch (error) {
       feedbackKind = "error";
       feedback = error instanceof Error ? error.message : String(error);
@@ -169,6 +208,9 @@
         <div class="custody-inbox">
           {#each openItems as item (item.id)}
             {@const failure = failureInfo(item)}
+            {@const slotHolder = custodySlotHolder(item)}
+            {@const reshapeChildren = custodyReshapeChildren(item)}
+            {@const needsReshape = reshapeChildren.length > 0 && custodyNeedsReshape(item, String(project?.loop?.error || ""))}
             <article class:blocking={item.blocksResearch} class:parked={item.status === "parked"}>
               <header>
                 <div><span>{item.urgency} · {item.capability} · {item.strategicTrack}</span><strong>{item.task}</strong></div>
@@ -198,14 +240,18 @@
               {#if ["ready", "assigned", "verifying"].includes(item.status)}
                 <div class="custody-protocol-lab execution" class:attention={item.activeLease?.status === "awaiting_review"}>
                   <div>
-                    <span>{item.activeLease?.status === "awaiting_review" ? "RECEIPT LANDING GATE" : item.activeLease?.status === "running" || item.activeLease?.status === "finalizing" ? "ISOLATED STEWARD ACTIVE" : "CUSTODY ACTION RAIL"}</span>
-                    <strong>{!item.activeLease ? "1. Freeze the exact lease" : item.activeLease.status === "prepared" ? "2. Confirm this revision and contract" : item.activeLease.status === "confirmed" ? "3. Dispatch one bounded Terra steward" : item.activeLease.status === "running" ? "Steward working in detached custody" : item.activeLease.status === "finalizing" ? "Measuring paths, usage, and checks" : item.activeLease.status === "awaiting_review" ? "4. Review and land—or reject" : `Lease ${item.activeLease.status}`}</strong>
-                    <small>{item.activeLease?.receiptDigest || item.activeLease?.leaseDigest || "Preparing a lease changes no files and starts no worker."}</small>
+                    <span>{item.activeLease?.status === "prepared" && needsReshape ? "CONTRACT RESHAPE REQUIRED" : item.activeLease?.status === "prepared" && slotHolder ? "QUEUED CUSTODY LEASE" : item.activeLease?.status === "awaiting_review" ? "RECEIPT LANDING GATE" : item.activeLease?.status === "running" || item.activeLease?.status === "finalizing" ? "ISOLATED STEWARD ACTIVE" : "CUSTODY ACTION RAIL"}</span>
+                    <strong>{!item.activeLease ? "1. Freeze the exact lease" : item.activeLease.status === "prepared" && needsReshape ? `Replace with ${reshapeChildren.length} bounded successor checks` : item.activeLease.status === "prepared" && slotHolder ? `Waiting for ${slotHolder.task}` : item.activeLease.status === "prepared" ? "2. Confirm this revision and contract" : item.activeLease.status === "confirmed" ? "3. Dispatch one bounded Terra steward" : item.activeLease.status === "running" ? "Steward working in detached custody" : item.activeLease.status === "finalizing" ? "Measuring paths, usage, and checks" : item.activeLease.status === "awaiting_review" ? "4. Review and land—or reject" : `Lease ${item.activeLease.status}`}</strong>
+                    <small>{item.activeLease?.status === "prepared" && needsReshape ? "Prior zero-effect attempts exceeded the lease. This supersedes the prepared retry without bypassing its dependency." : item.activeLease?.status === "prepared" && slotHolder ? "This immutable lease is preserved. Autopilot will continue it after the active receipt releases the single Terra slot." : item.activeLease?.receiptDigest || item.activeLease?.leaseDigest || "Preparing a lease changes no files and starts no worker."}</small>
                   </div>
                   {#if !item.activeLease}
                     <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.prepare")}>{working === `${item.id}:lease.prepare` ? "Freezing…" : "Freeze custody lease"}</button>
                   {:else if item.activeLease.lease?.adapter?.executionMode === "disconnected" && item.activeLease.status === "prepared"}
                     <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.simulate")}>{working === `${item.activeLease.id}:lease.simulate` ? "Simulating…" : "Simulate zero-effect receipt"}</button>
+                  {:else if item.activeLease.status === "prepared" && needsReshape}
+                    <button class="primary-button compact" disabled={Boolean(working)} onclick={() => reshape(item, reshapeChildren)}>{working === `${item.id}:reshape` ? "Splitting…" : `Split into ${reshapeChildren.length} bounded checks`}</button>
+                  {:else if item.activeLease.status === "prepared" && slotHolder}
+                    <button class="outline-button compact" disabled>Queued · custody slot busy</button>
                   {:else if item.activeLease.status === "prepared"}
                     <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.confirm")}>{working === `${item.activeLease.id}:lease.confirm` ? "Confirming…" : "Confirm exact lease"}</button>
                   {:else if item.activeLease.status === "confirmed"}
@@ -240,7 +286,10 @@
                 {:else if ["blocked", "failed"].includes(item.status)}
                   <span>{retryExhausted(item) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : item.receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."}</span>
                   {#if failure.kind === "reshape"}
-                    <div class="custody-footer-actions"><button class="primary-button" disabled={Boolean(working) || !["running", "paused", "attention"].includes(project?.loop?.status || "")} onclick={stopAtBoundary}>{working === "loop:stop" ? "Stopping…" : project?.loop?.status === "stopped" ? "Boundary preserved" : "Stop at this boundary"}</button></div>
+                    <div class="custody-footer-actions">
+                      {#if reshapeChildren.length}<button class="primary-button" disabled={Boolean(working)} onclick={() => reshape(item, reshapeChildren)}>{working === `${item.id}:reshape` ? "Splitting…" : `Split into ${reshapeChildren.length} bounded checks`}</button>{/if}
+                      {#if ["running", "paused", "attention"].includes(project?.loop?.status || "")}<button class="outline-button compact" disabled={Boolean(working)} onclick={stopAtBoundary}>{working === "loop:stop" ? "Stopping…" : "Stop at this boundary"}</button>{/if}
+                    </div>
                   {:else if failure.kind === "wait-for-mac"}
                     <div class="custody-footer-actions"><button class="primary-button" disabled={Boolean(working)} onclick={() => transition(item, "park")}>Park until macOS is available</button></div>
                   {:else}

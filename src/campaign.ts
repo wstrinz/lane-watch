@@ -1231,6 +1231,10 @@ export class CampaignControl {
     return this.custodyCommands.transitionItem(projectId, itemId, transition, args, actor);
   }
 
+  private reshapeCustodyItem(projectId: string, itemId: string, args: Record<string, any>, actor: string): Record<string, unknown> {
+    return this.custodyCommands.reshapeItem(projectId, itemId, args, actor);
+  }
+
   private prepareCustodyLease(projectId: string, itemId: string, actor: string): Promise<Record<string, unknown>> {
     return this.custodyCommands.prepareLease(projectId, itemId, actor);
   }
@@ -1391,6 +1395,7 @@ export class CampaignControl {
       "strategy.proposal.activate": (action, args) => this.activateStrategyProposal(action.project_id, action.target_id, args, action.created_by),
       "strategy.proposal.dismiss": (action, args) => this.dismissStrategyProposal(action.project_id, action.target_id, args, action.created_by),
       "custody.item.promote": (action, args) => this.transitionCustodyItem(action.project_id, action.target_id, "promote", args, action.created_by),
+      "custody.item.reshape": (action, args) => this.reshapeCustodyItem(action.project_id, action.target_id, args, action.created_by),
       "custody.item.park": (action, args) => this.transitionCustodyItem(action.project_id, action.target_id, "park", args, action.created_by),
       "custody.item.restore": (action, args) => this.transitionCustodyItem(action.project_id, action.target_id, "restore", args, action.created_by),
       "custody.lease.prepare": (action) => this.prepareCustodyLease(action.project_id, action.target_id, action.created_by),

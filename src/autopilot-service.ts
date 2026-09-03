@@ -112,10 +112,17 @@ function controllerOwnedStopCount(custody: Record<string, any>, itemId: string):
 
 /** Select only transitions whose effects are already bounded by the custody lease. */
 export function nextCustodyAutopilotStep(custody: Record<string, any> | null | undefined): CustodyAutopilotDecision | null {
-  const items = (Array.isArray(custody?.items) ? custody.items : [])
+  const allItems = Array.isArray(custody?.items) ? custody.items : [];
+  const items = allItems
     .filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status))
     .sort((left: any, right: any) => Date.parse(left.createdAt || "") - Date.parse(right.createdAt || ""));
-  const item = items[0];
+  const occupied = allItems.find((candidate: any) =>
+    ["assigned", "verifying"].includes(candidate.status)
+    || ["confirmed", "dispatching", "running", "finalizing", "awaiting_review"].includes(candidate.activeLease?.status));
+  // Finish the lease that already owns the serialized custody slot before
+  // trying to confirm an older prepared dependency. Otherwise the quota gate
+  // correctly rejects a second slot and the loop appears to repeat forever.
+  const item = occupied || items[0];
   if (!item) return null;
   const lease = item.activeLease;
   if (item.status === "proposed") return { kind: "action", type: "custody.item.promote", targetId: item.id, key: `custody:${item.id}:enable` };

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { campaignState, refreshAll, selectProject } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
+  import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
   type RailAction = { key: string; label: string; style?: string; args?: Record<string, any>; targetId?: string; target?: string };
   type RailFocus = { title: string; detail: string; status: string; actions: RailAction[] };
@@ -53,15 +54,30 @@
       && /duplicate|already (?:accounted|synthesized)/i.test(`${response?.campaignAssessment || ""} ${response?.nextStep || ""}`);
   }
 
+  function activeCustodyItem(value: any): any | null {
+    return (value.custody?.items || []).find((item: any) =>
+      ["assigned", "verifying"].includes(item.status)
+      || ["confirmed", "dispatching", "running", "finalizing", "awaiting_review"].includes(item.activeLease?.status)) || null;
+  }
+
+  function custodyFocusItem(value: any, blockers: any[]): any {
+    return activeCustodyItem(value) || blockers[0];
+  }
+
   function custodyBlockerFocus(value: any, item: any, count: number): RailFocus {
     const suffix = count > 1 ? ` · 1 of ${count}` : "";
     const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
     const lease = item.activeLease;
-    if (/automatic retry limit/i.test(String(value.loop?.error || ""))) return {
+    const loopError = String(value.loop?.error || "");
+    const reshapeChildren = custodyReshapeChildren(item);
+    if (reshapeChildren.length && custodyNeedsReshape(item, loopError)) return {
       status: `CUSTODY CONTRACT RESHAPE${suffix}`,
-      title: "This verification is larger than its frozen lease",
-      detail: "Automatic retries are stopped. Inspect the exact receipt, then split or resize the custody contract; parking would bypass a required research dependency rather than resolve it.",
-      actions: [inspect, { key: "loop.stop", label: "Stop & preserve this boundary", style: "outline-button" }],
+      title: "This job is larger than one custody lease",
+      detail: `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} bounded successors; the original dependency remains enforced and no steward starts until autopilot is resumed.`,
+      actions: [
+        { key: "custody.item.reshape", targetId: item.id, args: { children: reshapeChildren }, label: `Split into ${reshapeChildren.length} bounded checks`, style: "primary-button" },
+        inspect,
+      ],
     };
     if (item.status === "proposed") return {
       status: `DEPENDENCY GATE${suffix}`,
@@ -92,6 +108,17 @@
       detail: "The custody contract is enabled. Bind it to the current campaign revision and exact resource envelope before granting execution authority.",
       actions: [{ key: "custody.lease.prepare", targetId: item.id, label: "Freeze exact custody lease", style: "primary-button" }, inspect],
     };
+    if (lease?.status === "prepared" && Number(value.resources?.slots?.available?.custody ?? 1) < 1) {
+      const holder = activeCustodyItem(value);
+      return {
+        status: `CUSTODY QUEUED${suffix}`,
+        title: "One Terra steward is already using the custody slot",
+        detail: holder
+          ? `${compact(holder.task, 100)} is active. This exact lease is safely prepared and autopilot will confirm and dispatch it after the active receipt settles.`
+          : "The shared custody slot is occupied by another campaign. This exact lease is safely prepared and will remain queued until the slot is released.",
+        actions: [inspect],
+      };
+    }
     if (lease?.status === "prepared") return {
       status: `HUMAN CUSTODY GATE${suffix}`,
       title: `Confirm ${compact(item.task, 72)}`,
@@ -195,7 +222,7 @@
       const blocked = plan?.status === "drafted" && plan?.response?.decision === "BLOCKED";
       if (plan?.status === "drafting") return { status: "SOL CHECKING", title: "Sol is shaping the next bounded wave", detail: `The coordinator is checking ${currentRequests(value).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`, actions: [] };
       if (blocked) return { status: "OPERATOR TRANSITION", title: "The checked plan needs one operator-owned change", detail: compact(plan?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."), actions: [{ key: "scroll", label: "Open required operator gate", target: "#operator-gate", style: "primary-button" }] };
-      if (plan?.status === "drafted" && !ready.length && dependent.length && custodyBlockers.length) return custodyBlockerFocus(value, custodyBlockers[0], custodyBlockers.length);
+      if (plan?.status === "drafted" && !ready.length && dependent.length && custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers.length);
       if (plan?.status === "drafted" && !ready.length) return { status: "DEPENDENCY PLAN", title: "No research lane can launch from this revision", detail: compact(plan?.response?.operatorGuidance || "The checked plan contains only dependent or excluded work. Request a revision after resolving its named prerequisites."), actions: [
         { key: "research.review.resolve", label: "Request dependency-aware revision", style: "primary-button", args: { decision: "revise" } },
         { key: "inspect", label: "Inspect checked plan", style: "outline-button" },
@@ -209,7 +236,7 @@
     }
     if (value.phase === "RESEARCH_READY") {
       const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
-      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyBlockers[0], custodyBlockers.length);
+      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers.length);
       const schedule = value.researchSchedule;
       if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
       if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
@@ -365,8 +392,12 @@
   $: currentLoopError = project?.loop?.status === "attention" && latestLoopStep?.status === "failed" ? String(project?.loop?.error || "") : "";
   $: if (currentLoopError && currentLoopError !== observedLoopError) {
     observedLoopError = currentLoopError;
-    feedbackKind = "error";
-    feedback = compact(currentLoopError, 520);
+    const releasedCustodySlot = /quota admission denied: custody slots/i.test(currentLoopError)
+      && Number(project?.resources?.slots?.available?.custody || 0) > 0;
+    feedbackKind = releasedCustodySlot ? "pending" : "error";
+    feedback = releasedCustodySlot
+      ? "Previous attempt waited on the single Terra slot. That slot is now free; use the current action above instead of repeating the old confirmation."
+      : compact(currentLoopError, 520);
   }
   $: if (!currentLoopError && observedLoopError) observedLoopError = "";
   $: focus = project ? focusFor(project) : null;

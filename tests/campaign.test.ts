@@ -873,6 +873,44 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   project = (control.snapshot() as any).projects[0];
   expect(project.custody.items[0]).toMatchObject({ status: "parked" });
   expect(project.phase).toBe(originalPhase);
+
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.item.restore", targetId: custodyId,
+    idempotencyKey: "restore-custody-contract-for-reshape", expectedVersion: project.version,
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.restore")).toMatchObject({ status: "completed", result: { status: "proposed" } });
+  project = (control.snapshot() as any).projects[0];
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.item.promote", targetId: custodyId,
+    idempotencyKey: "ready-custody-contract-for-reshape", expectedVersion: project.version,
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.promote")).toMatchObject({ status: "completed", result: { status: "ready" } });
+  project = (control.snapshot() as any).projects[0];
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.lease.prepare", targetId: custodyId,
+    idempotencyKey: "prepare-oversized-custody-contract", expectedVersion: project.version,
+  }, "test-operator");
+  const oversizedLease = await waitForAction(control, "demo", "custody.lease.prepare");
+  expect(oversizedLease).toMatchObject({ status: "completed", result: { status: "prepared", dispatched: false } });
+  project = (control.snapshot() as any).projects[0];
+  const successor = (task: string, path: string) => ({
+    task, reason: "Bound one half of an oversized custody check.", urgency: "NOW", blocksResearch: true,
+    strategicTrack: "decision", capability: "archive", repairGeneration: 0, effortClass: "small",
+    acceptance: { acceptanceCriteria: ["The bounded half has an exact receipt."], allowedPaths: [path], receiptType: "campaign-custody-receipt/v1", stopCondition: "Stop before crossing this bounded half." },
+  });
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.item.reshape", targetId: custodyId,
+    idempotencyKey: "reshape-oversized-custody-contract", expectedVersion: project.version,
+    args: { children: [successor("Verify receipt source binding", "custody/source/**"), successor("Update the bounded receipt index", "custody/index/**")] },
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.reshape")).toMatchObject({
+    status: "completed", result: { status: "superseded", successorCount: 2, dispatched: false, campaignPhase: originalPhase },
+  });
+  project = (control.snapshot() as any).projects[0];
+  expect(project.custody.items.filter((item: any) => item.sourceType === "custody-reshape")).toHaveLength(2);
+  expect(project.custody.items.find((item: any) => item.id === custodyId)).toMatchObject({ status: "complete", receipt: { status: "SUPERSEDED" } });
+  expect(project.custody.protocol.leases.find((lease: any) => lease.id === oversizedLease.result.leaseId)).toMatchObject({ status: "superseded" });
+  expect(project.phase).toBe(originalPhase);
   control.stop();
 });
 

@@ -38,6 +38,7 @@ export const CAMPAIGN_ACTION_TYPES = [
   "strategy.proposal.activate",
   "strategy.proposal.dismiss",
   "custody.item.promote",
+  "custody.item.reshape",
   "custody.item.park",
   "custody.item.restore",
   "custody.lease.prepare",

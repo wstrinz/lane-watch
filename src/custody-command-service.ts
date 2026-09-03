@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import type { CodexAppServerClient, CodexNotification, CodexServerRequest } from "./codex";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
-import { type CustodyStatus, type CustodyWorkItem } from "./custody";
+import { custodyContractComplete, type CustodyAcceptanceContract, type CustodyStatus, type CustodyWorkItem } from "./custody";
 import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorReportSchema, verifyCustodyExecutionReceipt, type CustodyExecutionMeasurement, type CustodyExecutionReceipt, type CustodyExecutorReport } from "./custody-executor";
 import { createCustodyLease, protocolDigest, simulateCustodyProtocol, verifyCustodyProtocolReceipt, type CustodyLeaseEnvelope, type CustodyProtocolReceipt } from "./custody-protocol";
 import { runGit } from "./git";
@@ -165,6 +165,76 @@ export class CustodyCommandService {
       campaignPhaseUnchanged: this.port.project(projectId).current_phase,
     });
     return { itemId, from: row.status, status, executorConnected: Boolean(service.executorConnected), dispatched: false, campaignPhase: this.port.project(projectId).current_phase };
+  }
+
+  reshapeItem(projectId: string, itemId: string, args: Record<string, any>, actor: string): Record<string, unknown> {
+    const row = this.database.query(
+      "SELECT * FROM campaign_custody_items WHERE item_id = $id AND project_id = $project",
+    ).get({ $id: itemId, $project: projectId }) as CustodyItemRow | null;
+    if (!row || !["ready", "blocked", "failed"].includes(row.status)) throw new Error("Select a stopped or prepared custody contract to reshape");
+    const service = this.domains.custodySnapshot(projectId);
+    const source = service.items.find((candidate: any) => candidate.id === itemId) as CustodyWorkItem | undefined;
+    if (!source) throw new Error("The source custody contract is not available");
+    const openLease = this.database.query(
+      "SELECT lease_id, status FROM campaign_custody_leases WHERE item_id = $id AND status IN ('prepared', 'confirmed', 'running', 'finalizing', 'awaiting_review', 'simulated')",
+    ).get({ $id: itemId }) as { lease_id: string; status: string } | null;
+    if (openLease && openLease.status !== "prepared") throw new Error("Finish or reject the active custody lease before reshaping its contract");
+    const rawChildren = Array.isArray(args.children) ? args.children.slice(0, 4) : [];
+    if (rawChildren.length < 2) throw new Error("A custody reshape requires at least two bounded successor contracts");
+    const allowedUrgencies = new Set(["NOW", "SOON", "PARK"]);
+    const allowedTracks = new Set(["coverage", "supply", "decision"]);
+    const allowedCapabilities = new Set(["repair", "verification", "archive", "provenance", "portability"]);
+    const children = rawChildren.map((candidate: any) => {
+      const acceptance: CustodyAcceptanceContract = {
+        acceptanceCriteria: (Array.isArray(candidate?.acceptance?.acceptanceCriteria) ? candidate.acceptance.acceptanceCriteria : []).map((value: unknown) => boundedText(value, 500)).filter(Boolean).slice(0, 12),
+        allowedPaths: (Array.isArray(candidate?.acceptance?.allowedPaths) ? candidate.acceptance.allowedPaths : []).map((value: unknown) => boundedText(value, 500)).filter(Boolean).slice(0, 24),
+        receiptType: boundedText(candidate?.acceptance?.receiptType, 200),
+        stopCondition: boundedText(candidate?.acceptance?.stopCondition, 1_000),
+      };
+      const child = {
+        id: crypto.randomUUID(),
+        task: boundedText(candidate?.task, 1_000),
+        reason: boundedText(candidate?.reason, 2_000),
+        urgency: allowedUrgencies.has(String(candidate?.urgency || "")) ? String(candidate.urgency) : source.urgency,
+        blocksResearch: source.blocksResearch ? true : Boolean(candidate?.blocksResearch),
+        strategicTrack: allowedTracks.has(String(candidate?.strategicTrack || "")) ? String(candidate.strategicTrack) : source.strategicTrack,
+        capability: allowedCapabilities.has(String(candidate?.capability || "")) ? String(candidate.capability) : source.capability,
+        repairGeneration: source.repairGeneration,
+        effortClass: candidate?.effortClass === "medium" ? "medium" : "small",
+        acceptance,
+      };
+      if (!child.task || !child.reason || !custodyContractComplete(acceptance)) throw new Error("Every custody successor needs a task, reason, and complete bounded acceptance contract");
+      return { ...child, fingerprint: `sha256:${createHash("sha256").update(JSON.stringify({ projectId, sourceId: itemId, task: child.task.toLowerCase(), capability: child.capability })).digest("hex")}` };
+    });
+    const stamp = this.port.now();
+    this.database.transaction(() => {
+      if (openLease) this.database.query(
+        "UPDATE campaign_custody_leases SET status = 'superseded', error = $error, updated_at = $now, completed_at = $now WHERE lease_id = $id AND status = 'prepared'",
+      ).run({ $id: openLease.lease_id, $error: "Operator reshaped the oversized contract into bounded successors before dispatch.", $now: stamp });
+      this.database.query(
+        "UPDATE campaign_custody_items SET status = 'complete', assigned_actor = '', receipt_json = $receipt, updated_at = $now, completed_at = $now WHERE item_id = $id",
+      ).run({ $id: itemId, $receipt: JSON.stringify({ status: "SUPERSEDED", summary: `Replaced by ${children.length} bounded successor custody contracts.`, effects: { changedPaths: [] } }), $now: stamp });
+      for (const child of children) this.database.query(`
+        INSERT INTO campaign_custody_items(
+          item_id, project_id, source_type, source_id, fingerprint, task, reason, urgency, blocks_research,
+          strategic_track, capability, repair_generation, effort_class, acceptance_json, status,
+          created_by, created_at, updated_at
+        ) VALUES ($id, $project, 'custody-reshape', $source, $fingerprint, $task, $reason, $urgency, $blocks,
+          $track, $capability, $generation, $effort, $acceptance, 'proposed', $actor, $now, $now)
+      `).run({
+        $id: child.id, $project: projectId, $source: itemId, $fingerprint: child.fingerprint,
+        $task: child.task, $reason: child.reason, $urgency: child.urgency, $blocks: child.blocksResearch ? 1 : 0,
+        $track: child.strategicTrack, $capability: child.capability, $generation: child.repairGeneration,
+        $effort: child.effortClass, $acceptance: JSON.stringify(child.acceptance), $actor: actor, $now: stamp,
+      });
+    })();
+    this.port.touchProject(projectId);
+    this.port.recordEvent(projectId, "custody", itemId, "custody.item.reshaped", {
+      actor, from: row.status, to: "complete", supersededLeaseId: openLease?.lease_id || "",
+      successors: children.map((child) => ({ id: child.id, task: child.task, effortClass: child.effortClass })),
+      mutation: "custody-contracts-only", campaignPhaseUnchanged: this.port.project(projectId).current_phase,
+    });
+    return { itemId, status: "superseded", successorCount: children.length, successors: children.map((child) => ({ id: child.id, task: child.task, status: "proposed" })), dispatched: false, campaignPhase: this.port.project(projectId).current_phase };
   }
 
   async prepareLease(projectId: string, itemId: string, actor: string): Promise<Record<string, unknown>> {

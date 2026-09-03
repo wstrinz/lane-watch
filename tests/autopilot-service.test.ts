@@ -49,4 +49,24 @@ describe("autopilot custody policy", () => {
       activeLease: { id: "lease-stale", status: "running", updatedAt: new Date(Date.now() - 120_000).toISOString() },
     })] })).toMatchObject({ kind: "action", type: "custody.lease.reconcile", targetId: "lease-stale" });
   });
+
+  test("finishes the current custody slot before confirming an older queued lease", () => {
+    const prepared = blocker({
+      id: "queued",
+      createdAt: "2026-09-01T00:00:00Z",
+      status: "ready",
+      activeLease: { id: "lease-queued", status: "prepared", leaseDigest: "sha256:queued" },
+    });
+    const running = blocker({
+      id: "active",
+      createdAt: "2026-09-02T00:00:00Z",
+      status: "assigned",
+      activeLease: { id: "lease-active", status: "running", updatedAt: new Date().toISOString() },
+    });
+    expect(nextCustodyAutopilotStep({ items: [prepared, running] })).toMatchObject({ kind: "wait" });
+    (running.activeLease as any).updatedAt = new Date(Date.now() - 120_000).toISOString();
+    expect(nextCustodyAutopilotStep({ items: [prepared, running] })).toMatchObject({
+      kind: "action", type: "custody.lease.reconcile", targetId: "lease-active",
+    });
+  });
 });
