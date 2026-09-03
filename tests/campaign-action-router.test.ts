@@ -27,7 +27,7 @@ function handlers(calls: Array<{ type: string; args: Record<string, any> }>): Ca
 
 describe("CampaignActionRouter", () => {
   test("derives one unique exact catalog and routes the complete action envelope", async () => {
-    expect(CAMPAIGN_ACTION_TYPES).toHaveLength(50);
+    expect(CAMPAIGN_ACTION_TYPES).toHaveLength(51);
     expect(new Set(CAMPAIGN_ACTION_TYPES).size).toBe(CAMPAIGN_ACTION_TYPES.length);
     const calls: Array<{ type: string; args: Record<string, any> }> = [];
     const router = new CampaignActionRouter(handlers(calls));

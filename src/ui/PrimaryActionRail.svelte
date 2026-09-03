@@ -57,6 +57,12 @@
     const suffix = count > 1 ? ` · 1 of ${count}` : "";
     const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
     const lease = item.activeLease;
+    if (/automatic retry limit/i.test(String(value.loop?.error || ""))) return {
+      status: `CUSTODY CONTRACT RESHAPE${suffix}`,
+      title: "This verification is larger than its frozen lease",
+      detail: "Automatic retries are stopped. Inspect the exact receipt, then split or resize the custody contract; parking would bypass a required research dependency rather than resolve it.",
+      actions: [inspect, { key: "loop.stop", label: "Stop & preserve this boundary", style: "outline-button" }],
+    };
     if (item.status === "proposed") return {
       status: `DEPENDENCY GATE${suffix}`,
       title: `Enable ${compact(item.task, 72)}`,
@@ -66,6 +72,20 @@
         inspect,
       ],
     };
+    if (["blocked", "failed"].includes(item.status)) {
+      const protocolStop = /lease-byte provenance mismatch|frozen[- ]lease[- ]integrity|specified frozen lease|executor turn was interrupted|runtime interruption/i.test(`${item.receipt?.summary || ""} ${item.receipt?.stopReason || ""}`);
+      return {
+        status: `SAFE CUSTODY RETRY${suffix}`,
+        title: protocolStop ? "Retry the unchanged contract with the corrected lease check" : `Retry ${compact(item.task, 72)}`,
+        detail: protocolStop
+          ? "The prior steward changed no files and stopped on a controller-owned digest instruction. One click freezes a fresh lease and dispatches Terra under the same allowed paths; it cannot promote a claim."
+          : compact(`${item.receipt?.summary || item.reason} A retry remains inside the same frozen acceptance contract and repair-generation limit.`),
+        actions: [
+          { key: "custody.item.promote", targetId: item.id, args: { autoDispatch: true, note: "Operator requested one bounded custody retry and dispatch under the unchanged acceptance contract." }, label: "Retry with Terra", style: "primary-button" },
+          inspect,
+        ],
+      };
+    }
     if (item.status === "ready" && !lease) return {
       status: `LEASE PREPARATION${suffix}`,
       title: `Freeze ${compact(item.task, 72)}`,
@@ -91,7 +111,12 @@
       status: `CUSTODY RUNNING${suffix}`,
       title: compact(item.task, 96),
       detail: lease?.status === "finalizing" ? "The isolated result is being measured and checked before its landing gate appears." : "The isolated Terra steward is working inside the exact lease. Research remains blocked until its receipt is reviewed.",
-      actions: [inspect],
+      actions: [
+        ...(lease?.id && Date.now() - Date.parse(lease.updatedAt || lease.startedAt || item.updatedAt || "") >= 60_000
+          ? [{ key: "custody.lease.reconcile", targetId: lease.id, label: "Recheck steward", style: "primary-button" }]
+          : []),
+        inspect,
+      ],
     };
     if (lease?.status === "awaiting_review" || item.status === "verifying") return {
       status: `RECEIPT GATE${suffix}`,
@@ -166,7 +191,7 @@
       const lanes = Array.isArray(plan?.response?.lanes) ? plan.response.lanes : [];
       const ready = lanes.filter((lane: any) => readiness(lane) === "ready");
       const dependent = lanes.filter((lane: any) => readiness(lane) === "followup");
-      const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "failed", "parked"].includes(item.status));
+      const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
       const blocked = plan?.status === "drafted" && plan?.response?.decision === "BLOCKED";
       if (plan?.status === "drafting") return { status: "SOL CHECKING", title: "Sol is shaping the next bounded wave", detail: `The coordinator is checking ${currentRequests(value).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`, actions: [] };
       if (blocked) return { status: "OPERATOR TRANSITION", title: "The checked plan needs one operator-owned change", detail: compact(plan?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."), actions: [{ key: "scroll", label: "Open required operator gate", target: "#operator-gate", style: "primary-button" }] };
@@ -183,6 +208,8 @@
       return { status: "PLAN INPUT READY", title: "Ask Sol to shape the wave", detail: `${currentRequests(value).filter((request: any) => request.status === "proposed").length} candidate lane records are ready for dependency, staffing, resource, and breadth checks.`, actions: [{ key: "research.review.start", label: "Check & shape lane plan", style: "primary-button" }] };
     }
     if (value.phase === "RESEARCH_READY") {
+      const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
+      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyBlockers[0], custodyBlockers.length);
       const schedule = value.researchSchedule;
       if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
       if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
@@ -267,6 +294,16 @@
         const promoted = result.project.custody?.items?.find((candidate: any) => candidate.id === item.targetId);
         if (promoted?.status === "ready" && !promoted.activeLease) {
           result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.prepare", targetId: promoted.id, scope: "primary-rail-custody", pollLimit: 80 });
+        }
+        if (item.args?.autoDispatch) {
+          const prepared = result.project.custody?.items?.find((candidate: any) => candidate.id === item.targetId)?.activeLease;
+          if (prepared?.status === "prepared") {
+            result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.confirm", targetId: prepared.id, args: { leaseDigest: prepared.leaseDigest }, scope: "primary-rail-custody", pollLimit: 80 });
+          }
+          const confirmed = result.project.custody?.items?.find((candidate: any) => candidate.id === item.targetId)?.activeLease;
+          if (confirmed?.status === "confirmed") {
+            result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.dispatch", targetId: confirmed.id, args: { leaseDigest: confirmed.leaseDigest }, scope: "primary-rail-custody", pollLimit: 80 });
+          }
         }
       }
       if (item.key === "custody.lease.confirm") {

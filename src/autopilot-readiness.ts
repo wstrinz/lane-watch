@@ -5,9 +5,15 @@ export interface AutopilotStartCandidate {
   requiresOperatorRelease: boolean;
 }
 
+export interface AutopilotCustodyCandidate {
+  taskId: string;
+  tokenBudget: number;
+  active: boolean;
+}
+
 export interface AutopilotStartReadiness {
   canStart: boolean;
-  code: "READY" | "PHASE_BLOCKED" | "PLAN_NOT_READY" | "NO_RUNNABLE_FRONTIER" | "NO_RESEARCH_SLOT" | "EPOCH_BUDGET" | "SCHEDULE_CONFIRMATION";
+  code: "READY" | "PHASE_BLOCKED" | "PLAN_NOT_READY" | "NO_RUNNABLE_FRONTIER" | "NO_RESEARCH_SLOT" | "NO_CUSTODY_SLOT" | "EPOCH_BUDGET" | "SCHEDULE_CONFIRMATION";
   blocker: string;
   effectiveTokenLimit: number;
   minimumRunnableTokenCap: number;
@@ -19,9 +25,11 @@ export function evaluateAutopilotStartReadiness(input: {
   planStatus?: string;
   planDecision?: string;
   candidates?: AutopilotStartCandidate[];
+  custodyCandidates?: AutopilotCustodyCandidate[];
   spendableEpochTokens?: number;
   waveTokenBudget?: number;
   availableResearchSlots?: number;
+  availableCustodySlots?: number;
   scheduleStatus?: string;
 }): AutopilotStartReadiness {
   const ready = (overrides: Partial<AutopilotStartReadiness> = {}): AutopilotStartReadiness => ({
@@ -55,7 +63,23 @@ export function evaluateAutopilotStartReadiness(input: {
   if (input.phase === "RESEARCH_READY" && input.scheduleStatus === "confirmed") return ready();
 
   const runnable = (input.candidates || []).filter((candidate) => candidate.dependencyReady && !candidate.requiresOperatorRelease);
-  const runnableTasks = runnable.map((candidate) => candidate.taskId);
+  const custody = input.custodyCandidates || [];
+  const runnableTasks = [...custody.map((candidate) => candidate.taskId), ...runnable.map((candidate) => candidate.taskId)];
+  if (custody.length) {
+    const needsSlot = custody.some((candidate) => !candidate.active);
+    const custodySlots = Math.max(0, Math.floor(Number(input.availableCustodySlots) || 0));
+    if (needsSlot && !custodySlots) return blocked("NO_CUSTODY_SLOT", "The checked dependency plan has bounded custody work, but no Terra custody slot is currently available.", { runnableTasks });
+    const spendable = Math.max(0, Math.floor(Number(input.spendableEpochTokens) || 0));
+    const waveLimit = Math.max(0, Math.floor(Number(input.waveTokenBudget) || 0));
+    const effectiveTokenLimit = Math.min(spendable, waveLimit);
+    const minimumRunnableTokenCap = Math.min(...custody.map((candidate) => Math.max(0, Math.floor(Number(candidate.tokenBudget) || 0))));
+    if (minimumRunnableTokenCap > effectiveTokenLimit) return blocked(
+      "EPOCH_BUDGET",
+      `The cheapest bounded custody contract needs ${minimumRunnableTokenCap.toLocaleString()} tokens, but this epoch has only ${effectiveTokenLimit.toLocaleString()} schedulable.`,
+      { effectiveTokenLimit, minimumRunnableTokenCap, runnableTasks },
+    );
+    return ready({ effectiveTokenLimit, minimumRunnableTokenCap, runnableTasks });
+  }
   if (!runnable.length) {
     return blocked("NO_RUNNABLE_FRONTIER", "The checked plan has no dependency-ready immutable launch contract. Land its predecessor evidence or revise the plan before starting automation.", { runnableTasks });
   }

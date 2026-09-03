@@ -54,4 +54,23 @@ describe("autopilot start readiness", () => {
       code: "SCHEDULE_CONFIRMATION",
     });
   });
+
+  test("admits a dependency-only plan when bounded custody can advance it", () => {
+    expect(evaluateAutopilotStartReadiness({
+      phase: "RESEARCH_REVIEW",
+      planStatus: "drafted",
+      planDecision: "READY_FOR_GATE",
+      candidates: [],
+      custodyCandidates: [{ taskId: "custody:named-pool replay", tokenBudget: 50_000, active: false }],
+      spendableEpochTokens: 300_000,
+      waveTokenBudget: 120_000,
+      availableResearchSlots: 3,
+      availableCustodySlots: 1,
+    })).toMatchObject({
+      canStart: true,
+      code: "READY",
+      minimumRunnableTokenCap: 50_000,
+      runnableTasks: ["custody:named-pool replay"],
+    });
+  });
 });

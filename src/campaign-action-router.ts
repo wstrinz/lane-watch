@@ -43,6 +43,7 @@ export const CAMPAIGN_ACTION_TYPES = [
   "custody.lease.prepare",
   "custody.lease.confirm",
   "custody.lease.dispatch",
+  "custody.lease.reconcile",
   "custody.lease.simulate",
   "custody.lease.replay",
   "custody.receipt.land",

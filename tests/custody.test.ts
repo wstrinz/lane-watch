@@ -59,4 +59,20 @@ describe("custody contracts", () => {
     expect(service.items[0]).toMatchObject({ generationAllowed: false, eligibleToReady: false });
     expect(service.violations).toEqual([expect.objectContaining({ itemId: "generation-two", kind: "repair-generation-limit" })]);
   });
+
+  test("marks a stopped bounded contract as retryable without granting claim authority", () => {
+    const service = deriveCustodyServiceState([item({ status: "blocked", blocksResearch: true })], 1, true);
+    expect(service.items[0]).toMatchObject({ eligibleToRetry: true, executorEligible: false });
+    expect(service.policy).toMatchObject({
+      leaseConfirmationAuthority: "human-or-active-loop",
+      receiptLandingAuthority: "human-or-active-loop-when-landable",
+      claimPromotionAuthority: "outside-custody-service",
+    });
+  });
+
+  test("keeps failed research dependencies visible until explicitly repaired or parked", () => {
+    const service = deriveCustodyServiceState([item({ status: "failed", blocksResearch: true })], 1, true);
+    expect(service.counts).toMatchObject({ open: 1, blocking: 1, failed: 1 });
+    expect(service.items[0]).toMatchObject({ eligibleToRetry: true, executorEligible: false });
+  });
 });

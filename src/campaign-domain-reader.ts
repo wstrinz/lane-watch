@@ -371,11 +371,11 @@ export class CampaignDomainReader {
       items: service.items.map((item: any) => ({ ...item, activeLease: activeByItem.get(item.id) || null })),
       protocol: {
         schema: "campaign-custody-adapter-protocol/v1",
-        mode: "human-gated-execution",
+        mode: "bounded-autopilot-execution",
         executorConnected: true,
         leaseVersion: "campaign-custody-lease/v1",
         receiptVersion: "campaign-custody-protocol-receipt/v1",
-        invariant: "Only an exact confirmed lease can start one isolated Terra steward; its receipt still requires a separate human landing gate.",
+        invariant: "Only an exact confirmed lease can start one isolated Terra steward; a human or active loop may land only a controller-verified landable receipt, never a claim promotion.",
         counts: {
           prepared: leases.filter((lease) => lease.status === "prepared").length,
           confirmed: leases.filter((lease) => lease.status === "confirmed").length,
@@ -461,7 +461,9 @@ export class CampaignDomainReader {
       }
       if (!["running", "finalizing", "awaiting_review", "completed", "blocked", "failed", "rejected"].includes(String(lease.status))) continue;
       const reportedTokens = lease.receipt?.usage?.tokens;
-      const tokens = reportedTokens !== null && reportedTokens !== undefined && Number.isFinite(Number(reportedTokens)) ? Number(reportedTokens) : null;
+      const numericTokens = reportedTokens !== null && reportedTokens !== undefined && Number.isFinite(Number(reportedTokens)) ? Number(reportedTokens) : null;
+      const leaseTokenCap = Number(lease.lease?.budget?.maxTokens || 0);
+      const tokens = numericTokens !== null && (!leaseTokenCap || numericTokens <= leaseTokenCap * 4) ? numericTokens : null;
       const minutes = Number(lease.receipt?.usage?.minutes || 0);
       const receiptBound = lease.status === "completed" && Boolean(lease.receiptDigest) && Boolean(lease.verification?.ok)
         && lease.receipt?.usage?.tokenMeasurement === "app-server";

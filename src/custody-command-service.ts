@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
-import { mkdir, rename, stat, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import type { CodexAppServerClient, CodexNotification, CodexServerRequest } from "./codex";
@@ -45,6 +46,7 @@ export interface CustodyCommandPort {
   touchProject(projectId: string): void;
   recordEvent(projectId: string, aggregateType: string, aggregateId: string, eventType: string, payload: unknown): void;
   notifyChanged(): void;
+  advanceAutopilot(projectId: string): void;
   now(): string;
 }
 
@@ -89,21 +91,7 @@ export class CustodyCommandService {
     ).all() as CustodyLeaseRow[];
     for (const row of rows) {
       try {
-        await this.codex.resumeThread(row.thread_id);
-        const detail = await this.codex.readThreadDetail(row.thread_id);
-        const turns = Array.isArray(detail.turns) ? detail.turns : [];
-        const turn = turns.find((candidate: any) => candidate?.id === row.turn_id);
-        const status = String(turn?.status || "");
-        if (!["completed", "failed", "interrupted"].includes(status)) continue;
-        const messages = Array.isArray(turn?.items) ? turn.items.filter((item: any) => item?.type === "agentMessage") : [];
-        const response = messages.length ? agentText(messages[messages.length - 1]) : "";
-        if (response) this.database.query(
-          "UPDATE campaign_custody_leases SET receipt_json = $receipt WHERE lease_id = $id",
-        ).run({ $id: row.lease_id, $receipt: response });
-        if (row.status === "running") this.database.query(
-          "UPDATE campaign_custody_leases SET status = 'finalizing', updated_at = $now WHERE lease_id = $id",
-        ).run({ $id: row.lease_id, $now: this.port.now() });
-        await this.finalizeExecution({ ...row, status: "finalizing", receipt_json: response || row.receipt_json }, status);
+        await this.reconcileExecution(row.project_id, row.lease_id, "startup-recovery");
       } catch (error) {
         this.port.recordEvent(row.project_id, "custody-lease", row.lease_id, "custody.execution.recovery-attention", {
           itemId: row.item_id,
@@ -115,6 +103,33 @@ export class CustodyCommandService {
     }
   }
 
+  async reconcileExecution(projectId: string, leaseId: string, actor: string): Promise<Record<string, unknown>> {
+    const row = this.lease(projectId, leaseId);
+    if (!row || !["running", "finalizing"].includes(row.status)) throw new Error("Select a running custody lease to reconcile");
+    if (!row.thread_id || !row.turn_id) throw new Error("Running custody lease lost its App Server identity");
+    await this.codex.resumeThread(row.thread_id);
+    const detail = await this.codex.readThreadDetail(row.thread_id);
+    const turns = Array.isArray(detail.turns) ? detail.turns : [];
+    const turn = turns.find((candidate: any) => candidate?.id === row.turn_id);
+    const turnStatus = String(turn?.status || "");
+    if (!["completed", "failed", "interrupted"].includes(turnStatus)) return { leaseId, status: row.status, turnStatus: turnStatus || "unknown", settled: false };
+    const messages = Array.isArray(turn?.items) ? turn.items.filter((item: any) => item?.type === "agentMessage") : [];
+    const response = messages.length ? agentText(messages[messages.length - 1]) : "";
+    const stamp = this.port.now();
+    this.database.transaction(() => {
+      this.database.query(
+        "UPDATE campaign_custody_leases SET status = 'finalizing', receipt_json = $receipt, updated_at = $now WHERE lease_id = $id AND status IN ('running', 'finalizing')",
+      ).run({ $id: leaseId, $receipt: response || row.receipt_json, $now: stamp });
+      this.database.query(
+        "UPDATE campaign_custody_items SET status = 'verifying', updated_at = $now WHERE item_id = $id",
+      ).run({ $id: row.item_id, $now: stamp });
+    })();
+    this.port.recordEvent(projectId, "custody-lease", leaseId, "custody.execution.reconciled", { itemId: row.item_id, actor, threadId: row.thread_id, turnId: row.turn_id, turnStatus });
+    await this.finalizeExecution({ ...row, status: "finalizing", receipt_json: response || row.receipt_json }, turnStatus);
+    const settled = this.lease(projectId, leaseId);
+    return { leaseId, status: settled?.status || "unknown", turnStatus, settled: true };
+  }
+
   transitionItem(projectId: string, itemId: string, transition: "promote" | "park" | "restore", args: Record<string, any>, actor: string): Record<string, unknown> {
     const row = this.database.query(
       "SELECT * FROM campaign_custody_items WHERE item_id = $id AND project_id = $project",
@@ -124,7 +139,7 @@ export class CustodyCommandService {
     const item = service.items.find((candidate: any) => candidate.id === itemId);
     let status: CustodyStatus;
     if (transition === "promote") {
-      if (row.status !== "proposed") throw new Error("Only a proposed custody item can become ready");
+      if (!["proposed", "blocked", "failed"].includes(row.status)) throw new Error("Only a proposed or safely stopped custody item can become ready");
       if (!item?.contractComplete) throw new Error("Complete the custody acceptance contract before marking it ready");
       if (!item?.generationAllowed) throw new Error("This repair exceeds the charter's automatic repair-generation limit and must remain operator-owned");
       status = "ready";
@@ -280,8 +295,11 @@ export class CustodyCommandService {
     const worktreeCwd = lease.workspace.projectRelativePath === "." ? worktreeRoot : resolve(worktreeRoot, lease.workspace.projectRelativePath);
     if (!within(worktreeRoot, worktreeCwd)) throw new Error("Custody project path escapes its detached worktree");
     try {
+      const runnerCwd = join(tmpdir(), "lane-watch-custody-runners", projectId, leaseId);
+      await mkdir(runnerCwd, { recursive: true });
+      const bundleFileSha256 = `sha256:${createHash("sha256").update(await readFile(row.bundle_path)).digest("hex")}`;
       const thread = await this.codex.startThread({
-        cwd: worktreeCwd,
+        cwd: runnerCwd,
         model: "gpt-5.6-terra",
         approvalPolicy: "never",
         sandbox: "workspace-write",
@@ -289,14 +307,14 @@ export class CustodyCommandService {
       });
       const turn = await this.codex.startTurn({
         threadId: thread.id,
-        input: [{ type: "text", text: custodyExecutorPrompt(lease, row.bundle_path) }],
-        cwd: worktreeCwd,
+        input: [{ type: "text", text: custodyExecutorPrompt(lease, row.bundle_path, bundleFileSha256, worktreeCwd) }],
+        cwd: runnerCwd,
         model: "gpt-5.6-terra",
         effort: "medium",
         approvalPolicy: "never",
         sandboxPolicy: {
           type: "workspaceWrite",
-          writableRoots: [worktreeRoot],
+          writableRoots: [worktreeRoot, runnerCwd],
           readOnlyAccess: { type: "fullAccess" },
           networkAccess: false,
         },
@@ -527,11 +545,15 @@ export class CustodyCommandService {
   }
 
   private custodyTokenTotal(params: Record<string, any>): number | null {
+    const perTurn = Number(params?.tokenUsage?.last?.totalTokens);
+    if (Number.isFinite(perTurn)) return Math.max(0, perTurn);
+    const legacyFlat = Number(params?.tokenUsage?.totalTokens);
+    if (Number.isFinite(legacyFlat)) return Math.max(0, legacyFlat);
     const visit = (value: unknown, depth = 0): number | null => {
       if (!value || typeof value !== "object" || depth > 6) return null;
       for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
         const normalized = key.replace(/[_-]/g, "").toLowerCase();
-        if (["totaltokens", "totalusagetokens"].includes(normalized) && Number.isFinite(Number(nested))) return Math.max(0, Number(nested));
+        if (normalized === "totalusagetokens" && Number.isFinite(Number(nested))) return Math.max(0, Number(nested));
       }
       for (const nested of Object.values(value as Record<string, unknown>)) {
         const found = visit(nested, depth + 1);
@@ -549,9 +571,27 @@ export class CustodyCommandService {
       const measuredTokens = this.custodyTokenTotal(params);
       if (measuredTokens !== null) {
         const prior = parseJson<Record<string, any>>(row.verification_json, {});
+        const lease = parseJson<CustodyLeaseEnvelope | null>(row.lease_json, null);
+        const maxTokens = Number(lease?.budget?.maxTokens || 0);
+        const exceeded = maxTokens > 0 && measuredTokens > maxTokens;
+        const alreadyInterrupted = Boolean(prior.telemetry?.budgetInterruptRequestedAt);
+        const telemetry = {
+          ...(prior.telemetry || {}), measuredTokens, updatedAt: stamp,
+          ...(exceeded ? { budgetInterruptRequestedAt: prior.telemetry?.budgetInterruptRequestedAt || stamp, maxTokens } : {}),
+        };
         this.database.query(
           "UPDATE campaign_custody_leases SET verification_json = $verification, updated_at = $now WHERE lease_id = $id",
-        ).run({ $id: row.lease_id, $verification: JSON.stringify({ ...prior, telemetry: { ...(prior.telemetry || {}), measuredTokens, updatedAt: stamp } }), $now: stamp });
+        ).run({ $id: row.lease_id, $verification: JSON.stringify({ ...prior, telemetry }), $now: stamp });
+        if (exceeded && !alreadyInterrupted && row.thread_id && row.turn_id) {
+          this.port.recordEvent(row.project_id, "custody-lease", row.lease_id, "custody.execution.budget-interrupt-requested", {
+            itemId: row.item_id, measuredTokens, maxTokens, threadId: row.thread_id, turnId: row.turn_id,
+          });
+          void this.codex.interruptTurn(row.thread_id, row.turn_id).catch((error) => {
+            this.port.recordEvent(row.project_id, "custody-lease", row.lease_id, "custody.execution.budget-interrupt-failed", {
+              itemId: row.item_id, error: error instanceof Error ? error.message : String(error),
+            });
+          });
+        }
         this.port.notifyChanged();
       }
       return;
@@ -633,6 +673,9 @@ export class CustodyCommandService {
     if (!lease?.workspace || !fresh.worktree_path) throw new Error("Running custody lease lost its workspace binding");
     const worktreeCwd = lease.workspace.projectRelativePath === "." ? fresh.worktree_path : resolve(fresh.worktree_path, lease.workspace.projectRelativePath);
     const raw = parseJson<Record<string, any>>(fresh.receipt_json, {});
+    const priorVerification = parseJson<Record<string, any>>(fresh.verification_json, {});
+    const telemetry = priorVerification.telemetry || {};
+    const budgetInterrupted = Boolean(telemetry.budgetInterruptRequestedAt);
     const report: CustodyExecutorReport = turnStatus === "completed" && ["COMPLETED", "BLOCKED", "FAILED"].includes(String(raw.status))
       ? {
         status: raw.status,
@@ -645,17 +688,32 @@ export class CustodyCommandService {
           detail: boundedText(check?.detail, 2_000) || "No executor detail supplied.",
         })) : [],
       }
-      : {
-        status: "FAILED",
-        summary: `Custody executor turn ended ${turnStatus}.`,
-        stopReason: boundedText(raw?.error || "The steward did not return a complete structured report.", 2_000),
-        changedPaths: [],
-        checks: [{ id: "turn-completion", status: "FAIL", detail: `App Server turn status: ${turnStatus}.` }],
-      };
+      : turnStatus === "interrupted" && budgetInterrupted
+        ? {
+          status: "FAILED",
+          summary: `Custody executor exceeded its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease budget and was stopped before landing.`,
+          stopReason: "The controller enforced the immutable token ceiling; reshape or resize the task before retrying.",
+          changedPaths: [],
+          checks: [{ id: "token-budget", status: "FAIL", detail: `Measured ${Number(telemetry.measuredTokens || 0).toLocaleString()} tokens against a ${lease.budget.maxTokens.toLocaleString()}-token ceiling.` }],
+        }
+      : turnStatus === "interrupted"
+        ? {
+          status: "BLOCKED",
+          summary: "Custody executor turn was interrupted before completion; no result was landed.",
+          stopReason: "Runtime interruption stopped the Terra steward before it returned a complete structured report.",
+          changedPaths: [],
+          checks: [{ id: "turn-completion", status: "BLOCK", detail: "App Server turn status: interrupted. Reconcile the worktree, then retry the unchanged bounded lease if it has zero effects." }],
+        }
+        : {
+          status: "FAILED",
+          summary: `Custody executor turn ended ${turnStatus}.`,
+          stopReason: boundedText(raw?.error || "The steward did not return a complete structured report.", 2_000),
+          changedPaths: [],
+          checks: [{ id: "turn-completion", status: "FAIL", detail: `App Server turn status: ${turnStatus}.` }],
+        };
     const actualChangedPaths = await this.changedPaths(worktreeCwd);
     const head = await runGit(worktreeCwd, ["rev-parse", "HEAD"]);
     if (head.exitCode !== 0) throw new Error(`Could not resolve custody worktree HEAD: ${head.stderr}`);
-    const telemetry = parseJson<Record<string, any>>(fresh.verification_json, {}).telemetry || {};
     const measuredTokens = Number.isFinite(Number(telemetry.measuredTokens)) ? Number(telemetry.measuredTokens) : null;
     const started = Date.parse(fresh.started_at || fresh.updated_at || fresh.created_at);
     const completedAt = this.port.now();
@@ -711,5 +769,6 @@ export class CustodyCommandService {
       campaignPhaseUnchanged: this.port.project(fresh.project_id).current_phase,
     });
     this.port.notifyChanged();
+    this.port.advanceAutopilot(fresh.project_id);
   }
 }

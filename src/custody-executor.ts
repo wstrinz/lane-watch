@@ -107,19 +107,23 @@ export function custodyExecutorReportSchema(): Record<string, unknown> {
   };
 }
 
-export function custodyExecutorPrompt(lease: CustodyLeaseEnvelope, bundlePath: string): string {
+export function custodyExecutorPrompt(lease: CustodyLeaseEnvelope, bundlePath: string, bundleFileSha256: string, worktreeCwd: string): string {
   const allowed = lease.contract.acceptance.allowedPaths.map((path) => `- ${path}`).join("\n") || "- No paths are writable; verification only.";
   const criteria = lease.contract.acceptance.acceptanceCriteria.map((criterion) => `- ${criterion}`).join("\n");
   return [
     `You are the Terra custody steward for immutable lease ${lease.leaseId}.`,
-    `The frozen lease is at ${bundlePath} and is bound by ${lease.leaseDigest}. Read it completely before acting.`,
+    `The detached campaign workspace is ${worktreeCwd}. Run all repository inspection and edits there. Paths in this lease and in your final changedPaths are relative to that workspace.`,
+    "This is a narrow mechanical custody turn, not a research lane. The controller has already frozen its campaign boundary into the lease. Do not load broad campaign-history or foundation files unless an acceptance criterion names their content; inspect the exact source artifacts needed for the checks and keep command output bounded.",
+    `The frozen lease is at ${bundlePath}. Read it completely before acting.`,
+    `Verify the literal bundle bytes against ${bundleFileSha256}. The embedded ${lease.leaseDigest} is the protocol digest of the canonical JSON envelope with the leaseDigest field omitted; it is not the literal file-byte hash. Do not compare the whole-file SHA-256 to leaseDigest.`,
+    "When a receipt binds source blobs at an immutable Git commit and those blob hashes verify, replay those exact blobs from that commit in disposable runner scratch. A later checkout may differ byte-for-byte without invalidating the frozen producer. Do not treat successor formatting drift as a provenance mismatch; do stop if the frozen blobs, their referenced commit, candidate data, or replay results disagree.",
     `Perform only this mechanical custody task: ${lease.contract.task}`,
     `Why it exists: ${lease.contract.reason}`,
     `Acceptance criteria:\n${criteria}`,
-    `The only paths you may change, relative to your current project directory, are:\n${allowed}`,
+    `The only paths you may change, relative to the detached campaign workspace, are:\n${allowed}`,
     `Hard stop: ${lease.contract.acceptance.stopCondition}`,
     `Budget: at most ${lease.budget.maxMinutes} minutes and ${lease.budget.maxChangedPaths} changed paths. The controller separately meters tokens where available.`,
-    "You are already inside a detached custody worktree. Do not commit, merge, cherry-pick, push, switch branches, alter Git configuration, access the network, start another agent, dispatch any worker, modify the campaign control database, choose research direction, or promote a mathematical claim.",
+    "The workspace is a detached custody worktree. Disposable files in the runner directory are allowed only to replay immutable blobs and are not campaign effects. Do not commit, merge, cherry-pick, push, switch branches, alter Git configuration, access the network, start another agent, dispatch any worker, modify the campaign control database, choose research direction, or promote a mathematical claim.",
     "Inspect first. Make only the smallest changes needed by the acceptance contract. Stop as BLOCKED instead of guessing whenever the contract, source bytes, allowed paths, or evidence are insufficient.",
     "Return the structured report requested by the host. changedPaths must exactly name every file you changed relative to the current project directory. A COMPLETED report requires every acceptance check to PASS; otherwise return BLOCKED or FAILED.",
   ].join("\n\n");

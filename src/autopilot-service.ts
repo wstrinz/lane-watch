@@ -64,6 +64,7 @@ interface AutopilotPort {
   observer(): ObserverSnapshot | null;
   nextDispatchTarget(projectId: string): string;
   startReadiness(projectId: string): AutopilotStartReadiness;
+  custody(projectId: string): Record<string, any>;
   enqueueAction(input: {
     projectId: string;
     type: string;
@@ -83,6 +84,63 @@ function parseJson<T>(value: string, fallback: T): T {
   } catch {
     return fallback;
   }
+}
+
+export type CustodyAutopilotDecision =
+  | { kind: "action"; type: string; targetId: string; args?: Record<string, unknown>; key: string }
+  | { kind: "wait" }
+  | { kind: "attention"; message: string };
+
+function controllerOwnedCustodyStop(item: Record<string, any>): boolean {
+  const receipt = item.receipt || {};
+  const changedPaths = Array.isArray(receipt.effects?.changedPaths) ? receipt.effects.changedPaths : [];
+  const checks = Array.isArray(receipt.checks) ? receipt.checks : [];
+  const passed = (id: string) => checks.some((check: any) => check?.id === id && check?.status === "PASS");
+  const replaySourceSelection = passed("producer_manifest_blobs") && passed("immutable_successor_binding")
+    && checks.some((check: any) => check?.id === "frozen_replay_tree" && check?.status === "FAIL")
+    && /checkout.*differs|source tree differs/i.test(`${receipt.summary || ""} ${receipt.stopReason || ""}`);
+  return changedPaths.length === 0 && (replaySourceSelection || /lease-byte provenance mismatch|frozen[- ]lease[- ]integrity|specified frozen lease|unknown variant [`']workspaceWrite|executor turn was interrupted|runtime interruption/i.test(
+    `${receipt.summary || ""} ${receipt.stopReason || ""}`,
+  ));
+}
+
+function controllerOwnedStopCount(custody: Record<string, any>, itemId: string): number {
+  return (Array.isArray(custody?.protocol?.leases) ? custody.protocol.leases : [])
+    .filter((lease: any) => lease.itemId === itemId && ["blocked", "failed"].includes(lease.status) && controllerOwnedCustodyStop({ receipt: lease.receipt || {} }))
+    .length;
+}
+
+/** Select only transitions whose effects are already bounded by the custody lease. */
+export function nextCustodyAutopilotStep(custody: Record<string, any> | null | undefined): CustodyAutopilotDecision | null {
+  const items = (Array.isArray(custody?.items) ? custody.items : [])
+    .filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status))
+    .sort((left: any, right: any) => Date.parse(left.createdAt || "") - Date.parse(right.createdAt || ""));
+  const item = items[0];
+  if (!item) return null;
+  const lease = item.activeLease;
+  if (item.status === "proposed") return { kind: "action", type: "custody.item.promote", targetId: item.id, key: `custody:${item.id}:enable` };
+  if (["blocked", "failed"].includes(item.status)) {
+    const controllerOwned = controllerOwnedCustodyStop(item);
+    const automaticStops = controllerOwnedStopCount(custody || {}, item.id);
+    if (controllerOwned && automaticStops < 4) return { kind: "action", type: "custody.item.promote", targetId: item.id, args: { note: "Autopilot retried a zero-effect controller-owned custody stop under the unchanged contract." }, key: `custody:${item.id}:controller-retry:${automaticStops + 1}` };
+    return { kind: "attention", message: controllerOwned
+      ? `${item.task} hit the bounded automatic retry limit after ${automaticStops} zero-effect controller stops. Inspect the runtime before retrying.`
+      : `${item.task} stopped on a substantive custody check. Inspect or reshape its contract; do not park it merely to bypass the dependency.` };
+  }
+  if (item.status === "ready" && !lease) return { kind: "action", type: "custody.lease.prepare", targetId: item.id, key: `custody:${item.id}:prepare` };
+  if (lease?.status === "prepared") return { kind: "action", type: "custody.lease.confirm", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, key: `custody:${item.id}:confirm:${lease.id}` };
+  if (lease?.status === "confirmed") return { kind: "action", type: "custody.lease.dispatch", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, key: `custody:${item.id}:dispatch:${lease.id}` };
+  if (["running", "finalizing"].includes(String(lease?.status || "")) || item.status === "assigned") {
+    const stale = lease?.id && Date.now() - Date.parse(lease.updatedAt || lease.startedAt || item.updatedAt || "") >= 60_000;
+    return stale
+      ? { kind: "action", type: "custody.lease.reconcile", targetId: lease.id, key: `custody:${item.id}:reconcile:${lease.id}` }
+      : { kind: "wait" };
+  }
+  if (lease?.status === "awaiting_review" || item.status === "verifying") {
+    if (lease?.verification?.landable && lease.receiptDigest) return { kind: "action", type: "custody.receipt.land", targetId: lease.id, args: { receiptDigest: lease.receiptDigest }, key: `custody:${item.id}:land:${lease.id}` };
+    return { kind: "attention", message: `${item.task} returned a receipt that is not mechanically landable. Inspect its exact checks before changing the contract.` };
+  }
+  return { kind: "attention", message: `${item.task} is in custody state ${item.status || "unknown"}; inspect the bounded receipt before continuing.` };
 }
 
 /** Chooses one safe gated action at a time; execution remains in the action queue. */
@@ -267,6 +325,12 @@ export class AutopilotService {
   private chooseNext(loop: LoopRunRow): Promise<void> | void {
     const projectId = loop.project_id;
     const phase = this.port.project(projectId).current_phase;
+    if (["RESEARCH_REVIEW", "RESEARCH_READY"].includes(phase)) {
+      const custody = nextCustodyAutopilotStep(this.port.custody(projectId));
+      if (custody?.kind === "action") return this.enqueueStep(loop, custody.type, custody.targetId, custody.args || {}, custody.key);
+      if (custody?.kind === "wait") return;
+      if (custody?.kind === "attention") return this.attention(loop, custody.message);
+    }
     if (phase === "DECISION_REQUIRED") {
       if (loop.decision_crossed) return this.complete(loop, phase);
       const wave = this.waves.latest(projectId);
@@ -332,6 +396,9 @@ export class AutopilotService {
       if (plan?.status === "drafted") {
         const response = parseJson<Record<string, any>>(plan.response_json, {});
         if (response.decision !== "READY_FOR_GATE") return this.attention(loop, `Coordinator plan is ${response.decision || "not ready"}`);
+        const lanes = Array.isArray(response.lanes) ? response.lanes : [];
+        const readyLanes = lanes.filter((lane: any) => lane?.contract?.status === "READY" && /^[0-9a-f]{40}$/i.test(String(lane.contract.baseRef || "")));
+        if (!readyLanes.length) return this.enqueueStep(loop, "research.review.resolve", "", { decision: "revise", note: "Autopilot resolved the checked dependency-only plan after its custody prerequisites settled; request fresh exact base bindings." }, "dependency-plan-revision");
         return this.enqueueStep(loop, "research.review.resolve", "", { decision: "approve", note: "Single-loop autopilot applied the coordinator's checked READY_FOR_GATE plan." });
       }
       return this.enqueueStep(loop, "research.review.start");
@@ -345,13 +412,19 @@ export class AutopilotService {
       if (["dispatching", "running", "landed"].includes(schedule.status)) return;
       return this.attention(loop, `Wave schedule entered ${schedule.status} and requires operator inspection`);
     }
-    if (["BLOCKED", "REVISING"].includes(phase)) return this.attention(loop, `Campaign entered ${phase} and requires operator direction`);
+    if (phase === "REVISING") return this.enqueueStep(loop, "research.review.start", "", {}, "dependency-plan-recheck");
+    if (phase === "BLOCKED") return this.attention(loop, `Campaign entered ${phase} and requires operator direction`);
     this.attention(loop, `One-loop automation does not yet have a safe transition from ${phase}`);
   }
 
   private resumeBlocker(projectId: string): string {
     const phase = this.port.project(projectId).current_phase;
     const wave = this.waves.latest(projectId);
+    if (["RESEARCH_REVIEW", "RESEARCH_READY"].includes(phase)) {
+      const custody = nextCustodyAutopilotStep(this.port.custody(projectId));
+      if (custody?.kind === "attention") return custody.message;
+      if (custody?.kind === "action" || custody?.kind === "wait") return "";
+    }
     if (phase === "RESEARCH_REVIEW") {
       const plan = wave ? this.database.query("SELECT status, response_json FROM campaign_research_plans WHERE wave_id = $wave").get({ $wave: wave.wave_id }) as { status: string; response_json: string } | null : null;
       if (plan?.status === "drafted") {
@@ -451,6 +524,7 @@ export class AutopilotService {
       "research.schedule.prepare": "Freeze the resource-bounded wave schedule", "research.schedule.confirm": "Confirm the exact wave schedule",
       "research.schedule.dispatch": "Dispatch the confirmed wave", "research.dispatch.start": "Dispatch one bounded lane",
       "research.failure.requeue": "Stage a failed launch for a fresh schedule", "research.receipt.reconcile": "Reconcile exact receipt custody metadata", "research.evidence.return": "Return landed evidence to synthesis", "wave.adopt": "Adopt the active wave", "lane.reconcile": "Reconcile a terminal lane",
+      "custody.item.promote": "Enable the bounded custody contract", "custody.lease.prepare": "Freeze the exact custody lease", "custody.lease.confirm": "Confirm custody under active-loop authority", "custody.lease.dispatch": "Dispatch one Terra custody steward", "custody.lease.reconcile": "Reconcile a stale or interrupted Terra steward", "custody.receipt.land": "Land a mechanically verified custody receipt",
       "wave.triage.request": "Ask Sol to triage unresolved custody", "wave.triage.apply": "Apply Sol's custody recommendations",
     } as Record<string, string>)[type] || type;
   }

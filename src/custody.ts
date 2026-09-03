@@ -64,6 +64,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
       contractComplete,
       generationAllowed,
       eligibleToReady: item.status === "proposed" && contractComplete && generationAllowed,
+      eligibleToRetry: ["blocked", "failed"].includes(item.status) && contractComplete && generationAllowed,
       executorEligible: item.status === "ready" && contractComplete && generationAllowed,
     };
   }).sort((left, right) => {
@@ -74,7 +75,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
     if (urgencyDifference) return urgencyDifference;
     return Date.parse(left.createdAt) - Date.parse(right.createdAt);
   });
-  const open = decorated.filter((item) => !["complete", "failed"].includes(item.status));
+  const open = decorated.filter((item) => item.status !== "complete");
   const violations = decorated.flatMap((item) => {
     const result: Array<Record<string, any>> = [];
     if (!item.contractComplete) result.push({ itemId: item.id, kind: "incomplete-contract", detail: "Custody work cannot become ready without acceptance criteria, a receipt type, and a stop condition." });
@@ -83,7 +84,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
   });
   return {
     schema: "campaign-custody-service/v1",
-    mode: executorConnected ? "human-gated" : "shadow",
+    mode: executorConnected ? "bounded-autopilot-ready" : "shadow",
     executorConnected,
     executorEligible: decorated.filter((item) => item.executorEligible).length,
     adapters: [
@@ -92,7 +93,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
         label: "Terra local steward",
         status: executorConnected ? "ready" : "disconnected",
         capabilities: ["repair", "verification", "archive", "provenance", "portability"],
-        boundary: "Consumes only exact operator-confirmed leases in detached worktrees; cannot choose research direction, promote claims, merge, push, or spawn children.",
+        boundary: "Consumes only exact leases in detached worktrees; a human click or active loop may dispatch and land mechanically verified receipts, but neither may choose research direction, promote claims, merge, push, or spawn children.",
       },
     ],
     counts: {
@@ -102,6 +103,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
       ready: decorated.filter((item) => item.status === "ready").length,
       parked: decorated.filter((item) => item.status === "parked").length,
       active: decorated.filter((item) => ["assigned", "verifying"].includes(item.status)).length,
+      failed: decorated.filter((item) => item.status === "failed").length,
       complete: decorated.filter((item) => item.status === "complete").length,
       blocking: open.filter((item) => item.blocksResearch && item.status !== "parked").length,
     },
@@ -109,8 +111,8 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
       maxAutomaticRepairGeneration,
       chargeToStrategicTrack: true,
       readyDoesNotDispatch: true,
-      leaseConfirmationAuthority: "human",
-      receiptLandingAuthority: "human",
+      leaseConfirmationAuthority: "human-or-active-loop",
+      receiptLandingAuthority: "human-or-active-loop-when-landable",
       promotionAuthority: "human",
       claimPromotionAuthority: "outside-custody-service",
     },

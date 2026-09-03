@@ -8,9 +8,14 @@
   let feedback = "";
   let feedbackKind: "pending" | "success" | "error" = "pending";
 
-  type CustodyVerb = "promote" | "park" | "restore" | "lease.prepare" | "lease.confirm" | "lease.dispatch" | "lease.simulate" | "lease.replay" | "receipt.land" | "receipt.reject";
+  type CustodyVerb = "promote" | "park" | "restore" | "lease.prepare" | "lease.confirm" | "lease.dispatch" | "lease.reconcile" | "lease.simulate" | "lease.replay" | "receipt.land" | "receipt.reject";
 
-  async function transition(item: Record<string, any>, verb: CustodyVerb): Promise<void> {
+  function retryExhausted(item: Record<string, any>): boolean {
+    const message = String(project?.loop?.error || "");
+    return /automatic retry limit/i.test(message) && (!item.task || message.includes(item.task));
+  }
+
+  async function transition(item: Record<string, any>, verb: CustodyVerb, autoDispatch = false): Promise<void> {
     if (!project || working) return;
     const protocolAction = verb.startsWith("lease.");
     const receiptAction = verb.startsWith("receipt.");
@@ -26,12 +31,13 @@
       : verb === "lease.prepare" ? "Freezing the exact revision-bound custody lease…"
       : verb === "lease.confirm" ? "Confirming the exact lease digest…"
       : verb === "lease.dispatch" ? "Creating the detached worktree and starting one Terra steward…"
+      : verb === "lease.reconcile" ? "Reconciling the App Server turn and durable custody receipt…"
       : verb === "lease.simulate" ? "Generating a deterministic zero-effect protocol receipt…"
       : verb === "lease.replay" ? "Replaying and verifying the persisted lease and receipt digests…"
       : verb === "receipt.land" ? "Rechecking and landing the exact isolated producer commit…"
       : "Rejecting this receipt without landing its changes…";
     try {
-      await settleCampaignAction({
+      let result = await settleCampaignAction({
         projectId: project.id,
         type,
         targetId: actionTargetId,
@@ -42,14 +48,31 @@
             ? { receiptDigest: item.activeLease?.receiptDigest, reason: verb === "receipt.reject" ? "Operator rejected the isolated custody result at its landing gate." : undefined }
             : { note: verb === "promote" ? "Operator approved the bounded custody contract for separate steward handoff." : protocolAction ? "Operator exercised the custody lease protocol." : "Operator changed custody inbox disposition." },
       });
+      if (verb === "promote" && autoDispatch) {
+        const promoted = result.project.custody?.items?.find((candidate: any) => candidate.id === item.id);
+        if (promoted?.status === "ready" && !promoted.activeLease) {
+          result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.prepare", targetId: item.id, scope: "custody-service-retry" });
+        }
+        const prepared = result.project.custody?.items?.find((candidate: any) => candidate.id === item.id)?.activeLease;
+        if (prepared?.status === "prepared") {
+          result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.confirm", targetId: prepared.id, args: { leaseDigest: prepared.leaseDigest }, scope: "custody-service-retry" });
+        }
+        const confirmed = result.project.custody?.items?.find((candidate: any) => candidate.id === item.id)?.activeLease;
+        if (confirmed?.status === "confirmed") {
+          await settleCampaignAction({ projectId: project.id, type: "custody.lease.dispatch", targetId: confirmed.id, args: { leaseDigest: confirmed.leaseDigest }, scope: "custody-service-retry" });
+        }
+      }
       feedbackKind = "success";
-      feedback = verb === "promote"
+      feedback = verb === "promote" && autoDispatch
+        ? "A fresh exact lease is running with Terra under the unchanged custody contract."
+        : verb === "promote"
         ? "Marked ready. No steward was started and campaign execution was not changed."
         : verb === "park" ? "Item parked outside the active service inbox."
         : verb === "restore" ? "Item restored as a proposed custody contract."
         : verb === "lease.prepare" ? "Immutable lease prepared. No steward has started; review and confirm the exact digest next."
         : verb === "lease.confirm" ? "Exact lease confirmed. The slot is reserved, but no steward has started yet."
         : verb === "lease.dispatch" ? "One Terra steward started inside the lease-bound detached worktree."
+        : verb === "lease.reconcile" ? "The interrupted steward state was reconciled into a durable receipt boundary."
         : verb === "lease.simulate" ? "Deterministic zero-effect receipt recorded. The custody item remains ready."
         : verb === "lease.replay" ? "Lease and receipt replay verified with no real effects."
         : verb === "receipt.land" ? "The reviewed custody receipt landed locally. Nothing was pushed and no claim was promoted."
@@ -64,7 +87,7 @@
 
   $: project = ($campaignState.control?.projects?.find((candidate) => candidate.id === $campaignState.selectedProject) as Project | undefined) || null;
   $: custody = project?.custody || null;
-  $: openItems = custody?.items?.filter((item: any) => !["complete", "failed"].includes(item.status)) || [];
+  $: openItems = custody?.items?.filter((item: any) => item.status !== "complete") || [];
 </script>
 
 {#if custody}
@@ -76,8 +99,8 @@
     <div class="custody-body">
       <div class="custody-boundary">
         <div><span>ADAPTER</span><strong>Terra local steward</strong><small>{custody.executorConnected ? "ready on demand · isolated worktree" : "simulation only"}</small></div>
-        <p>Custody can repair, verify, archive, and preserve provenance in its own slot pool. It cannot choose research direction, leave its allowed paths, spawn children, promote claims, merge, or push.</p>
-        <div><span>HANDOFF RULE</span><strong>Two exact human gates</strong><small>confirm lease · review receipt</small></div>
+        <p>Terra may repair small mechanical or mathematical mistakes only inside the listed paths and acceptance checks. It cannot choose direction, spawn children, promote claims, merge, or push.</p>
+        <div><span>AUTOPILOT RULE</span><strong>Land verified custody</strong><small>active loop may dispatch · only exact landable receipts integrate</small></div>
       </div>
 
       {#if openItems.length}
@@ -116,6 +139,8 @@
                     <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.confirm")}>{working === `${item.activeLease.id}:lease.confirm` ? "Confirming…" : "Confirm exact lease"}</button>
                   {:else if item.activeLease.status === "confirmed"}
                     <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.dispatch")}>{working === `${item.activeLease.id}:lease.dispatch` ? "Starting…" : "Dispatch Terra steward"}</button>
+                  {:else if ["running", "finalizing"].includes(item.activeLease.status) && Date.now() - Date.parse(item.activeLease.updatedAt || item.activeLease.startedAt || "") >= 60_000}
+                    <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.reconcile")}>{working === `${item.activeLease.id}:lease.reconcile` ? "Reconciling…" : "Recheck interrupted steward"}</button>
                   {:else if item.activeLease.status === "simulated"}
                     <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.replay")}>{working === `${item.activeLease.id}:lease.replay` ? "Verifying replay…" : "Replay & verify receipt"}</button>
                   {/if}
@@ -141,8 +166,9 @@
                   <span>Research continues independently while this isolated steward works.</span>
                 {:else if item.status === "verifying"}
                   <span>The measured receipt above has no landing authority until you accept it.</span>
-                {:else if item.status === "blocked"}
-                  <span>The steward stopped without landing. Inspect the receipt before parking or reshaping the contract.</span><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>Park</button>
+                {:else if ["blocked", "failed"].includes(item.status)}
+                  <span>{retryExhausted(item) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : item.receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."}</span>
+                  <div class="custody-footer-actions"><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>{item.blocksResearch ? "Park & bypass" : "Park"}</button><button class="primary-button" disabled={Boolean(working) || !item.eligibleToRetry || retryExhausted(item)} onclick={() => transition(item, "promote", true)}>{working ? "Starting Terra…" : retryExhausted(item) ? "Retry limit reached" : "Retry with Terra"}</button></div>
                 {:else if item.status === "parked"}
                   <span>Outside the active service queue.</span><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "restore")}>Restore to inbox</button>
                 {/if}
@@ -237,6 +263,7 @@
   .custody-inbox footer { display:flex; justify-content:flex-end; align-items:center; gap:7px; border-top:1px solid #263b35; padding-top:7px; }
   .custody-inbox footer > span { color:#80948e; margin-right:auto; font-size:.52rem; }
   .custody-inbox footer button { min-height:38px; }
+  .custody-footer-actions { display:flex; gap:7px; }
   .custody-empty { display:grid; place-items:center; gap:3px; border:1px dashed #34514b; border-radius:9px; padding:14px; text-align:center; }
   .custody-empty strong { font-size:.65rem; }
   .custody-empty p { color:#849a94; margin:0; max-width:80ch; font-size:.55rem; line-height:1.45; }
@@ -270,6 +297,7 @@
     .custody-inbox footer { display:grid; grid-template-columns:1fr; }
     .custody-inbox footer > span { margin:0; }
     .custody-inbox footer button { width:100%; min-height:46px; }
+    .custody-footer-actions { display:grid; grid-template-columns:1fr; width:100%; }
     .custody-protocol-lab { grid-template-columns:1fr; }
     .custody-protocol-lab button { width:100%; min-height:44px; }
     .custody-receipt-review > header { display:grid; }

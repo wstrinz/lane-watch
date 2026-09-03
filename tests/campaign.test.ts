@@ -760,7 +760,7 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   expect(project.strategy.epoch).toMatchObject({ label: response.proposal.epochLabel, charterRevision: 2, status: "active" });
   expect(project.strategy.workspace.charterHistory.map((item: any) => item.revision)).toEqual([2, 1]);
   expect(project.custody).toMatchObject({
-    mode: "human-gated",
+    mode: "bounded-autopilot-ready",
     executorConnected: true,
     counts: { proposed: 1, ready: 0, blocking: 0 },
     items: [{ task: "Archive completed repair receipts", status: "proposed", strategicTrack: "decision", capability: "archive", contractComplete: true, eligibleToReady: true }],
@@ -849,7 +849,7 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   expect(project.custody).toMatchObject({
     executorConnected: true,
     counts: { ready: 1, active: 0 },
-    protocol: { mode: "human-gated-execution", executorConnected: true, counts: { verified: 1 }, leases: [{ id: prepared.result.leaseId, status: "verified", verification: { ok: true } }] },
+    protocol: { mode: "bounded-autopilot-execution", executorConnected: true, counts: { verified: 1 }, leases: [{ id: prepared.result.leaseId, status: "verified", verification: { ok: true } }] },
   });
   expect(project.phase).toBe(originalPhase);
   expect(project.coordinator.attached).toBe(false);
@@ -930,14 +930,20 @@ test("an exact custody lease runs one isolated Terra steward and lands only afte
   }, "test-operator");
   const dispatched = await waitForAction(control, "demo", "custody.lease.dispatch");
   expect(dispatched).toMatchObject({ status: "completed", result: { status: "running", turnId: "turn_custody", baseCommit, campaignPhase: originalPhase } });
-  expect(codex.startThreadParams).toMatchObject({ cwd: dispatched.result.worktreePath, model: "gpt-5.6-terra", approvalPolicy: "never", sandbox: "workspace-write" });
+  expect(codex.startThreadParams).toMatchObject({ model: "gpt-5.6-terra", approvalPolicy: "never", sandbox: "workspace-write" });
+  expect(codex.startThreadParams?.cwd).not.toBe(dispatched.result.worktreePath);
   expect(codex.startParams).toMatchObject({
-    threadId: "thr_strategy", cwd: dispatched.result.worktreePath, model: "gpt-5.6-terra", effort: "medium", approvalPolicy: "never",
-    sandboxPolicy: { type: "workspaceWrite", writableRoots: [dispatched.result.worktreePath], networkAccess: false },
+    threadId: "thr_strategy", cwd: codex.startThreadParams?.cwd, model: "gpt-5.6-terra", effort: "medium", approvalPolicy: "never",
+    sandboxPolicy: { type: "workspaceWrite", writableRoots: expect.arrayContaining([dispatched.result.worktreePath, codex.startThreadParams?.cwd]), networkAccess: false },
   });
+  const expectedBundleHash = `sha256:${createHash("sha256").update(readFileSync(prepared.result.bundlePath)).digest("hex")}`;
+  const custodyPrompt = String((codex.startParams as any)?.input?.[0]?.text || "");
+  expect(custodyPrompt).toContain(`Verify the literal bundle bytes against ${expectedBundleHash}`);
+  expect(custodyPrompt).toContain("Do not compare the whole-file SHA-256 to leaseDigest.");
+  expect(custodyPrompt).toContain(`The detached campaign workspace is ${dispatched.result.worktreePath}`);
   expect(git(projectRoot, "rev-parse", "HEAD")).toBe(baseCommit);
   writeFileSync(join(dispatched.result.worktreePath, "custody", "index.json"), "{\"receipts\":[\"sha256:accepted\"]}\n");
-  codex.emit({ method: "thread/tokenUsage/updated", params: { threadId: "thr_strategy", tokenUsage: { totalTokens: 1_250 } } });
+  codex.emit({ method: "thread/tokenUsage/updated", params: { threadId: "thr_strategy", tokenUsage: { total: { totalTokens: 6_350_000 }, last: { totalTokens: 1_250 } } } });
   codex.emit({
     method: "item/completed",
     params: {

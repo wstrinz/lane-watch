@@ -19,7 +19,7 @@ import { ResearchExecutionService, type ResearchLauncher, type ResearchLaunchRes
 import { CoordinatorSessionService, type CodexCoordinatorCandidate, type CoordinatorRow } from "./coordinator-session-service";
 import { ResearchPlanningService } from "./research-planning-service";
 import { WaveSemanticService } from "./wave-semantic-service";
-import { AutopilotService } from "./autopilot-service";
+import { AutopilotService, nextCustodyAutopilotStep } from "./autopilot-service";
 import { evaluateAutopilotStartReadiness, type AutopilotStartReadiness } from "./autopilot-readiness";
 import { ObservationSyncService, assertTerminalResearchReceipt } from "./observation-sync-service";
 import { CodexNotificationService, sanitizeCoordinatorConversation } from "./codex-notification-service";
@@ -1006,6 +1006,7 @@ export class CampaignControl {
       touchProject: (projectId) => this.updateProject(projectId, {}),
       recordEvent: (projectId, aggregateType, aggregateId, eventType, payload) => this.recordEvent(projectId, aggregateType, aggregateId, eventType, payload),
       notifyChanged: () => this.changeListener?.(),
+      advanceAutopilot: (projectId) => { void this.autopilot.advance(projectId); },
       now,
     });
     this.codexApprovals = new CodexApprovalService(this.database, this.codex, {
@@ -1079,6 +1080,7 @@ export class CampaignControl {
       observer: () => this.latestObserver,
       nextDispatchTarget: (projectId) => this.researchExecution.nextDispatchTarget(projectId),
       startReadiness: (projectId) => this.autopilotStartReadiness(projectId),
+      custody: (projectId) => this.custodySnapshot(projectId),
       enqueueAction: (input, actor) => this.enqueueAction(input as EnqueueActionInput, actor),
       touchProject: (projectId) => this.updateProject(projectId, {}),
       recordEvent: (projectId, aggregateType, aggregateId, eventType, payload) => this.recordEvent(projectId, aggregateType, aggregateId, eventType, payload),
@@ -1194,14 +1196,29 @@ export class CampaignControl {
       });
     const resources = this.resourceSnapshot(projectId);
     const schedule = wave ? this.waveScheduleRepository.latest(projectId, wave.wave_id) : null;
+    const custody = this.custodySnapshot(projectId);
+    const custodyStep = nextCustodyAutopilotStep(custody);
+    const custodyCandidate = custodyStep && custodyStep.kind !== "attention"
+      ? (custody.items || [])
+        .filter((item: any) => item.blocksResearch && !["complete", "failed", "parked"].includes(item.status))
+        .sort((left: any, right: any) => Date.parse(left.createdAt || "") - Date.parse(right.createdAt || ""))
+        .slice(0, 1)
+        .map((item: any) => ({
+          taskId: `custody:${item.task}`,
+          tokenBudget: item.effortClass === "medium" ? 50_000 : 20_000,
+          active: ["assigned", "verifying"].includes(item.status),
+        }))
+      : [];
     return evaluateAutopilotStartReadiness({
       phase: project.current_phase,
       planStatus: plan?.status || "",
       planDecision: String(response.decision || ""),
       candidates,
+      custodyCandidates: custodyCandidate,
       spendableEpochTokens: Number(resources.ledger?.remainingBeforeCommitments || 0),
       waveTokenBudget: Number(resources.policy?.waveTokenBudget || 0),
       availableResearchSlots: Number(resources.slots?.available?.research || 0),
+      availableCustodySlots: Number(resources.slots?.available?.custody || 0),
       scheduleStatus: schedule?.status || "",
     });
   }
@@ -1224,6 +1241,10 @@ export class CampaignControl {
 
   private dispatchCustodyLease(projectId: string, leaseId: string, args: Record<string, any>, actor: string): Promise<Record<string, unknown>> {
     return this.custodyCommands.dispatchLease(projectId, leaseId, args, actor);
+  }
+
+  private reconcileCustodyLease(projectId: string, leaseId: string, actor: string): Promise<Record<string, unknown>> {
+    return this.custodyCommands.reconcileExecution(projectId, leaseId, actor);
   }
 
   private simulateCustodyLease(projectId: string, leaseId: string, actor: string): Record<string, unknown> {
@@ -1375,6 +1396,7 @@ export class CampaignControl {
       "custody.lease.prepare": (action) => this.prepareCustodyLease(action.project_id, action.target_id, action.created_by),
       "custody.lease.confirm": (action, args) => this.confirmCustodyLease(action.project_id, action.target_id, args, action.created_by),
       "custody.lease.dispatch": (action, args) => this.dispatchCustodyLease(action.project_id, action.target_id, args, action.created_by),
+      "custody.lease.reconcile": (action) => this.reconcileCustodyLease(action.project_id, action.target_id, action.created_by),
       "custody.lease.simulate": (action) => this.simulateCustodyLease(action.project_id, action.target_id, action.created_by),
       "custody.lease.replay": (action) => this.replayCustodyLease(action.project_id, action.target_id, action.created_by),
       "custody.receipt.land": (action, args) => this.landCustodyReceipt(action.project_id, action.target_id, args, action.created_by),
