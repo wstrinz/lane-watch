@@ -853,6 +853,26 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   });
   expect(project.phase).toBe(originalPhase);
   expect(project.coordinator.attached).toBe(false);
+
+  const custodyDatabase = new Database(join(dataDir, "observer.sqlite"));
+  custodyDatabase.query("UPDATE campaign_custody_items SET status = 'failed' WHERE item_id = $id").run({ $id: custodyId });
+  custodyDatabase.close();
+  project = (control.snapshot() as any).projects[0];
+  await control.enqueueAction({
+    projectId: "demo",
+    type: "custody.item.park",
+    targetId: custodyId,
+    idempotencyKey: "park-failed-custody-contract",
+    expectedVersion: project.version,
+    args: { note: "Operator explicitly removed the failed dependency after review." },
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.park")).toMatchObject({
+    status: "completed",
+    result: { from: "failed", status: "parked", dispatched: false, campaignPhase: originalPhase },
+  });
+  project = (control.snapshot() as any).projects[0];
+  expect(project.custody.items[0]).toMatchObject({ status: "parked" });
+  expect(project.phase).toBe(originalPhase);
   control.stop();
 });
 

@@ -15,8 +15,70 @@
     return /automatic retry limit/i.test(message) && (!item.task || message.includes(item.task));
   }
 
+  function itemLeases(item: Record<string, any>): Record<string, any>[] {
+    return (custody?.protocol?.leases || []).filter((lease: any) => lease.itemId === item.id);
+  }
+
+  function failureInfo(item: Record<string, any>): Record<string, any> {
+    const leases = itemLeases(item);
+    const informative = [item.receipt, ...leases.map((lease: any) => lease.receipt)]
+      .filter(Boolean)
+      .sort((left: any, right: any) => (right?.checks?.length || 0) - (left?.checks?.length || 0))[0] || {};
+    const lastMeasured = leases.find((lease: any) => Number.isFinite(Number(lease.receipt?.usage?.tokens)))?.receipt?.usage?.tokens;
+    if (retryExhausted(item)) return {
+      state: "CONTRACT TOO LARGE",
+      summary: "Four bounded attempts stopped without landing campaign changes. Lease integrity and the frozen producer blobs were verified, but the consolidated replay crossed its token ceiling and combines too many checks for one custody turn.",
+      next: "Stop at this boundary. Keep the dependency, then split manifest/provenance verification from the exact replay and resource-scope check.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "reshape",
+    };
+    if (item.capability === "portability" && /macOS|Windows/i.test(`${informative.summary || ""} ${informative.stopReason || ""}`)) return {
+      state: "ADAPTER UNAVAILABLE",
+      summary: informative.summary || "This Windows steward cannot perform a genuine macOS verification.",
+      next: "Park it until a macOS steward is connected. This item is non-blocking and does not need to hold the campaign.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "wait-for-mac",
+    };
+    if (/lease|hash|digest/i.test(`${informative.summary || ""} ${informative.stopReason || ""}`) && !(informative.effects?.changedPaths || []).length) return {
+      state: "SAFE TO RETRY",
+      summary: informative.summary || "The prior steward stopped before making changes because the old controller supplied an ambiguous lease-hash check.",
+      next: "Retry with Terra. The byte-hash instruction and per-turn token meter are now corrected; the same acceptance contract remains in force.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "retry",
+    };
+    return {
+      state: "REVIEW REQUIRED",
+      summary: informative.summary || item.reason,
+      next: "Inspect the exact receipt before retrying or changing this dependency.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "review",
+    };
+  }
+
+  async function stopAtBoundary(): Promise<void> {
+    if (!project || working || !["running", "paused", "attention"].includes(project.loop?.status || "")) return;
+    working = "loop:stop";
+    feedbackKind = "pending";
+    feedback = "Stopping autopilot while preserving the current custody boundary…";
+    try {
+      await settleCampaignAction({ projectId: project.id, type: "loop.stop", scope: "custody-contract-reshape" });
+      feedbackKind = "success";
+      feedback = "Autopilot stopped here. The failed receipts and dependency remain preserved for contract splitting.";
+    } catch (error) {
+      feedbackKind = "error";
+      feedback = error instanceof Error ? error.message : String(error);
+    } finally {
+      working = "";
+    }
+  }
+
   async function transition(item: Record<string, any>, verb: CustodyVerb, autoDispatch = false): Promise<void> {
     if (!project || working) return;
+    if (verb === "park" && item.blocksResearch && !window.confirm("Parking removes this required custody dependency from the active research gate. Continue only if the dependency is no longer wanted.")) return;
     const protocolAction = verb.startsWith("lease.");
     const receiptAction = verb.startsWith("receipt.");
     const type = protocolAction || receiptAction ? `custody.${verb}` : `custody.item.${verb}`;
@@ -106,6 +168,7 @@
       {#if openItems.length}
         <div class="custody-inbox">
           {#each openItems as item (item.id)}
+            {@const failure = failureInfo(item)}
             <article class:blocking={item.blocksResearch} class:parked={item.status === "parked"}>
               <header>
                 <div><span>{item.urgency} · {item.capability} · {item.strategicTrack}</span><strong>{item.task}</strong></div>
@@ -124,6 +187,14 @@
                 <div><span>ALLOWED PATHS</span><code>{item.acceptance.allowedPaths.length ? item.acceptance.allowedPaths.join(" · ") : "No paths declared"}</code></div>
                 <div><span>HARD STOP</span><p>{item.acceptance.stopCondition || "No stop condition declared"}</p></div>
               </details>
+              {#if ["blocked", "failed"].includes(item.status)}
+                <section class={`custody-failure ${failure.kind}`}>
+                  <header><span>WHAT HAPPENED</span><strong>{failure.state}</strong></header>
+                  <p>{failure.summary}</p>
+                  <div><span>RECOMMENDED NEXT</span><b>{failure.next}</b></div>
+                  <small>{failure.attempts} lease attempt{failure.attempts === 1 ? "" : "s"}{failure.tokens ? ` · latest measured ${Number(failure.tokens).toLocaleString()} tokens` : ""} · 0 changes landed</small>
+                </section>
+              {/if}
               {#if ["ready", "assigned", "verifying"].includes(item.status)}
                 <div class="custody-protocol-lab execution" class:attention={item.activeLease?.status === "awaiting_review"}>
                   <div>
@@ -168,7 +239,13 @@
                   <span>The measured receipt above has no landing authority until you accept it.</span>
                 {:else if ["blocked", "failed"].includes(item.status)}
                   <span>{retryExhausted(item) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : item.receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."}</span>
-                  <div class="custody-footer-actions"><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>{item.blocksResearch ? "Park & bypass" : "Park"}</button><button class="primary-button" disabled={Boolean(working) || !item.eligibleToRetry || retryExhausted(item)} onclick={() => transition(item, "promote", true)}>{working ? "Starting Terra…" : retryExhausted(item) ? "Retry limit reached" : "Retry with Terra"}</button></div>
+                  {#if failure.kind === "reshape"}
+                    <div class="custody-footer-actions"><button class="primary-button" disabled={Boolean(working) || !["running", "paused", "attention"].includes(project?.loop?.status || "")} onclick={stopAtBoundary}>{working === "loop:stop" ? "Stopping…" : project?.loop?.status === "stopped" ? "Boundary preserved" : "Stop at this boundary"}</button></div>
+                  {:else if failure.kind === "wait-for-mac"}
+                    <div class="custody-footer-actions"><button class="primary-button" disabled={Boolean(working)} onclick={() => transition(item, "park")}>Park until macOS is available</button></div>
+                  {:else}
+                    <div class="custody-footer-actions"><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>{item.blocksResearch ? "Remove dependency…" : "Park"}</button><button class="primary-button" disabled={Boolean(working) || !item.eligibleToRetry} onclick={() => transition(item, "promote", true)}>{working ? "Starting Terra…" : "Retry with Terra"}</button></div>
+                  {/if}
                 {:else if item.status === "parked"}
                   <span>Outside the active service queue.</span><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "restore")}>Restore to inbox</button>
                 {/if}
@@ -228,6 +305,20 @@
   .custody-inbox > article > p { color:#96aaa4; margin:0; font-size:.57rem; line-height:1.45; }
   .custody-item-facts { display:flex; flex-wrap:wrap; gap:5px; }
   .custody-item-facts span { color:#81958f; background:#101e1a; border:1px solid #2c443e; border-radius:999px; padding:4px 6px; font:.49rem/1 ui-monospace,monospace; }
+  .custody-failure { display:grid; gap:6px; background:#131b18; border:1px solid #3b514b; border-radius:8px; padding:9px 10px; }
+  .custody-failure > header { align-items:center; }
+  .custody-failure > header span,.custody-failure > div span { color:#82afa7; letter-spacing:.08em; font:760 .48rem/1.2 ui-monospace,monospace; }
+  .custody-failure > header strong { color:#d9e3df; font:.55rem/1 ui-monospace,monospace; }
+  .custody-failure > p { color:#9cafaa; margin:0; font-size:.55rem; line-height:1.45; }
+  .custody-failure > div { display:grid; grid-template-columns:112px 1fr; gap:8px; border-top:1px solid #31453f; padding-top:6px; }
+  .custody-failure > div b { color:#d8e2dd; font-size:.55rem; line-height:1.4; }
+  .custody-failure > small { color:#7f938d; font:.48rem/1.35 ui-monospace,monospace; }
+  .custody-failure.reshape { background:#211b11; border-color:#866840; }
+  .custody-failure.reshape > header strong,.custody-failure.reshape > div span { color:#e0c77c; }
+  .custody-failure.retry { background:#102019; border-color:#47705b; }
+  .custody-failure.retry > header strong,.custody-failure.retry > div span { color:#9bd6ac; }
+  .custody-failure.wait-for-mac { background:#111b21; border-color:#476273; }
+  .custody-failure.wait-for-mac > header strong,.custody-failure.wait-for-mac > div span { color:#9dc3da; }
   .custody-contract { background:#0a1311; border:1px solid #293f3a; border-radius:7px; padding:7px 8px; }
   .custody-contract > summary { display:flex; justify-content:space-between; gap:8px; color:#a4b9b3; cursor:pointer; font-size:.54rem; }
   .custody-contract > summary strong { color:#74aaa3; font:700 .49rem/1.3 ui-monospace,monospace; }
@@ -294,6 +385,7 @@
     .custody-inbox header b { justify-self:start; }
     .custody-contract > summary { display:grid; }
     .custody-contract > div { grid-template-columns:1fr; }
+    .custody-failure > div { grid-template-columns:1fr; }
     .custody-inbox footer { display:grid; grid-template-columns:1fr; }
     .custody-inbox footer > span { margin:0; }
     .custody-inbox footer button { width:100%; min-height:46px; }

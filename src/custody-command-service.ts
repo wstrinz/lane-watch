@@ -144,7 +144,7 @@ export class CustodyCommandService {
       if (!item?.generationAllowed) throw new Error("This repair exceeds the charter's automatic repair-generation limit and must remain operator-owned");
       status = "ready";
     } else if (transition === "park") {
-      if (!["proposed", "ready", "blocked"].includes(row.status)) throw new Error("Only proposed, ready, or blocked custody work can be parked");
+      if (!["proposed", "ready", "blocked", "failed"].includes(row.status)) throw new Error("Only proposed, ready, blocked, or failed custody work can be parked");
       status = "parked";
     } else {
       if (row.status !== "parked") throw new Error("Only parked custody work can return to the proposed inbox");
