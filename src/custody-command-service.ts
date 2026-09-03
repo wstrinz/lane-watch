@@ -284,7 +284,7 @@ export class CustodyCommandService {
         cwd: worktreeCwd,
         model: "gpt-5.6-terra",
         approvalPolicy: "never",
-        sandbox: "workspaceWrite",
+        sandbox: "workspace-write",
         serviceName: "lane_watch_custody",
       });
       const turn = await this.codex.startTurn({

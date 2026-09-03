@@ -3755,7 +3755,79 @@ function Ws(e, t) {
 		let t = e?.wave?.triage?.response, n = Array.isArray(t?.laneRecommendations) ? t.laneRecommendations : [];
 		return e?.phase === "RECONCILING" && n.length > 0 && n.every((e) => String(e?.disposition || "").toUpperCase() === "NONE") && /duplicate|already (?:accounted|synthesized)/i.test(`${t?.campaignAssessment || ""} ${t?.nextStep || ""}`);
 	}
-	function E(e) {
+	function E(e, t, n) {
+		let r = n > 1 ? ` · 1 of ${n}` : "", i = {
+			key: "reveal",
+			label: "Inspect custody queue",
+			target: "#custody-service",
+			style: "outline-button"
+		}, a = t.activeLease;
+		return t.status === "proposed" ? {
+			status: `DEPENDENCY GATE${r}`,
+			title: `Enable ${S(t.task, 72)}`,
+			detail: S(`${t.reason} This authorizes the bounded custody contract and freezes its exact lease; it does not start a steward.`),
+			actions: [{
+				key: "custody.item.promote",
+				targetId: t.id,
+				label: "Enable & freeze custody check",
+				style: "primary-button"
+			}, i]
+		} : t.status === "ready" && !a ? {
+			status: `LEASE PREPARATION${r}`,
+			title: `Freeze ${S(t.task, 72)}`,
+			detail: "The custody contract is enabled. Bind it to the current campaign revision and exact resource envelope before granting execution authority.",
+			actions: [{
+				key: "custody.lease.prepare",
+				targetId: t.id,
+				label: "Freeze exact custody lease",
+				style: "primary-button"
+			}, i]
+		} : a?.status === "prepared" ? {
+			status: `HUMAN CUSTODY GATE${r}`,
+			title: `Confirm ${S(t.task, 72)}`,
+			detail: "The immutable lease is ready. This click confirms its exact digest and dispatches one isolated Terra steward; it cannot change research direction or promote a claim.",
+			actions: [{
+				key: "custody.lease.confirm",
+				targetId: a.id,
+				args: { leaseDigest: a.leaseDigest },
+				label: "Confirm & dispatch steward",
+				style: "primary-button"
+			}, i]
+		} : a?.status === "confirmed" ? {
+			status: `READY TO DISPATCH${r}`,
+			title: `Run ${S(t.task, 72)}`,
+			detail: "Human authority is already recorded for this exact lease. Dispatch starts only its bounded isolated steward.",
+			actions: [{
+				key: "custody.lease.dispatch",
+				targetId: a.id,
+				args: { leaseDigest: a.leaseDigest },
+				label: "Dispatch Terra steward",
+				style: "primary-button"
+			}, i]
+		} : ["running", "finalizing"].includes(String(a?.status || "")) || t.status === "assigned" ? {
+			status: `CUSTODY RUNNING${r}`,
+			title: S(t.task, 96),
+			detail: a?.status === "finalizing" ? "The isolated result is being measured and checked before its landing gate appears." : "The isolated Terra steward is working inside the exact lease. Research remains blocked until its receipt is reviewed.",
+			actions: [i]
+		} : a?.status === "awaiting_review" || t.status === "verifying" ? {
+			status: `RECEIPT GATE${r}`,
+			title: `Review ${S(t.task, 72)}`,
+			detail: S(a?.receipt?.summary || "The bounded custody result is ready. Landing rechecks the receipt and exact producer commit; it does not promote a mathematical claim."),
+			actions: [...a?.verification?.landable ? [{
+				key: "custody.receipt.land",
+				targetId: a.id,
+				args: { receiptDigest: a.receiptDigest },
+				label: "Accept & land custody result",
+				style: "primary-button"
+			}] : [], i]
+		} : {
+			status: `CUSTODY ATTENTION${r}`,
+			title: S(t.task, 96),
+			detail: S(a?.error || t.reason || "This custody dependency needs inspection before research planning can continue."),
+			actions: [i]
+		};
+	}
+	function D(e) {
 		let t = e.controlState?.recovery, n = (e.researchRuns || []).find((e) => e.status === "failed" && !e.evidenceSha256);
 		if (t?.required && n && e.researchSchedule?.status === "failed") return {
 			status: "SAFE RETRY READY",
@@ -3901,13 +3973,17 @@ function Ws(e, t) {
 			};
 		}
 		if (e.phase === "RESEARCH_REVIEW") {
-			let t = e.researchPlan, n = (Array.isArray(t?.response?.lanes) ? t.response.lanes : []).filter((e) => w(e) === "ready"), r = t?.status === "drafted" && t?.response?.decision === "BLOCKED";
+			let t = e.researchPlan, n = Array.isArray(t?.response?.lanes) ? t.response.lanes : [], r = n.filter((e) => w(e) === "ready"), i = n.filter((e) => w(e) === "followup"), a = (e.custody?.items || []).filter((e) => e.blocksResearch && ![
+				"complete",
+				"failed",
+				"parked"
+			].includes(e.status)), o = t?.status === "drafted" && t?.response?.decision === "BLOCKED";
 			return t?.status === "drafting" ? {
 				status: "SOL CHECKING",
 				title: "Sol is shaping the next bounded wave",
 				detail: `The coordinator is checking ${C(e).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`,
 				actions: []
-			} : r ? {
+			} : o ? {
 				status: "OPERATOR TRANSITION",
 				title: "The checked plan needs one operator-owned change",
 				detail: S(t?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."),
@@ -3917,14 +3993,28 @@ function Ws(e, t) {
 					target: "#operator-gate",
 					style: "primary-button"
 				}]
+			} : t?.status === "drafted" && !r.length && i.length && a.length ? E(e, a[0], a.length) : t?.status === "drafted" && !r.length ? {
+				status: "DEPENDENCY PLAN",
+				title: "No research lane can launch from this revision",
+				detail: S(t?.response?.operatorGuidance || "The checked plan contains only dependent or excluded work. Request a revision after resolving its named prerequisites."),
+				actions: [{
+					key: "research.review.resolve",
+					label: "Request dependency-aware revision",
+					style: "primary-button",
+					args: { decision: "revise" }
+				}, {
+					key: "inspect",
+					label: "Inspect checked plan",
+					style: "outline-button"
+				}]
 			} : t?.status === "drafted" ? {
 				status: "HUMAN PLAN GATE",
-				title: `Review ${n.length} launchable lane${n.length === 1 ? "" : "s"}`,
+				title: `Review ${r.length} launchable lane${r.length === 1 ? "" : "s"}`,
 				detail: S(t?.response?.summary || t?.response?.operatorGuidance || "The checked plan is ready for an explicit human gate."),
 				actions: [
 					{
 						key: "research.review.resolve",
-						label: `Approve & stage ${n.length} lane${n.length === 1 ? "" : "s"}`,
+						label: `Approve & stage ${r.length} lane${r.length === 1 ? "" : "s"}`,
 						style: "primary-button",
 						args: { decision: "approve" }
 					},
@@ -4081,7 +4171,7 @@ function Ws(e, t) {
 			actions: []
 		};
 	}
-	async function D(e) {
+	async function O(e) {
 		if (!(!H(d) || H(f))) {
 			if (e.key === "scroll") {
 				document.querySelector(e.target || "")?.scrollIntoView({
@@ -4092,10 +4182,14 @@ function Ws(e, t) {
 			}
 			if (e.key === "reveal") {
 				let t = document.querySelector(e.target || "");
-				t && (t.open = !0, t.scrollIntoView({
-					behavior: "smooth",
-					block: "start"
-				}));
+				if (t) {
+					let e = t.parentElement;
+					for (; e;) e instanceof HTMLDetailsElement && (e.open = !0), e = e.parentElement;
+					t.open = !0, t.scrollIntoView({
+						behavior: "smooth",
+						block: "start"
+					});
+				}
 				return;
 			}
 			if (e.key === "inspect") {
@@ -4123,6 +4217,27 @@ function Ws(e, t) {
 					scope: "primary-rail",
 					pollLimit: ["synthesis.request", "research.review.start"].includes(e.key) ? 160 : 80
 				});
+				if (e.key === "custody.item.promote") {
+					let t = n.project.custody?.items?.find((t) => t.id === e.targetId);
+					t?.status === "ready" && !t.activeLease && (n = await ns({
+						projectId: H(d).id,
+						type: "custody.lease.prepare",
+						targetId: t.id,
+						scope: "primary-rail-custody",
+						pollLimit: 80
+					}));
+				}
+				if (e.key === "custody.lease.confirm") {
+					let t = n.project.custody?.items?.find((t) => t.activeLease?.id === e.targetId);
+					t?.activeLease?.status === "confirmed" && (n = await ns({
+						projectId: H(d).id,
+						type: "custody.lease.dispatch",
+						targetId: t.activeLease.id,
+						args: { leaseDigest: t.activeLease.leaseDigest },
+						scope: "primary-rail-custody",
+						pollLimit: 80
+					}));
+				}
 				e.key === "research.failure.requeue" && n.project.phase === "RESEARCH_READY" && await ns({
 					projectId: H(d).id,
 					type: "loop.resume",
@@ -4141,7 +4256,7 @@ function Ws(e, t) {
 			}
 		}
 	}
-	async function O() {
+	async function k() {
 		let e = H(d)?.recoveryReport;
 		if (!(!H(d) || !e || e.status !== "prepared" || H(f) || !H(v))) {
 			I(f, "campaign.recovery.apply"), I(m, "pending"), I(p, "Revalidating the exact recovery digest…");
@@ -4176,7 +4291,7 @@ function Ws(e, t) {
 	}), B(() => (H(o), H(b)), () => {
 		!H(o) && H(b) && I(b, "");
 	}), B(() => H(d), () => {
-		I(s, H(d) ? E(H(d)) : null);
+		I(s, H(d) ? D(H(d)) : null);
 	}), B(() => H(d), () => {
 		I(c, Array.isArray(H(d)?.researchPlan?.response?.lanes) ? H(d).researchPlan.response.lanes : []);
 	}), B(() => H(d), () => {
@@ -4191,7 +4306,7 @@ function Ws(e, t) {
 	}), B(() => (H(d), H(y)), () => {
 		(H(d)?.recoveryReport?.id || "") !== H(y) && (I(y, H(d)?.recoveryReport?.id || ""), I(g, "PRESERVE_HOLD"), I(_, ""), I(v, !1));
 	}), Br(), vo();
-	var k = ca(), A = R(k), j = (e) => {
+	var A = ca(), j = R(A), ee = (e) => {
 		var t = Vs(), n = L(t), r = L(n), i = L(r), a = L(i, !0);
 		N(i);
 		var o = z(i), y = L(o, !0);
@@ -4200,9 +4315,9 @@ function Ws(e, t) {
 		N(b), N(r);
 		var T = z(r, 2), E = L(T, !0);
 		N(T);
-		var k = z(T, 2), A = L(k, !0);
-		N(k);
-		var j = z(k, 2), ee = (e) => {
+		var D = z(T, 2), A = L(D, !0);
+		N(D);
+		var j = z(D, 2), ee = (e) => {
 			var t = Os(), n = z(L(t)), r = L(n, !0);
 			N(n), N(t), V((e) => q(r, e), [() => (H(u), U(() => S(H(u), 360)))]), K(e, t);
 		};
@@ -4227,7 +4342,7 @@ function Ws(e, t) {
 			var n = As(), r = L(n, !0);
 			N(n), V((e) => {
 				X(n, 1, Ma((H(t), U(() => H(t).style || "outline-button")))), n.disabled = e, q(r, (H(f), H(t), U(() => H(f) === H(t).key ? "Working…" : H(t).label)));
-			}, [() => (H(f), U(() => !!H(f)))]), W("click", n, () => D(H(t))), K(e, n);
+			}, [() => (H(f), U(() => !!H(f)))]), W("click", n, () => O(H(t))), K(e, n);
 		}), N(ue);
 		var de = z(ue, 2), fe = (e) => {
 			var t = Is(), n = L(t), r = z(L(n)), i = L(r, !0);
@@ -4291,9 +4406,9 @@ function Ws(e, t) {
 				N(C);
 				var T = z(C, 2), E = z(L(T)), D = L(E);
 				D.value = D.__value = "PRESERVE_HOLD";
-				var k = z(D);
-				k.value = k.__value = "ALIGN_WAVE_TO_WORKFLOW";
-				var A = z(k);
+				var O = z(D);
+				O.value = O.__value = "ALIGN_WAVE_TO_WORKFLOW";
+				var A = z(O);
 				A.value = A.__value = "ALIGN_WORKFLOW_TO_WAVE";
 				var j = z(A);
 				j.value = j.__value = "APPLY_VALIDATED_PROJECTION_REPAIR", N(E), N(T);
@@ -4304,7 +4419,7 @@ function Ws(e, t) {
 				var re = z(M, 4), ie = L(re, !0);
 				N(re), N(t), V((e) => {
 					q(a, (H(d), U(() => H(d).recoveryReport.snapshot?.project?.phase))), q(c, (H(d), U(() => H(d).recoveryReport.snapshot?.wave?.phase))), q(p, `${H(d), U(() => H(d).recoveryReport.snapshot?.wave?.accounting?.accounted) ?? ""}/${H(d), U(() => H(d).recoveryReport.snapshot?.wave?.accounting?.total) ?? ""}`), q(y, (H(d), U(() => H(d).recoveryReport.snapshot?.controlState?.recovery?.activeExecution || 0))), q(S, (H(d), U(() => H(d).recoveryReport.reportDigest))), q(w, (H(d), U(() => H(d).recoveryReport.snapshot?.projectionRepair?.summary))), j.disabled = (H(d), U(() => !H(d).recoveryReport.snapshot?.choices?.applyProjectionRepair)), re.disabled = e, q(ie, H(f) === "campaign.recovery.apply" ? "Revalidating…" : "Apply selected recovery");
-				}, [() => (H(v), H(f), U(() => !H(v) || !!H(f)))]), Ha(E, () => H(g), (e) => I(g, e)), so(te, () => H(_), (e) => I(_, e)), co(ne, () => H(v), (e) => I(v, e)), W("click", re, O), K(e, t);
+				}, [() => (H(v), H(f), U(() => !H(v) || !!H(f)))]), Ha(E, () => H(g), (e) => I(g, e)), so(te, () => H(_), (e) => I(_, e)), co(ne, () => H(v), (e) => I(v, e)), W("click", re, k), K(e, t);
 			}, s = (e) => {
 				K(e, Rs());
 			};
@@ -4328,7 +4443,7 @@ function Ws(e, t) {
 		}), N(t), V((e, t) => {
 			q(a, (H(d), U(() => H(d).id))), q(y, e), q(C, (H(s), U(() => H(s).status))), q(E, (H(s), U(() => H(s).title))), q(A, (H(s), U(() => H(s).detail))), q(ae, ` ${H(d), U(() => H(d).phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : H(d).phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it.") ?? ""}`), q(se, ` ${t ?? ""}`), q(le, ` ${H(s), U(() => H(s).actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : H(s).actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated.") ?? ""}`);
 		}, [() => (H(d), U(() => x[H(d).phase] || H(d).phase?.toLowerCase().replaceAll("_", " "))), () => (H(d), H(u), U(() => S(H(d).researchSchedule?.members?.[0]?.expectedDelta || H(d).researchPlan?.response?.lanes?.[0]?.evidenceExpected || H(u) || H(d).role, 420)))]), K(e, t);
-	}, ee = (e) => {
+	}, te = (e) => {
 		var t = Us(), r = z(L(t), 2);
 		Y(r, 5, () => (n(), U(() => n().control.projectIndex)), _a, (e, t) => {
 			var n = Hs(), r = L(n), i = L(r, !0);
@@ -4341,9 +4456,9 @@ function Ws(e, t) {
 			}), W("click", n, () => No(String(H(t).id))), K(e, n);
 		}), N(r), N(t), K(e, t);
 	};
-	J(A, (e) => {
-		H(d) && H(s) ? e(j) : (n(), U(() => n().control?.projectIndex?.length) && e(ee, 1));
-	}), K(e, k), xt(), i();
+	J(j, (e) => {
+		H(d) && H(s) ? e(ee) : (n(), U(() => n().control?.projectIndex?.length) && e(te, 1));
+	}), K(e, A), xt(), i();
 }
 //#endregion
 //#region src/ui/PacketInbox.svelte

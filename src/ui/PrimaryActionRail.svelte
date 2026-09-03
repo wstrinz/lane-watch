@@ -53,6 +53,63 @@
       && /duplicate|already (?:accounted|synthesized)/i.test(`${response?.campaignAssessment || ""} ${response?.nextStep || ""}`);
   }
 
+  function custodyBlockerFocus(value: any, item: any, count: number): RailFocus {
+    const suffix = count > 1 ? ` · 1 of ${count}` : "";
+    const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
+    const lease = item.activeLease;
+    if (item.status === "proposed") return {
+      status: `DEPENDENCY GATE${suffix}`,
+      title: `Enable ${compact(item.task, 72)}`,
+      detail: compact(`${item.reason} This authorizes the bounded custody contract and freezes its exact lease; it does not start a steward.`),
+      actions: [
+        { key: "custody.item.promote", targetId: item.id, label: "Enable & freeze custody check", style: "primary-button" },
+        inspect,
+      ],
+    };
+    if (item.status === "ready" && !lease) return {
+      status: `LEASE PREPARATION${suffix}`,
+      title: `Freeze ${compact(item.task, 72)}`,
+      detail: "The custody contract is enabled. Bind it to the current campaign revision and exact resource envelope before granting execution authority.",
+      actions: [{ key: "custody.lease.prepare", targetId: item.id, label: "Freeze exact custody lease", style: "primary-button" }, inspect],
+    };
+    if (lease?.status === "prepared") return {
+      status: `HUMAN CUSTODY GATE${suffix}`,
+      title: `Confirm ${compact(item.task, 72)}`,
+      detail: "The immutable lease is ready. This click confirms its exact digest and dispatches one isolated Terra steward; it cannot change research direction or promote a claim.",
+      actions: [
+        { key: "custody.lease.confirm", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, label: "Confirm & dispatch steward", style: "primary-button" },
+        inspect,
+      ],
+    };
+    if (lease?.status === "confirmed") return {
+      status: `READY TO DISPATCH${suffix}`,
+      title: `Run ${compact(item.task, 72)}`,
+      detail: "Human authority is already recorded for this exact lease. Dispatch starts only its bounded isolated steward.",
+      actions: [{ key: "custody.lease.dispatch", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, label: "Dispatch Terra steward", style: "primary-button" }, inspect],
+    };
+    if (["running", "finalizing"].includes(String(lease?.status || "")) || item.status === "assigned") return {
+      status: `CUSTODY RUNNING${suffix}`,
+      title: compact(item.task, 96),
+      detail: lease?.status === "finalizing" ? "The isolated result is being measured and checked before its landing gate appears." : "The isolated Terra steward is working inside the exact lease. Research remains blocked until its receipt is reviewed.",
+      actions: [inspect],
+    };
+    if (lease?.status === "awaiting_review" || item.status === "verifying") return {
+      status: `RECEIPT GATE${suffix}`,
+      title: `Review ${compact(item.task, 72)}`,
+      detail: compact(lease?.receipt?.summary || "The bounded custody result is ready. Landing rechecks the receipt and exact producer commit; it does not promote a mathematical claim."),
+      actions: [
+        ...(lease?.verification?.landable ? [{ key: "custody.receipt.land", targetId: lease.id, args: { receiptDigest: lease.receiptDigest }, label: "Accept & land custody result", style: "primary-button" }] : []),
+        inspect,
+      ],
+    };
+    return {
+      status: `CUSTODY ATTENTION${suffix}`,
+      title: compact(item.task, 96),
+      detail: compact(lease?.error || item.reason || "This custody dependency needs inspection before research planning can continue."),
+      actions: [inspect],
+    };
+  }
+
   function focusFor(value: any): RailFocus {
     const recovery = value.controlState?.recovery;
     const failedRun = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed" && !candidate.evidenceSha256);
@@ -108,9 +165,16 @@
       const plan = value.researchPlan;
       const lanes = Array.isArray(plan?.response?.lanes) ? plan.response.lanes : [];
       const ready = lanes.filter((lane: any) => readiness(lane) === "ready");
+      const dependent = lanes.filter((lane: any) => readiness(lane) === "followup");
+      const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "failed", "parked"].includes(item.status));
       const blocked = plan?.status === "drafted" && plan?.response?.decision === "BLOCKED";
       if (plan?.status === "drafting") return { status: "SOL CHECKING", title: "Sol is shaping the next bounded wave", detail: `The coordinator is checking ${currentRequests(value).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`, actions: [] };
       if (blocked) return { status: "OPERATOR TRANSITION", title: "The checked plan needs one operator-owned change", detail: compact(plan?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."), actions: [{ key: "scroll", label: "Open required operator gate", target: "#operator-gate", style: "primary-button" }] };
+      if (plan?.status === "drafted" && !ready.length && dependent.length && custodyBlockers.length) return custodyBlockerFocus(value, custodyBlockers[0], custodyBlockers.length);
+      if (plan?.status === "drafted" && !ready.length) return { status: "DEPENDENCY PLAN", title: "No research lane can launch from this revision", detail: compact(plan?.response?.operatorGuidance || "The checked plan contains only dependent or excluded work. Request a revision after resolving its named prerequisites."), actions: [
+        { key: "research.review.resolve", label: "Request dependency-aware revision", style: "primary-button", args: { decision: "revise" } },
+        { key: "inspect", label: "Inspect checked plan", style: "outline-button" },
+      ] };
       if (plan?.status === "drafted") return { status: "HUMAN PLAN GATE", title: `Review ${ready.length} launchable lane${ready.length === 1 ? "" : "s"}`, detail: compact(plan?.response?.summary || plan?.response?.operatorGuidance || "The checked plan is ready for an explicit human gate."), actions: [
         { key: "research.review.resolve", label: `Approve & stage ${ready.length} lane${ready.length === 1 ? "" : "s"}`, style: "primary-button", args: { decision: "approve" } },
         { key: "research.review.resolve", label: "Request revision", style: "outline-button", args: { decision: "revise" } },
@@ -171,7 +235,15 @@
     }
     if (item.key === "reveal") {
       const target = document.querySelector(item.target || "") as HTMLDetailsElement | null;
-      if (target) { target.open = true; target.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      if (target) {
+        let ancestor = target.parentElement;
+        while (ancestor) {
+          if (ancestor instanceof HTMLDetailsElement) ancestor.open = true;
+          ancestor = ancestor.parentElement;
+        }
+        target.open = true;
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
     if (item.key === "inspect") {
@@ -190,7 +262,19 @@
         return;
       }
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };
-      const result = await settleCampaignAction({ projectId: project.id, type: item.key, targetId: item.targetId || "", args, scope: "primary-rail", pollLimit: ["synthesis.request", "research.review.start"].includes(item.key) ? 160 : 80 });
+      let result = await settleCampaignAction({ projectId: project.id, type: item.key, targetId: item.targetId || "", args, scope: "primary-rail", pollLimit: ["synthesis.request", "research.review.start"].includes(item.key) ? 160 : 80 });
+      if (item.key === "custody.item.promote") {
+        const promoted = result.project.custody?.items?.find((candidate: any) => candidate.id === item.targetId);
+        if (promoted?.status === "ready" && !promoted.activeLease) {
+          result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.prepare", targetId: promoted.id, scope: "primary-rail-custody", pollLimit: 80 });
+        }
+      }
+      if (item.key === "custody.lease.confirm") {
+        const confirmed = result.project.custody?.items?.find((candidate: any) => candidate.activeLease?.id === item.targetId);
+        if (confirmed?.activeLease?.status === "confirmed") {
+          result = await settleCampaignAction({ projectId: project.id, type: "custody.lease.dispatch", targetId: confirmed.activeLease.id, args: { leaseDigest: confirmed.activeLease.leaseDigest }, scope: "primary-rail-custody", pollLimit: 80 });
+        }
+      }
       if (item.key === "research.failure.requeue" && result.project.phase === "RESEARCH_READY") {
         await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-retry", pollLimit: 80 });
       }

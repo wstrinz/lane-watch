@@ -930,7 +930,7 @@ test("an exact custody lease runs one isolated Terra steward and lands only afte
   }, "test-operator");
   const dispatched = await waitForAction(control, "demo", "custody.lease.dispatch");
   expect(dispatched).toMatchObject({ status: "completed", result: { status: "running", turnId: "turn_custody", baseCommit, campaignPhase: originalPhase } });
-  expect(codex.startThreadParams).toMatchObject({ cwd: dispatched.result.worktreePath, model: "gpt-5.6-terra", approvalPolicy: "never", sandbox: "workspaceWrite" });
+  expect(codex.startThreadParams).toMatchObject({ cwd: dispatched.result.worktreePath, model: "gpt-5.6-terra", approvalPolicy: "never", sandbox: "workspace-write" });
   expect(codex.startParams).toMatchObject({
     threadId: "thr_strategy", cwd: dispatched.result.worktreePath, model: "gpt-5.6-terra", effort: "medium", approvalPolicy: "never",
     sandboxPolicy: { type: "workspaceWrite", writableRoots: [dispatched.result.worktreePath], networkAccess: false },
