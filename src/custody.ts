@@ -9,6 +9,10 @@ export interface CustodyAcceptanceContract {
   allowedPaths: string[];
   receiptType: string;
   stopCondition: string;
+  /** Exact custody receipts that must settle before this contract is runnable. */
+  dependsOnItemIds?: string[];
+  /** Human-readable dependency references resolved to the latest matching item. */
+  dependsOnTasks?: string[];
 }
 
 export interface CustodyWorkItem {
@@ -56,16 +60,90 @@ export function custodyContractComplete(contract: CustodyAcceptanceContract): bo
 }
 
 export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomaticRepairGeneration = 1, executorConnected = false): Record<string, any> {
+  const byId = new Map(items.map((item) => [item.id, item]));
+  const byTask = new Map<string, CustodyWorkItem>();
+  for (const item of [...items].sort((left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt))) {
+    byTask.set(item.task.trim().toLowerCase(), item);
+  }
+  const reshapeGroups = new Map<string, CustodyWorkItem[]>();
+  for (const item of items) {
+    if (item.sourceType !== "custody-reshape") continue;
+    const group = reshapeGroups.get(item.sourceId) || [];
+    group.push(item);
+    reshapeGroups.set(item.sourceId, group);
+  }
+  const legacySequenceRank = (item: CustodyWorkItem): number => {
+    const task = item.task.trim().toLowerCase();
+    if (task.startsWith("inventory ")) return 0;
+    if (task.startsWith("bind ") && /\bto\b.*\binventory\b/.test(task)) return 1;
+    if (task.startsWith("bind ")) return 0;
+    if (task.startsWith("verify ")) return 1;
+    if (task.startsWith("replay ")) return 2;
+    if (task.startsWith("reconcile ")) return 3;
+    if (task.startsWith("apply ")) return 4;
+    return 2;
+  };
+  const previousSibling = new Map<string, string>();
+  for (const group of reshapeGroups.values()) {
+    const legacy = group.every((item) => !Object.prototype.hasOwnProperty.call(item.acceptance, "dependsOnItemIds"));
+    group.sort((left, right) => (legacy ? legacySequenceRank(left) - legacySequenceRank(right) : 0)
+      || Date.parse(left.createdAt) - Date.parse(right.createdAt)
+      || left.task.localeCompare(right.task));
+    for (let index = 1; index < group.length; index += 1) {
+      // New reshapes persist exact item IDs. Only infer order for legacy rows
+      // whose acceptance JSON predates dependency metadata.
+      if (!Object.prototype.hasOwnProperty.call(group[index].acceptance, "dependsOnItemIds")) {
+        previousSibling.set(group[index].id, group[index - 1].id);
+      }
+    }
+  }
+  const rawDependencyIds = (item: CustodyWorkItem, seen = new Set<string>()): string[] => {
+    if (seen.has(item.id)) return [];
+    const nextSeen = new Set(seen).add(item.id);
+    const explicitIds = Array.isArray(item.acceptance.dependsOnItemIds) ? item.acceptance.dependsOnItemIds : [];
+    const taskIds = (Array.isArray(item.acceptance.dependsOnTasks) ? item.acceptance.dependsOnTasks : [])
+      .map((task) => byTask.get(task.trim().toLowerCase())?.id || "").filter(Boolean);
+    const siblingId = previousSibling.get(item.id);
+    // A reshape narrows a contract; it does not erase the source contract's
+    // prerequisites. This also repairs ordering for successors created before
+    // dependency metadata existed.
+    const inherited = item.sourceType === "custody-reshape" && byId.has(item.sourceId)
+      ? rawDependencyIds(byId.get(item.sourceId)!, nextSeen)
+      : [];
+    return [...new Set([...explicitIds, ...taskIds, ...(siblingId ? [siblingId] : []), ...inherited])]
+      .filter((id) => id !== item.id);
+  };
+  const terminalDependencyId = (id: string, seen = new Set<string>()): string => {
+    if (seen.has(id)) return id;
+    const dependency = byId.get(id);
+    if (!dependency || dependency.receipt?.status !== "SUPERSEDED") return id;
+    const successors = [...(reshapeGroups.get(id) || [])]
+      .sort((left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt));
+    return successors.length
+      ? terminalDependencyId(successors[successors.length - 1].id, new Set(seen).add(id))
+      : id;
+  };
   const decorated = items.map((item) => {
     const contractComplete = custodyContractComplete(item.acceptance);
     const generationAllowed = item.repairGeneration <= maxAutomaticRepairGeneration;
+    const dependencyItemIds = [...new Set(rawDependencyIds(item).map((id) => terminalDependencyId(id)))];
+    const dependencies = dependencyItemIds.map((id) => {
+      const dependency = byId.get(id);
+      return { id, task: dependency?.task || "Missing custody predecessor", status: dependency?.status || "missing" };
+    });
+    const missingDependencies = dependencies.filter((dependency) => dependency.status !== "complete");
+    const dependenciesSatisfied = missingDependencies.length === 0;
     return {
       ...item,
       contractComplete,
       generationAllowed,
-      eligibleToReady: item.status === "proposed" && contractComplete && generationAllowed,
+      dependencyItemIds,
+      dependencies,
+      missingDependencies,
+      dependenciesSatisfied,
+      eligibleToReady: item.status === "proposed" && contractComplete && generationAllowed && dependenciesSatisfied,
       eligibleToRetry: ["blocked", "failed"].includes(item.status) && contractComplete && generationAllowed,
-      executorEligible: item.status === "ready" && contractComplete && generationAllowed,
+      executorEligible: item.status === "ready" && contractComplete && generationAllowed && dependenciesSatisfied,
     };
   }).sort((left, right) => {
     if (left.blocksResearch !== right.blocksResearch) return left.blocksResearch ? -1 : 1;

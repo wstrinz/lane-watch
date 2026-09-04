@@ -86,12 +86,10 @@
       status: reshapeBatch.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${reshapeBatch.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${suffix}`,
       title: reshapeBatch.length > 1 ? `${reshapeBatch.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
       detail: reshapeBatch.length > 1
-        ? `All ${reshapeBatch.length} failed receipts landed zero changes. One approval replaces them with ${reshapeBatch.reduce((total: number, candidate: any) => total + candidate.children.length, 0)} bounded successors; every dependency remains enforced and no steward starts until autopilot is resumed.`
-        : `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} bounded successors; the original dependency remains enforced and no steward starts until autopilot is resumed.`,
+        ? `All ${reshapeBatch.length} failed receipts landed zero changes. One approval replaces them with ${reshapeBatch.reduce((total: number, candidate: any) => total + candidate.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.`
+        : `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} dependency-ordered successors and resume the one-at-a-time custody steward.`,
       actions: [
-        reshapeBatch.length > 1
-          ? { key: "custody.items.reshape", args: { batch: reshapeBatch }, label: `Split all ${reshapeBatch.length} oversized jobs`, style: "primary-button" }
-          : { key: "custody.item.reshape", targetId: item.id, args: { children: reshapeChildren }, label: `Split into ${reshapeChildren.length} bounded checks`, style: "primary-button" },
+        { key: "custody.reshape-and-resume", args: { batch: reshapeBatch.length > 1 ? reshapeBatch : [{ targetId: item.id, task: item.task, children: reshapeChildren }] }, label: reshapeBatch.length > 1 ? `Split all ${reshapeBatch.length} & resume custody` : "Split & resume custody", style: "primary-button" },
         inspect,
       ],
     };
@@ -343,7 +341,7 @@
         feedback = "The worker and receipt boundary is current.";
         return;
       }
-      if (item.key === "custody.items.reshape") {
+      if (item.key === "custody.reshape-and-resume") {
         const batch = Array.isArray(item.args?.batch) ? item.args.batch : [];
         if (!batch.length) throw new Error("No oversized custody contracts were selected");
         for (const candidate of batch) {
@@ -356,8 +354,9 @@
             pollLimit: 80,
           });
         }
+        await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-custody-resume", pollLimit: 80 });
         feedbackKind = "success";
-        feedback = `${batch.length} oversized contracts were replaced by bounded successors. No steward was started; resume autopilot when you are ready.`;
+        feedback = `${batch.length} oversized contract${batch.length === 1 ? " was" : "s were"} replaced by dependency-ordered successors, and custody autopilot resumed.`;
         return;
       }
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };

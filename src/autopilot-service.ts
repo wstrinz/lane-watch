@@ -122,7 +122,14 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   // Finish the lease that already owns the serialized custody slot before
   // trying to confirm an older prepared dependency. Otherwise the quota gate
   // correctly rejects a second slot and the loop appears to repeat forever.
-  const item = occupied || items[0];
+  const dependencyReady = items.filter((candidate: any) => candidate.dependenciesSatisfied !== false);
+  const item = occupied || dependencyReady[0];
+  if (!item && items.length) {
+    const waiting = items[0]?.missingDependencies?.map((dependency: any) => dependency.task).filter(Boolean).join(", ");
+    return { kind: "attention", message: waiting
+      ? `Custody is waiting for predecessor receipts: ${waiting}. Resume from the earliest dependency instead of repeating a downstream contract.`
+      : "Custody contracts are waiting for predecessor receipts. Inspect the dependency chain before continuing." };
+  }
   if (!item) return null;
   const lease = item.activeLease;
   if (item.status === "proposed") return { kind: "action", type: "custody.item.promote", targetId: item.id, key: `custody:${item.id}:enable` };

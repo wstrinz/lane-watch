@@ -222,6 +222,7 @@
                 <span>repair generation {item.repairGeneration}/{custody.policy.maxAutomaticRepairGeneration}</span>
                 <span>{item.effortClass} effort</span>
                 <span>{item.contractComplete ? "contract complete" : "contract incomplete"}</span>
+                {#if !item.dependenciesSatisfied}<span>waiting on {item.missingDependencies?.length || 1} predecessor receipt{item.missingDependencies?.length === 1 ? "" : "s"}</span>{/if}
               </div>
               <details class="custody-contract">
                 <summary>Inspect acceptance contract <strong>{item.acceptance.receiptType || "receipt missing"}</strong></summary>
@@ -280,7 +281,7 @@
               <footer>
                 {#if item.status === "proposed"}
                   <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>Park</button>
-                  <button class="primary-button" disabled={Boolean(working) || !item.eligibleToReady} onclick={() => transition(item, "promote")}>{working === `${item.id}:promote` ? "Checking contract…" : "Mark ready for steward"}</button>
+                  <button class="primary-button" disabled={Boolean(working) || !item.eligibleToReady} onclick={() => transition(item, "promote")}>{working === `${item.id}:promote` ? "Checking contract…" : !item.dependenciesSatisfied ? `Waiting for ${item.missingDependencies?.[0]?.task || "predecessor"}` : "Mark ready for steward"}</button>
                 {:else if item.status === "ready"}
                   <span>{item.activeLease ? "Lease sequence is controlled above." : "Eligible for the separate custody executor; still not dispatched."}</span><button class="outline-button compact" disabled={Boolean(working) || Boolean(item.activeLease)} onclick={() => transition(item, "park")}>Park</button>
                 {:else if item.status === "assigned"}

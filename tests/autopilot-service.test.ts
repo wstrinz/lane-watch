@@ -69,4 +69,13 @@ describe("autopilot custody policy", () => {
       kind: "action", type: "custody.lease.reconcile", targetId: "lease-active",
     });
   });
+
+  test("skips downstream contracts until their exact predecessor receipt settles", () => {
+    const downstream = blocker({ id: "downstream", dependenciesSatisfied: false, missingDependencies: [{ task: "Bind predecessor" }] });
+    const predecessor = blocker({ id: "predecessor", createdAt: "2026-09-04T00:00:00Z", dependenciesSatisfied: true });
+    expect(nextCustodyAutopilotStep({ items: [downstream, predecessor] })).toMatchObject({
+      kind: "action", type: "custody.item.promote", targetId: "predecessor",
+    });
+    expect(nextCustodyAutopilotStep({ items: [downstream] })).toMatchObject({ kind: "attention", message: expect.stringContaining("Bind predecessor") });
+  });
 });

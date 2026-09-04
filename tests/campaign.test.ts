@@ -908,6 +908,10 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   });
   project = (control.snapshot() as any).projects[0];
   expect(project.custody.items.filter((item: any) => item.sourceType === "custody-reshape")).toHaveLength(2);
+  const firstSuccessor = project.custody.items.find((item: any) => item.task === "Verify receipt source binding");
+  const secondSuccessor = project.custody.items.find((item: any) => item.task === "Update the bounded receipt index");
+  expect(firstSuccessor).toMatchObject({ dependenciesSatisfied: true, eligibleToReady: true });
+  expect(secondSuccessor).toMatchObject({ dependenciesSatisfied: false, eligibleToReady: false, dependencyItemIds: [firstSuccessor.id] });
   expect(project.custody.items.find((item: any) => item.id === custodyId)).toMatchObject({ status: "complete", receipt: { status: "SUPERSEDED" } });
   expect(project.custody.protocol.leases.find((lease: any) => lease.id === oversizedLease.result.leaseId)).toMatchObject({ status: "superseded" });
   expect(project.phase).toBe(originalPhase);

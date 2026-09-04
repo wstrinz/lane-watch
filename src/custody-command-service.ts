@@ -142,6 +142,7 @@ export class CustodyCommandService {
       if (!["proposed", "blocked", "failed"].includes(row.status)) throw new Error("Only a proposed or safely stopped custody item can become ready");
       if (!item?.contractComplete) throw new Error("Complete the custody acceptance contract before marking it ready");
       if (!item?.generationAllowed) throw new Error("This repair exceeds the charter's automatic repair-generation limit and must remain operator-owned");
+      if (!item?.dependenciesSatisfied) throw new Error("This custody contract is waiting for its exact predecessor receipt");
       status = "ready";
     } else if (transition === "park") {
       if (!["proposed", "ready", "blocked", "failed"].includes(row.status)) throw new Error("Only proposed, ready, blocked, or failed custody work can be parked");
@@ -190,6 +191,8 @@ export class CustodyCommandService {
         allowedPaths: (Array.isArray(candidate?.acceptance?.allowedPaths) ? candidate.acceptance.allowedPaths : []).map((value: unknown) => boundedText(value, 500)).filter(Boolean).slice(0, 24),
         receiptType: boundedText(candidate?.acceptance?.receiptType, 200),
         stopCondition: boundedText(candidate?.acceptance?.stopCondition, 1_000),
+        dependsOnItemIds: (Array.isArray(candidate?.acceptance?.dependsOnItemIds) ? candidate.acceptance.dependsOnItemIds : []).map((value: unknown) => boundedText(value, 100)).filter(Boolean).slice(0, 12),
+        dependsOnTasks: (Array.isArray(candidate?.acceptance?.dependsOnTasks) ? candidate.acceptance.dependsOnTasks : []).map((value: unknown) => boundedText(value, 1_000)).filter(Boolean).slice(0, 12),
       };
       const child = {
         id: crypto.randomUUID(),
@@ -206,6 +209,15 @@ export class CustodyCommandService {
       if (!child.task || !child.reason || !custodyContractComplete(acceptance)) throw new Error("Every custody successor needs a task, reason, and complete bounded acceptance contract");
       return { ...child, fingerprint: `sha256:${createHash("sha256").update(JSON.stringify({ projectId, sourceId: itemId, task: child.task.toLowerCase(), capability: child.capability })).digest("hex")}` };
     });
+    // Successors are a receipt chain, not a bag of buttons. The second child
+    // cannot run until the first has settled, and nested reshapes retain the
+    // same ordering through their immutable item IDs.
+    for (let index = 1; index < children.length; index += 1) {
+      children[index].acceptance.dependsOnItemIds = [...new Set([
+        ...(children[index].acceptance.dependsOnItemIds || []),
+        children[index - 1].id,
+      ])];
+    }
     const stamp = this.port.now();
     this.database.transaction(() => {
       if (openLease) this.database.query(
@@ -227,6 +239,16 @@ export class CustodyCommandService {
         $track: child.strategicTrack, $capability: child.capability, $generation: child.repairGeneration,
         $effort: child.effortClass, $acceptance: JSON.stringify(child.acceptance), $actor: actor, $now: stamp,
       });
+      const dependents = this.database.query(
+        "SELECT item_id, acceptance_json FROM campaign_custody_items WHERE project_id = $project AND item_id <> $source AND status <> 'complete'",
+      ).all({ $project: projectId, $source: itemId }) as Array<{ item_id: string; acceptance_json: string }>;
+      for (const dependent of dependents) {
+        const acceptance = JSON.parse(dependent.acceptance_json || "{}") as CustodyAcceptanceContract;
+        if (!Array.isArray(acceptance.dependsOnItemIds) || !acceptance.dependsOnItemIds.includes(itemId)) continue;
+        acceptance.dependsOnItemIds = [...new Set(acceptance.dependsOnItemIds.map((id) => id === itemId ? children[children.length - 1].id : id))];
+        this.database.query("UPDATE campaign_custody_items SET acceptance_json = $acceptance, updated_at = $now WHERE item_id = $id")
+          .run({ $id: dependent.item_id, $acceptance: JSON.stringify(acceptance), $now: stamp });
+      }
     })();
     this.port.touchProject(projectId);
     this.port.recordEvent(projectId, "custody", itemId, "custody.item.reshaped", {
@@ -239,9 +261,10 @@ export class CustodyCommandService {
 
   async prepareLease(projectId: string, itemId: string, actor: string): Promise<Record<string, unknown>> {
     const service = this.domains.custodySnapshot(projectId);
-    const item = service.items.find((candidate: any) => candidate.id === itemId) as CustodyWorkItem & { contractComplete: boolean; generationAllowed: boolean; activeLease: any } | undefined;
+    const item = service.items.find((candidate: any) => candidate.id === itemId) as CustodyWorkItem & { contractComplete: boolean; generationAllowed: boolean; dependenciesSatisfied: boolean; activeLease: any } | undefined;
     if (!item || item.status !== "ready") throw new Error("Only a human-ready custody contract can receive a protocol lease");
     if (!item.contractComplete || !item.generationAllowed) throw new Error("Custody contract no longer satisfies the active charter policy");
+    if (!item.dependenciesSatisfied) throw new Error("Custody predecessor receipts must settle before this lease can be prepared");
     if (item.activeLease) throw new Error(`Custody item already has active lease ${item.activeLease.id}`);
     const project = this.port.project(projectId);
     const strategy = this.domains.strategySnapshot(projectId);

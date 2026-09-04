@@ -75,4 +75,38 @@ describe("custody contracts", () => {
     expect(service.counts).toMatchObject({ open: 1, blocking: 1, failed: 1 });
     expect(service.items[0]).toMatchObject({ eligibleToRetry: true, executorEligible: false });
   });
+
+  test("orders reshape siblings by predecessor receipt instead of exposing every ready button", () => {
+    const first = item({ id: "first", sourceType: "custody-reshape", sourceId: "parent", task: "Bind the manifest", blocksResearch: true });
+    const second = item({ id: "second", sourceType: "custody-reshape", sourceId: "parent", task: "Verify the inventory", blocksResearch: true, createdAt: "2026-08-27T00:01:00.000Z" });
+    let service = deriveCustodyServiceState([first, second], 1, true);
+    expect(service.items.find((candidate: any) => candidate.id === "first")).toMatchObject({ dependenciesSatisfied: true, eligibleToReady: true });
+    expect(service.items.find((candidate: any) => candidate.id === "second")).toMatchObject({ dependenciesSatisfied: false, eligibleToReady: false, missingDependencies: [expect.objectContaining({ id: "first" })] });
+
+    service = deriveCustodyServiceState([{ ...first, status: "complete" }, second], 1, true);
+    expect(service.items.find((candidate: any) => candidate.id === "second")).toMatchObject({ dependenciesSatisfied: true, eligibleToReady: true });
+  });
+
+  test("resolves named predecessor contracts to immutable item dependencies", () => {
+    const first = item({ id: "source", task: "Freeze exact source map", status: "complete" });
+    const second = item({ id: "consumer", task: "Consume source map", acceptance: { ...item().acceptance, dependsOnTasks: ["Freeze exact source map"] } });
+    const service = deriveCustodyServiceState([first, second]);
+    expect(service.items.find((candidate: any) => candidate.id === "consumer")).toMatchObject({ dependencyItemIds: ["source"], dependenciesSatisfied: true });
+  });
+
+  test("repairs legacy nested reshape ordering and follows superseded predecessors to their terminal child", () => {
+    const rows = [
+      item({ id: "replay-parent", sourceType: "custody-reshape", sourceId: "root", task: "Replay frozen asymmetric deduplication and reconcile resource scope", status: "complete", receipt: { status: "SUPERSEDED" } }),
+      item({ id: "manifest-parent", sourceType: "custody-reshape", sourceId: "root", task: "Verify frozen asymmetric manifest, provenance, and control count", status: "complete", receipt: { status: "SUPERSEDED" } }),
+      item({ id: "inventory", sourceType: "custody-reshape", sourceId: "manifest-parent", task: "Verify the frozen asymmetric type inventory and control count", blocksResearch: true }),
+      item({ id: "manifest", sourceType: "custody-reshape", sourceId: "manifest-parent", task: "Bind the frozen asymmetric manifest and provenance", blocksResearch: true }),
+      item({ id: "measure", sourceType: "custody-reshape", sourceId: "replay-parent", task: "Reconcile frozen asymmetric replay resource measurements", blocksResearch: true }),
+      item({ id: "replay", sourceType: "custody-reshape", sourceId: "replay-parent", task: "Replay the frozen role-preserving asymmetric deduplication core", blocksResearch: true }),
+    ];
+    const service = deriveCustodyServiceState(rows, 1, true);
+    expect(service.items.find((candidate: any) => candidate.id === "manifest")).toMatchObject({ dependenciesSatisfied: true });
+    expect(service.items.find((candidate: any) => candidate.id === "inventory")).toMatchObject({ dependencyItemIds: ["manifest"], dependenciesSatisfied: false });
+    expect(service.items.find((candidate: any) => candidate.id === "replay")).toMatchObject({ dependencyItemIds: ["inventory"], dependenciesSatisfied: false });
+    expect(service.items.find((candidate: any) => candidate.id === "measure")).toMatchObject({ dependencyItemIds: expect.arrayContaining(["replay", "inventory"]), dependenciesSatisfied: false });
+  });
 });

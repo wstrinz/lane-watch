@@ -1,4 +1,4 @@
-function base(item: any, task: string, reason: string, effortClass: "small" | "medium", acceptanceCriteria: string[], allowedPath: string, stopCondition: string): Record<string, any> {
+function base(item: any, task: string, reason: string, effortClass: "small" | "medium", acceptanceCriteria: string[], allowedPath: string, stopCondition: string, dependsOnTasks: string[] = []): Record<string, any> {
   return {
     task,
     reason,
@@ -13,6 +13,7 @@ function base(item: any, task: string, reason: string, effortClass: "small" | "m
       allowedPaths: [allowedPath],
       receiptType: item.acceptance?.receiptType || "campaign-custody-protocol-receipt/v1",
       stopCondition,
+      dependsOnTasks,
     },
   };
 }
@@ -84,6 +85,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       ],
       "results/inbox/asym-lab-inventory-control-count-v1/**",
       "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 20,000 tokens.",
+      ["Bind the frozen asymmetric manifest and provenance"],
     ),
   ];
   if (/replay frozen asymmetric deduplication and reconcile resource scope/i.test(item?.task || "")) return [
@@ -100,6 +102,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       ],
       "results/inbox/asym-lab-exact-replay-core-v1/**",
       "Stop on the first changed candidate count or predecessor-receipt mismatch. Do not reconcile resource policy, run SAT, generate candidates, measure slack/liftability, or open another repair generation.",
+      ["Bind the frozen asymmetric manifest and provenance", "Verify the frozen asymmetric type inventory and control count"],
     ),
     base(
       item,
@@ -172,6 +175,38 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       ],
       "results/inbox/strategy-cost-value-binding-v1/**",
       "Stop when an inventoried source is absent or ambiguous and record UNKNOWN with provenance. Do not estimate, rerun research, or reconcile reservation policy.",
+      ["Inventory the six epoch run identifiers and token-source locations"],
+    ),
+  ];
+  if (/reconcile epoch reservation and wall-time scopes/i.test(item?.task || "")) return [
+    base(
+      item,
+      "Define frozen epoch reservation and wall-time accounting scopes",
+      "Freeze the exact accounting definitions before applying any measurements so the reconciliation cannot expand into another source search.",
+      "small",
+      [
+        "Consume the exact six-run token-value binding receipt and preserve every UNKNOWN value.",
+        "Define reservation, process-time, and observer end-to-end wall-time scopes without applying or estimating measurements.",
+        "Bind the definitions to the frozen epoch and six-run inventory.",
+        "Change no resource policy, mathematical claim, candidate, or campaign phase.",
+      ],
+      "results/inbox/strategy-cost-scope-definitions-v1/**",
+      "Stop if the six-run value-binding receipt is absent or ambiguous. Do not search for sources, apply measurements, estimate usage, or exceed 20,000 tokens.",
+      ["Bind epoch token values to the frozen six-run inventory"],
+    ),
+    base(
+      item,
+      "Apply frozen epoch measurements to reservation reconciliation",
+      "Apply only the predecessor's frozen scope definitions and source-bound values in one bounded accounting pass.",
+      "small",
+      [
+        "Consume the exact predecessor scope-definition receipt without reopening definitions or source discovery.",
+        "Reconcile the 148,741-token observer measurement with the 80,000 reservation while preserving UNKNOWN values.",
+        "Report process-time and observer end-to-end wall-time separately.",
+        "Emit graph-effect NONE and change no mathematical claim, candidate, or campaign phase.",
+      ],
+      "results/inbox/strategy-cost-reservation-reconciliation-v1/**",
+      "Stop at the first predecessor mismatch or unresolved value. Do not estimate, search other runs, rerun research, or exceed 20,000 tokens.",
     ),
   ];
   return [];
