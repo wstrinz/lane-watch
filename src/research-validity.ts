@@ -3,7 +3,9 @@ export function requireExperimentValidity(lanes: Array<Record<string, any>>, che
   for (const lane of lanes) {
     if (!["KEEP", "REVISE"].includes(lane.action) || lane.strategy?.workKind !== "experiment") continue;
     const matches = checks.filter(check => check.check === "experiment-validity:" + lane.requestId);
-    if (matches.length !== 1 || matches[0].status !== "PASS" || !String(matches[0].detail || "").trim()) {
+    const held = lane.contract?.status === "AFTER_DEPENDENCY" && !String(lane.contract?.baseRef || "").trim();
+    const allowedStatus = matches.length === 1 && (matches[0].status === "PASS" || (held && matches[0].status === "BLOCK"));
+    if (!allowedStatus || !String(matches[0]?.detail || "").trim()) {
       throw new Error("Experiment validity must pass explicitly before approving " + lane.requestId + "; document the domain, variable outcomes, controls, and decision consequences.");
     }
   }
