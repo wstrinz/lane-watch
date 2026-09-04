@@ -47,11 +47,28 @@ describe("custody adapter protocol", () => {
     expect(envelope).toMatchObject({
       schema: "campaign-custody-lease/v1",
       adapter: { id: "terra-local-steward", executionMode: "disconnected" },
-      budget: { maxTokens: 20_000, maxMinutes: 30, maxChangedPaths: 8 },
+      budget: { maxTokens: 50_000, maxMinutes: 30, maxChangedPaths: 8 },
       authority: { claimPromotion: false, researchDirection: false, workerDispatch: false },
     });
     expect(envelope.contractDigest).toStartWith("sha256:");
     expect(envelope.leaseDigest).toStartWith("sha256:");
+  });
+
+  test("updates a legacy policy ceiling inside the newly frozen lease", () => {
+    const envelope = createCustodyLease({
+      leaseId: "legacy-budget",
+      item: {
+        ...item,
+        acceptance: {
+          ...item.acceptance,
+          stopCondition: "Stop on ambiguity or before exceeding 20,000 tokens.",
+        },
+      },
+      campaignBoundary: { phase: "RESEARCH_READY", version: 43, charterRevision: 2, epochId: "epoch-2" },
+      issuedAt: "2026-09-04T01:00:00.000Z",
+      expiresAt: "2026-09-05T01:00:00.000Z",
+    });
+    expect(envelope.contract.acceptance.stopCondition).toContain("50,000 tokens");
   });
 
   test("produces deterministic zero-effect receipts that replay exactly", () => {
@@ -71,7 +88,7 @@ describe("custody adapter protocol", () => {
   test("gives the steward an explicit token ceiling and reserves cancellation headroom", () => {
     const envelope = lease();
     const prompt = custodyExecutorPrompt(envelope, "C:/leases/lease.json", "sha256:bundle", "C:/worktree");
-    expect(prompt).toContain("at most 20,000 total tokens");
+    expect(prompt).toContain("at most 50,000 total tokens");
     expect(prompt).toContain("before 60% of the token ceiling");
     expect(custodyInterruptThreshold(20_000)).toBe(14_000);
     expect(custodyInterruptThreshold(50_000)).toBe(35_000);
@@ -83,7 +100,7 @@ describe("custody adapter protocol", () => {
     const tamperedLease = { ...envelope, contract: { ...envelope.contract, task: "Do unrelated research." } };
     const tamperedReceipt = {
       ...receipt,
-      usage: { tokens: 20_001, minutes: 31 },
+      usage: { tokens: 50_001, minutes: 31 },
       effects: { changedPaths: ["FRONTIER.md"], claimPromotions: ["claim-1"], dispatches: ["worker-1"] },
     };
     const verification = verifyCustodyProtocolReceipt(tamperedLease, tamperedReceipt);
@@ -162,7 +179,7 @@ describe("custody execution receipts", () => {
       actualChangedPaths: ["FRONTIER.md"],
       actualHead: "b".repeat(40),
       measuredMinutes: 31,
-      measuredTokens: 20_001,
+      measuredTokens: 50_001,
       completedAt: "2026-08-28T01:31:00.000Z",
     };
     const verification = verifyCustodyExecutionReceipt(lease, buildCustodyExecutionReceipt(lease, report, measurement), measurement) as any;

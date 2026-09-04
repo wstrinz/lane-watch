@@ -60,7 +60,7 @@ export function evaluateAutopilotStartReadiness(input: {
   if (input.phase === "RESEARCH_REVIEW" && input.planDecision !== "READY_FOR_GATE") {
     return blocked("PLAN_NOT_READY", `The checked coordinator plan is ${input.planDecision || "not ready"}; resolve or revise it before starting automation.`);
   }
-  if (input.phase === "RESEARCH_READY" && input.scheduleStatus === "confirmed") return ready();
+  if (input.phase === "RESEARCH_READY" && input.scheduleStatus === "confirmed" && !(input.custodyCandidates || []).length) return ready();
 
   const runnable = (input.candidates || []).filter((candidate) => candidate.dependencyReady && !candidate.requiresOperatorRelease);
   const custody = input.custodyCandidates || [];

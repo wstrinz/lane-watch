@@ -4,6 +4,7 @@ import { WaveRepository } from "./wave-repository";
 import { WaveScheduleRepository } from "./wave-schedule-repository";
 import type { ObserverSnapshot } from "./types";
 import type { AutopilotStartReadiness } from "./autopilot-readiness";
+import { custodyHasBudgetUpgrade } from "./custody";
 
 export interface LoopRunRow {
   loop_id: string;
@@ -125,6 +126,7 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   const dependencyReady = items.filter((candidate: any) => candidate.dependenciesSatisfied !== false);
   const actionable = dependencyReady.filter((candidate: any) => {
     if (["proposed", "ready"].includes(candidate.status)) return true;
+    if (custodyHasBudgetUpgrade(candidate)) return true;
     if (!["blocked", "failed"].includes(candidate.status) || !controllerOwnedCustodyStop(candidate)) return false;
     return controllerOwnedStopCount(custody || {}, candidate.id) < 4;
   });
@@ -141,6 +143,13 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   const lease = item.activeLease;
   if (item.status === "proposed") return { kind: "action", type: "custody.item.promote", targetId: item.id, key: `custody:${item.id}:enable` };
   if (["blocked", "failed"].includes(item.status)) {
+    if (custodyHasBudgetUpgrade(item)) return {
+      kind: "action",
+      type: "custody.item.promote",
+      targetId: item.id,
+      args: { note: "Autopilot refroze this zero-effect legacy lease under the corrected " + Number(item.tokenCap).toLocaleString() + "-token total-turn envelope." },
+      key: "custody:" + item.id + ":budget-upgrade:" + item.tokenCap,
+    };
     const controllerOwned = controllerOwnedCustodyStop(item);
     const automaticStops = controllerOwnedStopCount(custody || {}, item.id);
     if (controllerOwned && automaticStops < 4) return { kind: "action", type: "custody.item.promote", targetId: item.id, args: { note: "Autopilot retried a zero-effect controller-owned custody stop under the unchanged contract." }, key: `custody:${item.id}:controller-retry:${automaticStops + 1}` };
@@ -444,7 +453,11 @@ export class AutopilotService {
     if (["RESEARCH_REVIEW", "RESEARCH_READY"].includes(phase)) {
       const custody = nextCustodyAutopilotStep(this.port.custody(projectId));
       if (custody?.kind === "attention") return custody.message;
-      if (custody?.kind === "action" || custody?.kind === "wait") return "";
+      if (custody?.kind === "wait") return "";
+      if (custody?.kind === "action") {
+        const readiness = this.port.startReadiness(projectId);
+        return readiness.canStart ? "" : readiness.blocker;
+      }
     }
     if (phase === "RESEARCH_REVIEW") {
       const plan = wave ? this.database.query("SELECT status, response_json FROM campaign_research_plans WHERE wave_id = $wave").get({ $wave: wave.wave_id }) as { status: string; response_json: string } | null : null;

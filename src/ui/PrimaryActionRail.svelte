@@ -1,6 +1,7 @@
 <script lang="ts">
   import { campaignState, refreshAll, selectProject } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
+  import { custodyHasBudgetUpgrade } from "../custody";
   import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
   type RailAction = { key: string; label: string; style?: string; args?: Record<string, any>; targetId?: string; target?: string };
@@ -74,6 +75,57 @@
     const loopError = String(value.loop?.error || "");
     const reshapeChildren = custodyReshapeChildren(item);
     const needsReshape = custodyNeedsReshape(item, loopError);
+    const budgetUpgrades = blockers.filter((candidate: any) =>
+      candidate.dependenciesSatisfied !== false && custodyHasBudgetUpgrade(candidate));
+    const requiredTokens = budgetUpgrades.length
+      ? Math.min(...budgetUpgrades.map((candidate: any) => Number(candidate.tokenCap || 0)).filter((amount: number) => amount > 0))
+      : 0;
+    const remainingTokens = Number(value.resources?.ledger?.remainingBeforeCommitments || 0);
+    const strategyWorkspace = value.strategy?.workspace;
+    const strategyReview = strategyWorkspace?.activeReview;
+    if (budgetUpgrades.length && requiredTokens > remainingTokens) {
+      if (strategyReview?.status === "drafting" || strategyReview?.status === "queued") return {
+        status: "RESOURCE RECENTER RUNNING",
+        title: "Sol is reviewing the exhausted epoch",
+        detail: "Both legacy custody failures are recoverable under the corrected lease policy, but the current epoch has no spendable tokens. The independent review is preparing a fresh resource proposal; it cannot dispatch work or change the campaign.",
+        actions: [{ key: "reveal", label: "Inspect resource review", target: "#strategy-workspace", style: "outline-button" }, inspect],
+      };
+      if (strategyReview?.status === "drafted") return {
+        status: "FRESH EPOCH GATE",
+        title: "Review and activate the proposed resource envelope",
+        detail: "The strategy proposal is ready for a human decision. Activation opens a fresh measured epoch but dispatches nothing; after that, custody autopilot can retry the two zero-effect roots under corrected leases.",
+        actions: [{ key: "reveal", label: "Review fresh epoch proposal", target: "#strategy-workspace", style: "primary-button" }, inspect],
+      };
+      return {
+        status: "RESOURCE ENVELOPE EXHAUSTED",
+        title: "Open a fresh epoch before retrying custody",
+        detail: "The two failed stewards were starved by the old 20,000-token total-turn lease, but this epoch has also spent its full envelope. Recommended: run one read-only strategy review, approve a fresh envelope, then let autopilot retry both dependency roots.",
+        actions: [
+          ...(strategyWorkspace?.reviewAvailable ? [{
+            key: "strategy.review.request",
+            label: "Ask Sol to recenter resources",
+            style: "primary-button",
+            args: {
+              triggerKind: "manual",
+              reviewKind: "epoch",
+              requestSource: "operator",
+              reason: "The active epoch has exhausted its spendable token envelope while two zero-effect custody roots need corrected total-turn leases. Propose a fresh bounded epoch that preserves the current mathematical plan, custody dependencies, hard caps, and human launch gates.",
+            },
+          }] : []),
+          { key: "reveal", label: "Inspect resource controls", target: "#strategy-workspace", style: "outline-button" },
+          inspect,
+        ],
+      };
+    }
+    if (budgetUpgrades.length) return {
+      status: "CUSTODY LEASE UPDATE · " + budgetUpgrades.length + " READY",
+      title: "Retry the starved custody roots under corrected envelopes",
+      detail: "The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click marks both exact contracts ready under the new total-turn caps and resumes the one-at-a-time Terra steward.",
+      actions: [
+        { key: "custody.rebudget-and-resume", args: { itemIds: budgetUpgrades.map((candidate: any) => candidate.id) }, label: "Rebudget " + budgetUpgrades.length + " checks & resume", style: "primary-button" },
+        inspect,
+      ],
+    };
     const reshapeBatch = blockers.map((candidate: any) => ({
       targetId: candidate.id,
       task: candidate.task,
@@ -361,6 +413,24 @@
         await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-custody-resume", pollLimit: 80 });
         feedbackKind = "success";
         feedback = `${batch.length} oversized contract${batch.length === 1 ? " was" : "s were"} replaced by dependency-ordered successors, and custody autopilot resumed.`;
+        return;
+      }
+      if (item.key === "custody.rebudget-and-resume") {
+        const itemIds = Array.isArray(item.args?.itemIds) ? item.args.itemIds.map(String) : [];
+        if (!itemIds.length) throw new Error("No legacy custody leases were selected");
+        for (const itemId of itemIds) {
+          await settleCampaignAction({
+            projectId: project.id,
+            type: "custody.item.promote",
+            targetId: itemId,
+            args: { note: "Operator accepted the corrected total-turn custody envelope after a zero-effect legacy budget stop." },
+            scope: "primary-rail-custody-rebudget",
+            pollLimit: 80,
+          });
+        }
+        await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-custody-rebudget-resume", pollLimit: 80 });
+        feedbackKind = "success";
+        feedback = itemIds.length + " legacy custody leases were rebudgeted and one-at-a-time autopilot resumed.";
         return;
       }
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };

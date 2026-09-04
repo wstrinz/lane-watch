@@ -1,6 +1,7 @@
 <script lang="ts">
   import { campaignState } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
+  import { custodyHasBudgetUpgrade, custodyReceiptTokenCeiling } from "../custody";
   import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
   let project: Project | null = null;
@@ -26,6 +27,14 @@
       .filter(Boolean)
       .sort((left: any, right: any) => (right?.checks?.length || 0) - (left?.checks?.length || 0))[0] || {};
     const lastMeasured = leases.find((lease: any) => Number.isFinite(Number(lease.receipt?.usage?.tokens)))?.receipt?.usage?.tokens;
+    if (custodyHasBudgetUpgrade(item)) return {
+      state: "LEASE POLICY UPDATED",
+      summary: "This steward stopped with zero changes because fixed App Server context consumed most of the old " + custodyReceiptTokenCeiling(item).toLocaleString() + "-token total-turn lease.",
+      next: "Retry the unchanged contract under the corrected " + Number(item.tokenCap).toLocaleString() + "-token envelope after a fresh epoch has spendable capacity. This is a resource correction, not another mathematical split.",
+      attempts: leases.length,
+      tokens: lastMeasured,
+      kind: "rebudget",
+    };
     if (retryExhausted(item)) return {
       state: "CONTRACT TOO LARGE",
       summary: "Four bounded attempts stopped without landing campaign changes. Lease integrity and the frozen producer blobs were verified, but the consolidated replay crossed its token ceiling and combines too many checks for one custody turn.",
@@ -211,6 +220,7 @@
             {@const slotHolder = custodySlotHolder(item)}
             {@const reshapeChildren = custodyReshapeChildren(item)}
             {@const needsReshape = custodyNeedsReshape(item, String(project?.loop?.error || ""))}
+            {@const budgetAvailable = Number(project?.resources?.ledger?.remainingBeforeCommitments || 0) >= Number(item.tokenCap || 0)}
             <article class:blocking={item.blocksResearch} class:parked={item.status === "parked"}>
               <header>
                 <div><span>{item.urgency} · {item.capability} · {item.strategicTrack}</span><strong>{item.task}</strong></div>
@@ -289,8 +299,14 @@
                 {:else if item.status === "verifying"}
                   <span>The measured receipt above has no landing authority until you accept it.</span>
                 {:else if ["blocked", "failed"].includes(item.status)}
-                  <span>{retryExhausted(item) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : item.receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."}</span>
-                  {#if failure.kind === "reshape"}
+                  <span>{failure.kind === "rebudget" ? budgetAvailable ? "The corrected total-turn envelope is available. Retry this exact zero-effect contract once." : "The lease policy is corrected, but the current epoch is exhausted. Open a fresh resource envelope from the primary action rail first." : retryExhausted(item) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : item.receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."}</span>
+                  {#if failure.kind === "rebudget"}
+                    <div class="custody-footer-actions">
+                      <button class="primary-button" disabled={Boolean(working) || !budgetAvailable || !item.eligibleToRetry} onclick={() => transition(item, "promote", true)}>
+                        {working ? "Starting Terra…" : budgetAvailable ? "Retry with corrected lease" : "Fresh epoch required"}
+                      </button>
+                    </div>
+                  {:else if failure.kind === "reshape"}
                     <div class="custody-footer-actions">
                       {#if reshapeChildren.length}<button class="primary-button" disabled={Boolean(working)} onclick={() => reshape(item, reshapeChildren)}>{working === `${item.id}:reshape` ? "Splitting…" : `Split into ${reshapeChildren.length} bounded checks`}</button>{/if}
                       {#if ["running", "paused", "attention"].includes(project?.loop?.status || "")}<button class="outline-button compact" disabled={Boolean(working)} onclick={stopAtBoundary}>{working === "loop:stop" ? "Stopping…" : "Stop at this boundary"}</button>{/if}

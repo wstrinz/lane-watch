@@ -1,4 +1,4 @@
-import { deriveCustodyServiceState, type CustodyAcceptanceContract, type CustodyCapability, type CustodyStatus, type CustodyUrgency, type CustodyWorkItem } from "./custody";
+import { custodyTokenCap, deriveCustodyServiceState, type CustodyAcceptanceContract, type CustodyCapability, type CustodyStatus, type CustodyUrgency, type CustodyWorkItem } from "./custody";
 import type { CustodyExecutionReceipt } from "./custody-executor";
 import type { CustodyLeaseEnvelope, CustodyProtocolReceipt } from "./custody-protocol";
 import { deriveResourceState, normalizeResourcePolicy, type ResourceCandidate, type ResourceUsage } from "./resources";
@@ -563,7 +563,7 @@ export class CampaignDomainReader {
         slotPool: "custody",
         trackId: item.strategicTrack,
         workKind: "maintenance",
-        tokenCap: item.effortClass === "medium" ? 50_000 : 20_000,
+        tokenCap: custodyTokenCap(item.effortClass),
         priority: item.blocksResearch ? 1 : item.urgency === "NOW" ? 2 : 5,
         blocking: Boolean(item.blocksResearch),
         ready: Boolean(custody.executorConnected && item.contractComplete && item.generationAllowed),

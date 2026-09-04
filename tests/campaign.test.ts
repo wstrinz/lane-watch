@@ -817,7 +817,7 @@ test("an independent Sol strategy review creates a human-gated charter revision 
     expectedVersion: project.version,
   }, "test-operator");
   const prepared = await waitForAction(control, "demo", "custody.lease.prepare");
-  expect(prepared).toMatchObject({ status: "completed", result: { status: "prepared", executorConnected: false, dispatched: false, budget: { maxTokens: 20_000, maxMinutes: 30, maxChangedPaths: 8 } } });
+  expect(prepared).toMatchObject({ status: "completed", result: { status: "prepared", executorConnected: false, dispatched: false, budget: { maxTokens: 50_000, maxMinutes: 30, maxChangedPaths: 8 } } });
   expect(existsSync(prepared.result.bundlePath)).toBe(true);
   const frozenLease = JSON.parse(readFileSync(prepared.result.bundlePath, "utf8"));
   expect(frozenLease).toMatchObject({ authority: { claimPromotion: false, researchDirection: false, workerDispatch: false }, adapter: { executionMode: "disconnected" } });

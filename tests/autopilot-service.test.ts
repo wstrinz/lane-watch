@@ -35,6 +35,19 @@ describe("autopilot custody policy", () => {
     expect(nextCustodyAutopilotStep({ items: [blocker({ status: "blocked", receipt: { summary: "Candidate count changed", effects: { changedPaths: [] } } })] })).toMatchObject({ kind: "attention" });
   });
 
+  test("retries a zero-effect legacy lease exactly because the current policy cap is larger", () => {
+    const oldLeaseFailure = blocker({
+      status: "failed",
+      effortClass: "small",
+      tokenCap: 50_000,
+      receipt: {
+        summary: "Custody executor approached its fixed 20,000-token lease ceiling and was stopped before an overrun.",
+        effects: { changedPaths: [] },
+      },
+    });
+    expect(nextCustodyAutopilotStep({ items: [oldLeaseFailure] })).toMatchObject({ kind: "action", type: "custody.item.promote", args: { note: expect.stringContaining("corrected 50,000-token") } });
+  });
+
   test("bounds automatic retries for repeated runtime interruptions", () => {
     const item = blocker({ status: "blocked", receipt: { summary: "Custody executor turn was interrupted", effects: { changedPaths: [] } } });
     const lease = (id: string) => ({ id, itemId: item.id, status: "blocked", receipt: { summary: "Runtime interruption", effects: { changedPaths: [] } } });

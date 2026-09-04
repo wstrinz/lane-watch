@@ -1200,12 +1200,13 @@ export class CampaignControl {
     const custodyStep = nextCustodyAutopilotStep(custody);
     const custodyCandidate = custodyStep && custodyStep.kind !== "attention"
       ? (custody.items || [])
-        .filter((item: any) => item.blocksResearch && !["complete", "failed", "parked"].includes(item.status))
+        .filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status))
+        .filter((item: any) => custodyStep.kind !== "action" || item.id === custodyStep.targetId || item.activeLease?.id === custodyStep.targetId)
         .sort((left: any, right: any) => Date.parse(left.createdAt || "") - Date.parse(right.createdAt || ""))
         .slice(0, 1)
         .map((item: any) => ({
           taskId: `custody:${item.task}`,
-          tokenBudget: item.effortClass === "medium" ? 50_000 : 20_000,
+          tokenBudget: Number(item.tokenCap || (item.effortClass === "medium" ? 100_000 : 50_000)),
           active: ["assigned", "verifying"].includes(item.status),
         }))
       : [];

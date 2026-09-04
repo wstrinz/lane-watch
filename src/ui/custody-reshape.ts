@@ -1,3 +1,5 @@
+import { custodyHasBudgetUpgrade } from "../custody";
+
 function base(item: any, task: string, reason: string, effortClass: "small" | "medium", acceptanceCriteria: string[], allowedPath: string, stopCondition: string, dependsOnTasks: string[] = []): Record<string, any> {
   return {
     task,
@@ -19,6 +21,7 @@ function base(item: any, task: string, reason: string, effortClass: "small" | "m
 }
 
 export function custodyNeedsReshape(item: any, loopError = ""): boolean {
+  if (custodyHasBudgetUpgrade(item)) return false;
   const evidence = `${item?.receipt?.summary || ""} ${item?.receipt?.stopReason || ""} ${loopError}`;
   const measuredTokens = Number(item?.receipt?.usage?.tokens || 0);
   const measuredOverrun = item?.capability !== "portability" && measuredTokens > 50_000;
@@ -41,7 +44,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Limit every accepted statement to the frozen named pools; make no repository-wide ceiling claim.",
       ],
       "results/inbox/asym-lab-manifest-provenance-check-v1/**",
-      "Stop at the first source-binding, provenance, orientation, or count mismatch. Do not replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.",
+      "Stop at the first source-binding, provenance, orientation, or count mismatch. Do not replay generators, run SAT, modify producer artifacts, or exceed 50,000 tokens.",
     ),
     base(
       item,
@@ -70,7 +73,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Limit every accepted statement to the frozen named pools; make no inventory or repository-wide ceiling claim.",
       ],
       "results/inbox/asym-lab-manifest-provenance-binding-v1/**",
-      "Stop at the first source-binding, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.",
+      "Stop at the first source-binding, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 50,000 tokens.",
     ),
     base(
       item,
@@ -84,7 +87,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Make no repository-wide ceiling claim and change no producer artifact.",
       ],
       "results/inbox/asym-lab-inventory-control-count-v1/**",
-      "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 20,000 tokens.",
+      "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 50,000 tokens.",
       ["Bind the frozen asymmetric manifest and provenance"],
     ),
   ];
@@ -100,7 +103,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Make no provenance, orientation, inventory, or repository-wide mathematical claim.",
       ],
       "results/inbox/asym-lab-immutable-manifest-binding-v1/**",
-      "Stop at the first missing or ambiguous source binding. Do not inspect mathematical provenance, count types, replay generators, run SAT, or exceed 20,000 tokens.",
+      "Stop at the first missing or ambiguous source binding. Do not inspect mathematical provenance, count types, replay generators, run SAT, or exceed 50,000 tokens.",
     ),
     base(
       item,
@@ -114,7 +117,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Make no inventory count, replay, or repository-wide ceiling claim.",
       ],
       "results/inbox/asym-lab-provenance-orientation-v1/**",
-      "Stop at the first predecessor, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.",
+      "Stop at the first predecessor, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 50,000 tokens.",
     ),
   ];
   if (/replay frozen asymmetric deduplication and reconcile resource scope/i.test(item?.task || "")) return [
@@ -145,7 +148,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Emit graph-effect NONE and change no mathematical claim or producer artifact.",
       ],
       "results/inbox/asym-lab-replay-resource-measurements-v1/**",
-      "Stop if the replay-core receipt is absent or ambiguous. Do not rerun the replay, run SAT, generate candidates, or exceed 20,000 tokens.",
+      "Stop if the replay-core receipt is absent or ambiguous. Do not rerun the replay, run SAT, generate candidates, or exceed 50,000 tokens.",
     ),
   ];
   if (/epoch resource provenance/i.test(item?.task || "")) return [
@@ -220,7 +223,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Change no resource policy, mathematical claim, candidate, or campaign phase.",
       ],
       "results/inbox/strategy-cost-scope-definitions-v1/**",
-      "Stop if the six-run value-binding receipt is absent or ambiguous. Do not search for sources, apply measurements, estimate usage, or exceed 20,000 tokens.",
+      "Stop if the six-run value-binding receipt is absent or ambiguous. Do not search for sources, apply measurements, estimate usage, or exceed 50,000 tokens.",
       ["Bind epoch token values to the frozen six-run inventory"],
     ),
     base(
@@ -235,7 +238,7 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
         "Emit graph-effect NONE and change no mathematical claim, candidate, or campaign phase.",
       ],
       "results/inbox/strategy-cost-reservation-reconciliation-v1/**",
-      "Stop at the first predecessor mismatch or unresolved value. Do not estimate, search other runs, rerun research, or exceed 20,000 tokens.",
+      "Stop at the first predecessor mismatch or unresolved value. Do not estimate, search other runs, rerun research, or exceed 50,000 tokens.",
     ),
   ];
   return [];

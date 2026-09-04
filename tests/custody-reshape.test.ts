@@ -4,6 +4,9 @@ import { custodyNeedsReshape, custodyReshapeChildren } from "../src/ui/custody-r
 function failed(task: string, tokens: number, ceiling = "50,000"): Record<string, any> {
   return {
     task,
+    status: "failed",
+    effortClass: "small",
+    tokenCap: 50_000,
     capability: "verification",
     strategicTrack: "supply",
     repairGeneration: 1,
@@ -41,8 +44,8 @@ describe("custody contract reshaping", () => {
     expect(custodyReshapeChildren(item)).toEqual([]);
   });
 
-  test("recognizes a small-lease overrun from its measured receipt wording", () => {
+  test("routes a legacy small-lease overrun to the corrected envelope instead of another split", () => {
     const item = failed("Verify frozen asymmetric manifest, provenance, and control count", 24_893, "20,000");
-    expect(custodyNeedsReshape(item)).toBe(true);
+    expect(custodyNeedsReshape(item)).toBe(false);
   });
 });

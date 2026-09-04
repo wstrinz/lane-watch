@@ -38,6 +38,35 @@ export interface CustodyWorkItem {
   completedAt: string;
 }
 
+/**
+ * App Server reports whole-turn usage, including the fixed system and lease
+ * context. A 20k lease left effectively no working room for a fresh steward,
+ * so custody envelopes must budget that fixed cost as well as task execution.
+ */
+export function custodyTokenCap(effortClass: "small" | "medium"): number {
+  return effortClass === "medium" ? 100_000 : 50_000;
+}
+
+export function custodyReceiptTokenCeiling(item: Record<string, any>): number {
+  const receipt = item?.receipt || {};
+  const evidence = [
+    receipt.summary,
+    receipt.stopReason,
+    ...(Array.isArray(receipt.checks) ? receipt.checks.map((check: any) => check?.detail) : []),
+  ].filter(Boolean).join(" ");
+  const match = evidence.match(/(?:fixed\s+)?([\d,]+)-token(?:\s+lease)?(?:\s+(?:budget|ceiling))?/i);
+  return match ? Number(match[1].replaceAll(",", "")) : 0;
+}
+
+/** A legacy zero-effect failure that can be retried exactly once under a newer policy cap. */
+export function custodyHasBudgetUpgrade(item: Record<string, any>): boolean {
+  if (!["blocked", "failed"].includes(String(item?.status || ""))) return false;
+  const changedPaths = Array.isArray(item?.receipt?.effects?.changedPaths) ? item.receipt.effects.changedPaths : [];
+  const priorCeiling = custodyReceiptTokenCeiling(item);
+  const currentCeiling = Number(item?.tokenCap || custodyTokenCap(item?.effortClass === "medium" ? "medium" : "small"));
+  return changedPaths.length === 0 && priorCeiling > 0 && currentCeiling > priorCeiling;
+}
+
 const urgencyRank: Record<CustodyUrgency, number> = { NOW: 0, SOON: 1, PARK: 2 };
 const statusRank: Record<CustodyStatus, number> = {
   ready: 0,
@@ -135,6 +164,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
     const dependenciesSatisfied = missingDependencies.length === 0;
     return {
       ...item,
+      tokenCap: custodyTokenCap(item.effortClass),
       contractComplete,
       generationAllowed,
       dependencyItemIds,

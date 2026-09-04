@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { CustodyWorkItem } from "./custody";
+import { custodyTokenCap, type CustodyWorkItem } from "./custody";
 
 export interface CustodyLeaseBudget {
   maxTokens: number;
@@ -87,8 +87,21 @@ export function protocolDigest(value: unknown): string {
 
 export function custodyBudgetFor(item: CustodyWorkItem): CustodyLeaseBudget {
   return item.effortClass === "medium"
-    ? { maxTokens: 50_000, maxMinutes: 90, maxChangedPaths: 20 }
-    : { maxTokens: 20_000, maxMinutes: 30, maxChangedPaths: 8 };
+    ? { maxTokens: custodyTokenCap("medium"), maxMinutes: 90, maxChangedPaths: 20 }
+    : { maxTokens: custodyTokenCap("small"), maxMinutes: 30, maxChangedPaths: 8 };
+}
+
+function acceptanceForCurrentBudget(item: CustodyWorkItem, budget: CustodyLeaseBudget): CustodyWorkItem["acceptance"] {
+  const legacyCeiling = item.effortClass === "medium" ? 50_000 : 20_000;
+  if (budget.maxTokens <= legacyCeiling) return item.acceptance;
+  const legacyLabel = legacyCeiling.toLocaleString("en-US");
+  return {
+    ...item.acceptance,
+    stopCondition: item.acceptance.stopCondition.replaceAll(
+      legacyLabel + " tokens",
+      budget.maxTokens.toLocaleString("en-US") + " tokens",
+    ),
+  };
 }
 
 export function createCustodyLease(input: {
@@ -101,6 +114,7 @@ export function createCustodyLease(input: {
   executionMode?: "disconnected" | "isolated-worktree";
   workspace?: CustodyLeaseEnvelope["workspace"];
 }): CustodyLeaseEnvelope {
+  const budget = custodyBudgetFor(input.item);
   const contract = {
     task: input.item.task,
     reason: input.item.reason,
@@ -109,7 +123,7 @@ export function createCustodyLease(input: {
     repairGeneration: input.item.repairGeneration,
     effortClass: input.item.effortClass,
     blocksResearch: input.item.blocksResearch,
-    acceptance: input.item.acceptance,
+    acceptance: acceptanceForCurrentBudget(input.item, budget),
   };
   const body = {
     schema: "campaign-custody-lease/v1" as const,
@@ -123,7 +137,7 @@ export function createCustodyLease(input: {
     expiresAt: input.expiresAt,
     contract,
     contractDigest: protocolDigest(contract),
-    budget: custodyBudgetFor(input.item),
+    budget,
     authority: {
       allowedEffects: ["isolated-bounded-path-repair", "verification", "receipt-emission", "detached-producer-commit"],
       forbiddenEffects: ["research-direction", "claim-promotion", "worker-dispatch", "merge", "push", "unlisted-path-change"],

@@ -73,4 +73,18 @@ describe("autopilot start readiness", () => {
       runnableTasks: ["custody:named-pool replay"],
     });
   });
+
+  test("does not let an old confirmed research schedule bypass a blocking custody budget", () => {
+    const result = evaluateAutopilotStartReadiness({
+      phase: "RESEARCH_READY",
+      scheduleStatus: "confirmed",
+      custodyCandidates: [{ taskId: "custody:legacy lease recovery", tokenBudget: 50_000, active: false }],
+      spendableEpochTokens: 0,
+      waveTokenBudget: 240_000,
+      availableResearchSlots: 2,
+      availableCustodySlots: 1,
+    });
+
+    expect(result).toMatchObject({ canStart: false, code: "EPOCH_BUDGET", minimumRunnableTokenCap: 50_000 });
+  });
 });
