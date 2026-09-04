@@ -78,4 +78,17 @@ describe("autopilot custody policy", () => {
     });
     expect(nextCustodyAutopilotStep({ items: [downstream] })).toMatchObject({ kind: "attention", message: expect.stringContaining("Bind predecessor") });
   });
+
+  test("continues an independent dependency root while preserving a substantive stopped branch", () => {
+    const stopped = blocker({
+      id: "stopped", status: "failed", dependenciesSatisfied: true,
+      createdAt: "2026-09-01T00:00:00Z",
+      receipt: { summary: "Custody executor approached its fixed token ceiling", effects: { changedPaths: [] } },
+    });
+    const independent = blocker({ id: "independent", dependenciesSatisfied: true, createdAt: "2026-09-02T00:00:00Z" });
+    expect(nextCustodyAutopilotStep({ items: [stopped, independent] })).toMatchObject({
+      kind: "action", type: "custody.item.promote", targetId: "independent",
+    });
+    expect(stopped.status).toBe("failed");
+  });
 });

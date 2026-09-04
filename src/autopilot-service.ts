@@ -123,7 +123,14 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   // trying to confirm an older prepared dependency. Otherwise the quota gate
   // correctly rejects a second slot and the loop appears to repeat forever.
   const dependencyReady = items.filter((candidate: any) => candidate.dependenciesSatisfied !== false);
-  const item = occupied || dependencyReady[0];
+  const actionable = dependencyReady.filter((candidate: any) => {
+    if (["proposed", "ready"].includes(candidate.status)) return true;
+    if (!["blocked", "failed"].includes(candidate.status) || !controllerOwnedCustodyStop(candidate)) return false;
+    return controllerOwnedStopCount(custody || {}, candidate.id) < 4;
+  });
+  // One stopped branch must not freeze a separate dependency root. Work all
+  // mechanically actionable roots first, then return to the substantive stop.
+  const item = occupied || actionable[0] || dependencyReady[0];
   if (!item && items.length) {
     const waiting = items[0]?.missingDependencies?.map((dependency: any) => dependency.task).filter(Boolean).join(", ");
     return { kind: "attention", message: waiting

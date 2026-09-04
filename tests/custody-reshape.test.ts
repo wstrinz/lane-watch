@@ -20,6 +20,7 @@ describe("custody contract reshaping", () => {
     const tasks = [
       "Consolidated asymmetric-laboratory intake replay and scope reconciliation",
       "Verify frozen asymmetric manifest, provenance, and control count",
+      "Bind the frozen asymmetric manifest and provenance",
       "Replay frozen asymmetric deduplication and reconcile resource scope",
       "Backfill and reconcile epoch resource provenance",
       "Bind missing epoch token measurements to their source runs",

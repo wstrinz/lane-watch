@@ -82,14 +82,18 @@
       blockers.find((item: any) => item.id === candidate.targetId),
       loopError,
     ));
+    const independentRunnable = blockers.find((candidate: any) => candidate.id !== item.id
+      && candidate.dependenciesSatisfied !== false
+      && ["proposed", "ready"].includes(candidate.status));
     if (reshapeChildren.length && needsReshape) return {
       status: reshapeBatch.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${reshapeBatch.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${suffix}`,
       title: reshapeBatch.length > 1 ? `${reshapeBatch.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
       detail: reshapeBatch.length > 1
         ? `All ${reshapeBatch.length} failed receipts landed zero changes. One approval replaces them with ${reshapeBatch.reduce((total: number, candidate: any) => total + candidate.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.`
-        : `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} dependency-ordered successors and resume the one-at-a-time custody steward.`,
+        : `The failed receipt landed no changes. Recommended: replace it with ${reshapeChildren.length} dependency-ordered successors and resume. ${independentRunnable ? `Or run the independent “${compact(independentRunnable.task, 70)}” branch first; this stopped branch will remain preserved.` : ""}`,
       actions: [
         { key: "custody.reshape-and-resume", args: { batch: reshapeBatch.length > 1 ? reshapeBatch : [{ targetId: item.id, task: item.task, children: reshapeChildren }] }, label: reshapeBatch.length > 1 ? `Split all ${reshapeBatch.length} & resume custody` : "Split & resume custody", style: "primary-button" },
+        ...(independentRunnable ? [{ key: "loop.resume", label: "Run independent custody first", style: "outline-button" }] : []),
         inspect,
       ],
     };

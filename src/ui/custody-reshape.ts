@@ -88,6 +88,35 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       ["Bind the frozen asymmetric manifest and provenance"],
     ),
   ];
+  if (/bind the frozen asymmetric manifest and provenance/i.test(item?.task || "")) return [
+    base(
+      item,
+      "Bind the immutable asymmetric successor commit and named-pool manifest",
+      "Freeze only the exact source identity and manifest boundary before asking a separate steward to inspect mathematical provenance.",
+      "small",
+      [
+        "Bind one immutable successor commit and the exact frozen named-pool manifest.",
+        "Record stable identifiers and content digests for every referenced manifest source.",
+        "Make no provenance, orientation, inventory, or repository-wide mathematical claim.",
+      ],
+      "results/inbox/asym-lab-immutable-manifest-binding-v1/**",
+      "Stop at the first missing or ambiguous source binding. Do not inspect mathematical provenance, count types, replay generators, run SAT, or exceed 20,000 tokens.",
+    ),
+    base(
+      item,
+      "Verify frozen asymmetric provenance and CLEAN_MINIMAL orientations",
+      "Consume the exact manifest-binding receipt and verify only the finite provenance and orientation references for the eleven named types.",
+      "small",
+      [
+        "Consume the exact predecessor commit-and-manifest binding without reopening source discovery.",
+        "Verify provenance and CLEAN_MINIMAL orientation references for all eleven qualifying named types.",
+        "Limit every accepted statement to the frozen named pools and emit graph-effect NONE.",
+        "Make no inventory count, replay, or repository-wide ceiling claim.",
+      ],
+      "results/inbox/asym-lab-provenance-orientation-v1/**",
+      "Stop at the first predecessor, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.",
+    ),
+  ];
   if (/replay frozen asymmetric deduplication and reconcile resource scope/i.test(item?.task || "")) return [
     base(
       item,

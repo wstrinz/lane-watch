@@ -3763,7 +3763,16 @@ function As(e) {
 		"Verify the 8-trivial/6-C2 inventory over the frozen named pools.",
 		"Correct the control count to six and emit graph-effect NONE.",
 		"Make no repository-wide ceiling claim and change no producer artifact."
-	], "results/inbox/asym-lab-inventory-control-count-v1/**", "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 20,000 tokens.", ["Bind the frozen asymmetric manifest and provenance"])] : /replay frozen asymmetric deduplication and reconcile resource scope/i.test(e?.task || "") ? [Os(e, "Replay the frozen role-preserving asymmetric deduplication core", "Run only the exact finite replay; leave accounting and scope policy to a separate receipt-bound check.", "medium", [
+	], "results/inbox/asym-lab-inventory-control-count-v1/**", "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 20,000 tokens.", ["Bind the frozen asymmetric manifest and provenance"])] : /bind the frozen asymmetric manifest and provenance/i.test(e?.task || "") ? [Os(e, "Bind the immutable asymmetric successor commit and named-pool manifest", "Freeze only the exact source identity and manifest boundary before asking a separate steward to inspect mathematical provenance.", "small", [
+		"Bind one immutable successor commit and the exact frozen named-pool manifest.",
+		"Record stable identifiers and content digests for every referenced manifest source.",
+		"Make no provenance, orientation, inventory, or repository-wide mathematical claim."
+	], "results/inbox/asym-lab-immutable-manifest-binding-v1/**", "Stop at the first missing or ambiguous source binding. Do not inspect mathematical provenance, count types, replay generators, run SAT, or exceed 20,000 tokens."), Os(e, "Verify frozen asymmetric provenance and CLEAN_MINIMAL orientations", "Consume the exact manifest-binding receipt and verify only the finite provenance and orientation references for the eleven named types.", "small", [
+		"Consume the exact predecessor commit-and-manifest binding without reopening source discovery.",
+		"Verify provenance and CLEAN_MINIMAL orientation references for all eleven qualifying named types.",
+		"Limit every accepted statement to the frozen named pools and emit graph-effect NONE.",
+		"Make no inventory count, replay, or repository-wide ceiling claim."
+	], "results/inbox/asym-lab-provenance-orientation-v1/**", "Stop at the first predecessor, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.")] : /replay frozen asymmetric deduplication and reconcile resource scope/i.test(e?.task || "") ? [Os(e, "Replay the frozen role-preserving asymmetric deduplication core", "Run only the exact finite replay; leave accounting and scope policy to a separate receipt-bound check.", "medium", [
 		"Consume the verified immutable manifest boundary from the predecessor custody receipt.",
 		"Independently reproduce the relevant role-preserving deduplication and 8-trivial/6-C2 automorphism split.",
 		"Record deterministic inputs, outputs, and candidate counts sufficient for a later accounting check.",
@@ -3864,21 +3873,29 @@ function qs(e, t) {
 			targetId: e.id,
 			task: e.task,
 			children: As(e)
-		})).filter((e) => e.children.length >= 2 && ks(n.find((t) => t.id === e.targetId), s));
+		})).filter((e) => e.children.length >= 2 && ks(n.find((t) => t.id === e.targetId), s)), d = n.find((e) => e.id !== t.id && e.dependenciesSatisfied !== !1 && ["proposed", "ready"].includes(e.status));
 		if (c.length && l) return {
 			status: u.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${u.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${i}`,
 			title: u.length > 1 ? `${u.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
-			detail: u.length > 1 ? `All ${u.length} failed receipts landed zero changes. One approval replaces them with ${u.reduce((e, t) => e + t.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.` : `The failed receipt landed no changes. Replace this oversized contract with ${c.length} dependency-ordered successors and resume the one-at-a-time custody steward.`,
-			actions: [{
-				key: "custody.reshape-and-resume",
-				args: { batch: u.length > 1 ? u : [{
-					targetId: t.id,
-					task: t.task,
-					children: c
-				}] },
-				label: u.length > 1 ? `Split all ${u.length} & resume custody` : "Split & resume custody",
-				style: "primary-button"
-			}, a]
+			detail: u.length > 1 ? `All ${u.length} failed receipts landed zero changes. One approval replaces them with ${u.reduce((e, t) => e + t.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.` : `The failed receipt landed no changes. Recommended: replace it with ${c.length} dependency-ordered successors and resume. ${d ? `Or run the independent “${S(d.task, 70)}” branch first; this stopped branch will remain preserved.` : ""}`,
+			actions: [
+				{
+					key: "custody.reshape-and-resume",
+					args: { batch: u.length > 1 ? u : [{
+						targetId: t.id,
+						task: t.task,
+						children: c
+					}] },
+					label: u.length > 1 ? `Split all ${u.length} & resume custody` : "Split & resume custody",
+					style: "primary-button"
+				},
+				...d ? [{
+					key: "loop.resume",
+					label: "Run independent custody first",
+					style: "outline-button"
+				}] : [],
+				a
+			]
 		};
 		if (l) return {
 			status: `CUSTODY CONTRACT STOP${i}`,
