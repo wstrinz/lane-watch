@@ -15,6 +15,8 @@ export interface CustodyAcceptanceContract {
   dependsOnTasks?: string[];
 }
 
+export const CUSTODY_OPERATOR_REPAIR_CONFIRMATION = "AUTHORIZE THIS FROZEN REPAIR";
+
 export interface CustodyWorkItem {
   id: string;
   projectId: string;
@@ -154,7 +156,13 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
   };
   const decorated = items.map((item) => {
     const contractComplete = custodyContractComplete(item.acceptance);
-    const generationAllowed = item.repairGeneration <= maxAutomaticRepairGeneration;
+    const automaticGenerationAllowed = item.repairGeneration <= maxAutomaticRepairGeneration;
+    const operatorGenerationApproval = item.status === "ready"
+      && item.receipt?.operatorAuthorization?.schema === "campaign-custody-operator-authorization/v1"
+      && item.receipt?.operatorAuthorization?.scope === "single-ready-transition"
+      && item.receipt?.operatorAuthorization?.itemId === item.id
+      && Number(item.receipt?.operatorAuthorization?.repairGeneration) === item.repairGeneration;
+    const generationAllowed = automaticGenerationAllowed || operatorGenerationApproval;
     const dependencyItemIds = [...new Set(rawDependencyIds(item).map((id) => terminalDependencyId(id)))];
     const dependencies = dependencyItemIds.map((id) => {
       const dependency = byId.get(id);
@@ -167,6 +175,8 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
       tokenCap: custodyTokenCap(item.effortClass),
       contractComplete,
       generationAllowed,
+      automaticGenerationAllowed,
+      operatorGenerationApproval,
       dependencyItemIds,
       dependencies,
       missingDependencies,

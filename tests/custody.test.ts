@@ -60,6 +60,19 @@ describe("custody contracts", () => {
     expect(service.violations).toEqual([expect.objectContaining({ itemId: "generation-two", kind: "repair-generation-limit" })]);
   });
 
+  test("admits one exact operator-owned transition beyond the automatic generation limit", () => {
+    const approved = item({
+      id: "operator-approved",
+      status: "ready",
+      repairGeneration: 1,
+      receipt: { operatorAuthorization: {
+        schema: "campaign-custody-operator-authorization/v1", scope: "single-ready-transition",
+        itemId: "operator-approved", repairGeneration: 1,
+      } },
+    });
+    const service = deriveCustodyServiceState([approved], 0, true);
+    expect(service.items[0]).toMatchObject({ automaticGenerationAllowed: false, operatorGenerationApproval: true, generationAllowed: true, executorEligible: true });
+  });
   test("marks a stopped bounded contract as retryable without granting claim authority", () => {
     const service = deriveCustodyServiceState([item({ status: "blocked", blocksResearch: true })], 1, true);
     expect(service.items[0]).toMatchObject({ eligibleToRetry: true, executorEligible: false });

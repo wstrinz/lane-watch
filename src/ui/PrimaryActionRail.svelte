@@ -120,10 +120,10 @@
     }
     if (budgetUpgrades.length) return {
       status: `${value.strategy?.epoch?.label || "FRESH EPOCH"} · ${schedulableTokens.toLocaleString()} TOKENS SCHEDULABLE`,
-      title: "Retry the starved custody roots under corrected envelopes",
-      detail: `The new epoch is active and its historical spend has been closed behind the epoch boundary. The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click rebudgets ${budgetUpgrades.length} exact contracts and resumes the one-at-a-time Terra steward.${["queued", "drafting", "drafted"].includes(String(strategyReview?.status || "")) ? " The extra resource review can finish in the background; it no longer blocks custody." : ""}`,
+      title: "Authorize the starved custody roots under corrected envelopes",
+      detail: `Epoch 3 permits no automatic repair descendants, so this is an explicit operator gate—not an autopilot retry. The prior attempts changed no files and stopped because fixed App Server context consumed most of each 20,000-token lease. One click authorizes and rebudgets ${budgetUpgrades.length} unchanged frozen roots, then resumes the one-at-a-time Terra steward.${["queued", "drafting", "drafted"].includes(String(strategyReview?.status || "")) ? " The extra resource review can finish in the background; it no longer blocks custody." : ""}`,
       actions: [
-        { key: "custody.rebudget-and-resume", args: { itemIds: budgetUpgrades.map((candidate: any) => candidate.id) }, label: "Rebudget " + budgetUpgrades.length + " checks & resume", style: "primary-button" },
+        { key: "custody.rebudget-and-resume", args: { itemIds: budgetUpgrades.map((candidate: any) => candidate.id) }, label: "Authorize " + budgetUpgrades.length + " checks & resume", style: "primary-button" },
         inspect,
       ],
     };
@@ -424,7 +424,10 @@
             projectId: project.id,
             type: "custody.item.promote",
             targetId: itemId,
-            args: { note: "Operator accepted the corrected total-turn custody envelope after a zero-effect legacy budget stop." },
+            args: {
+              note: "Operator explicitly authorized this unchanged frozen repair under the corrected total-turn custody envelope after a zero-effect legacy budget stop.",
+              operatorConfirmation: "AUTHORIZE THIS FROZEN REPAIR",
+            },
             scope: "primary-rail-custody-rebudget",
             pollLimit: 80,
           });

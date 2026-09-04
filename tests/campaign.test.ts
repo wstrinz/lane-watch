@@ -938,6 +938,60 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   control.stop();
 });
 
+test("an explicit operator can authorize one frozen custody repair beyond the automatic generation limit", async () => {
+  const dataDir = mkdtempSync(join(tmpdir(), "lane-watch-operator-custody-gate-"));
+  temporaryRoots.push(dataDir);
+  const control = await CampaignControl.create(dataDir, join(fixtureRoot, "hub", "projects.json"), new FakeCodex() as any);
+  await control.observe(observer([]));
+  const database = new Database(join(dataDir, "observer.sqlite"));
+  const charterRow = database.query("SELECT charter_json FROM campaign_strategy_charters WHERE project_id = 'demo'").get() as { charter_json: string };
+  const charter = JSON.parse(charterRow.charter_json);
+  charter.maintenancePolicy.maxAutomaticRepairGeneration = 0;
+  database.query("UPDATE campaign_strategy_charters SET charter_json = $charter WHERE project_id = 'demo'").run({ $charter: JSON.stringify(charter) });
+  database.query(`
+    INSERT INTO campaign_custody_items(
+      item_id, project_id, source_type, source_id, fingerprint, task, reason, urgency,
+      blocks_research, strategic_track, capability, repair_generation, effort_class,
+      acceptance_json, status, receipt_json, created_by, created_at, updated_at
+    ) VALUES (
+      'operator-repair', 'demo', 'test', 'legacy-stop', 'operator-repair-fingerprint',
+      'Retry one frozen zero-effect repair', 'The old total-turn lease was too small.', 'NOW',
+      1, 'supply', 'verification', 1, 'small', $acceptance, 'failed', $receipt,
+      'test-operator', $now, $now
+    )
+  `).run({
+    $acceptance: JSON.stringify({ acceptanceCriteria: ["The exact frozen check passes."], allowedPaths: ["custody/**"], receiptType: "campaign-custody-receipt/v1", stopCondition: "Stop on any scope change." }),
+    $receipt: JSON.stringify({ status: "FAILED", summary: "Stopped at the fixed 20,000-token lease ceiling.", effects: { changedPaths: [] } }),
+    $now: new Date().toISOString(),
+  });
+  database.close();
+
+  let project = (control.snapshot() as any).projects[0];
+  expect(project.custody.items.find((item: any) => item.id === "operator-repair")).toMatchObject({ generationAllowed: false, automaticGenerationAllowed: false });
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.item.promote", targetId: "operator-repair",
+    idempotencyKey: "reject-automatic-overlimit-repair", expectedVersion: project.version,
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.promote")).toMatchObject({ status: "failed", error: expect.stringContaining("requires exact operator approval") });
+
+  project = (control.snapshot() as any).projects[0];
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.item.promote", targetId: "operator-repair",
+    idempotencyKey: "approve-operator-owned-overlimit-repair", expectedVersion: project.version,
+    args: { operatorConfirmation: "AUTHORIZE THIS FROZEN REPAIR", note: "Approve this exact zero-effect root only." },
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.item.promote")).toMatchObject({ status: "completed", result: { status: "ready", operatorGenerationApproval: true } });
+  project = (control.snapshot() as any).projects[0];
+  expect(project.custody.items.find((item: any) => item.id === "operator-repair")).toMatchObject({
+    status: "ready", automaticGenerationAllowed: false, operatorGenerationApproval: true, generationAllowed: true, executorEligible: true,
+  });
+  await control.enqueueAction({
+    projectId: "demo", type: "custody.lease.prepare", targetId: "operator-repair",
+    idempotencyKey: "prepare-operator-owned-overlimit-repair", expectedVersion: project.version,
+  }, "test-operator");
+  expect(await waitForAction(control, "demo", "custody.lease.prepare")).toMatchObject({ status: "completed", result: { status: "prepared" } });
+  control.stop();
+});
 test("an exact custody lease runs one isolated Terra steward and lands only after receipt review", async () => {
   const root = mkdtempSync(join(tmpdir(), "lane-watch-custody-execution-"));
   temporaryRoots.push(root);

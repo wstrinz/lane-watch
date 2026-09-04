@@ -74,6 +74,18 @@ describe("autopilot start readiness", () => {
     });
   });
 
+  test("keeps over-limit custody repairs at their exact operator gate", () => {
+    const result = evaluateAutopilotStartReadiness({
+      phase: "RESEARCH_READY",
+      custodyCandidates: [{ taskId: "custody:frozen repair", tokenBudget: 50_000, active: false, requiresOperatorRelease: true }],
+      spendableEpochTokens: 300_000,
+      waveTokenBudget: 120_000,
+      availableCustodySlots: 1,
+    });
+
+    expect(result).toMatchObject({ canStart: false, code: "CUSTODY_OPERATOR_GATE", runnableTasks: ["custody:frozen repair"] });
+    expect(result.blocker).toContain("primary custody gate");
+  });
   test("does not let an old confirmed research schedule bypass a blocking custody budget", () => {
     const result = evaluateAutopilotStartReadiness({
       phase: "RESEARCH_READY",

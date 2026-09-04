@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import type { CodexAppServerClient, CodexNotification, CodexServerRequest } from "./codex";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
-import { custodyContractComplete, type CustodyAcceptanceContract, type CustodyStatus, type CustodyWorkItem } from "./custody";
+import { CUSTODY_OPERATOR_REPAIR_CONFIRMATION, custodyContractComplete, type CustodyAcceptanceContract, type CustodyStatus, type CustodyWorkItem } from "./custody";
 import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorReportSchema, custodyInterruptThreshold, verifyCustodyExecutionReceipt, type CustodyExecutionMeasurement, type CustodyExecutionReceipt, type CustodyExecutorReport } from "./custody-executor";
 import { createCustodyLease, protocolDigest, simulateCustodyProtocol, verifyCustodyProtocolReceipt, type CustodyLeaseEnvelope, type CustodyProtocolReceipt } from "./custody-protocol";
 import { runGit } from "./git";
@@ -14,6 +14,7 @@ interface CustodyItemRow {
   item_id: string;
   project_id: string;
   status: CustodyStatus;
+  receipt_json: string;
 }
 
 interface CustodyLeaseRow {
@@ -137,11 +138,14 @@ export class CustodyCommandService {
     if (!row) throw new Error("Select a custody item from this campaign");
     const service = this.domains.custodySnapshot(projectId);
     const item = service.items.find((candidate: any) => candidate.id === itemId);
+    const operatorGenerationApproval = transition === "promote"
+      && !item?.generationAllowed
+      && args.operatorConfirmation === CUSTODY_OPERATOR_REPAIR_CONFIRMATION;
     let status: CustodyStatus;
     if (transition === "promote") {
       if (!["proposed", "blocked", "failed"].includes(row.status)) throw new Error("Only a proposed or safely stopped custody item can become ready");
       if (!item?.contractComplete) throw new Error("Complete the custody acceptance contract before marking it ready");
-      if (!item?.generationAllowed) throw new Error("This repair exceeds the charter's automatic repair-generation limit and must remain operator-owned");
+      if (!item?.generationAllowed && !operatorGenerationApproval) throw new Error("This repair exceeds the automatic generation limit and requires exact operator approval at the primary custody gate");
       if (!item?.dependenciesSatisfied) throw new Error("This custody contract is waiting for its exact predecessor receipt");
       status = "ready";
     } else if (transition === "park") {
@@ -153,19 +157,32 @@ export class CustodyCommandService {
     }
     const note = boundedText(args.note || "", 2_000);
     const stamp = this.port.now();
+    const receipt = operatorGenerationApproval ? {
+      ...parseJson<Record<string, any>>(row.receipt_json, {}),
+      operatorAuthorization: {
+        schema: "campaign-custody-operator-authorization/v1",
+        scope: "single-ready-transition",
+        itemId,
+        repairGeneration: Number(item?.repairGeneration || 0),
+        automaticLimit: Number(service.policy?.maxAutomaticRepairGeneration ?? 0),
+        actor,
+        approvedAt: stamp,
+      },
+    } : null;
     this.database.query(
-      "UPDATE campaign_custody_items SET status = $status, updated_at = $now WHERE item_id = $id",
-    ).run({ $id: itemId, $status: status, $now: stamp });
+      "UPDATE campaign_custody_items SET status = $status, receipt_json = CASE WHEN $receipt = '' THEN receipt_json ELSE $receipt END, updated_at = $now WHERE item_id = $id",
+    ).run({ $id: itemId, $status: status, $receipt: receipt ? JSON.stringify(receipt) : "", $now: stamp });
     this.port.touchProject(projectId);
     this.port.recordEvent(projectId, "custody", itemId, `custody.item.${status}`, {
       actor,
       from: row.status,
       to: status,
       note,
+      operatorGenerationApproval,
       readyDoesNotDispatch: true,
       campaignPhaseUnchanged: this.port.project(projectId).current_phase,
     });
-    return { itemId, from: row.status, status, executorConnected: Boolean(service.executorConnected), dispatched: false, campaignPhase: this.port.project(projectId).current_phase };
+    return { itemId, from: row.status, status, operatorGenerationApproval, executorConnected: Boolean(service.executorConnected), dispatched: false, campaignPhase: this.port.project(projectId).current_phase };
   }
 
   reshapeItem(projectId: string, itemId: string, args: Record<string, any>, actor: string): Record<string, unknown> {

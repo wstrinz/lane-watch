@@ -3936,8 +3936,8 @@ function Xs(e, t) {
 		};
 		if (u.length) return {
 			status: `${e.strategy?.epoch?.label || "FRESH EPOCH"} · ${p.toLocaleString()} TOKENS SCHEDULABLE`,
-			title: "Retry the starved custody roots under corrected envelopes",
-			detail: `The new epoch is active and its historical spend has been closed behind the epoch boundary. The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click rebudgets ${u.length} exact contracts and resumes the one-at-a-time Terra steward.${[
+			title: "Authorize the starved custody roots under corrected envelopes",
+			detail: `Epoch 3 permits no automatic repair descendants, so this is an explicit operator gate—not an autopilot retry. The prior attempts changed no files and stopped because fixed App Server context consumed most of each 20,000-token lease. One click authorizes and rebudgets ${u.length} unchanged frozen roots, then resumes the one-at-a-time Terra steward.${[
 				"queued",
 				"drafting",
 				"drafted"
@@ -3945,7 +3945,7 @@ function Xs(e, t) {
 			actions: [{
 				key: "custody.rebudget-and-resume",
 				args: { itemIds: u.map((e) => e.id) },
-				label: "Rebudget " + u.length + " checks & resume",
+				label: "Authorize " + u.length + " checks & resume",
 				style: "primary-button"
 			}, a]
 		};
@@ -4490,7 +4490,10 @@ function Xs(e, t) {
 						projectId: H(d).id,
 						type: "custody.item.promote",
 						targetId: e,
-						args: { note: "Operator accepted the corrected total-turn custody envelope after a zero-effect legacy budget stop." },
+						args: {
+							note: "Operator explicitly authorized this unchanged frozen repair under the corrected total-turn custody envelope after a zero-effect legacy budget stop.",
+							operatorConfirmation: "AUTHORIZE THIS FROZEN REPAIR"
+						},
 						scope: "primary-rail-custody-rebudget",
 						pollLimit: 80
 					});

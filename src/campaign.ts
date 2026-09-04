@@ -1208,6 +1208,7 @@ export class CampaignControl {
           taskId: `custody:${item.task}`,
           tokenBudget: Number(item.tokenCap || (item.effortClass === "medium" ? 100_000 : 50_000)),
           active: ["assigned", "verifying"].includes(item.status),
+          requiresOperatorRelease: item.generationAllowed === false,
         }))
       : [];
     return evaluateAutopilotStartReadiness({

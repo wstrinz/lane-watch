@@ -9,11 +9,12 @@ export interface AutopilotCustodyCandidate {
   taskId: string;
   tokenBudget: number;
   active: boolean;
+  requiresOperatorRelease?: boolean;
 }
 
 export interface AutopilotStartReadiness {
   canStart: boolean;
-  code: "READY" | "PHASE_BLOCKED" | "PLAN_NOT_READY" | "NO_RUNNABLE_FRONTIER" | "NO_RESEARCH_SLOT" | "NO_CUSTODY_SLOT" | "EPOCH_BUDGET" | "SCHEDULE_CONFIRMATION";
+  code: "READY" | "PHASE_BLOCKED" | "PLAN_NOT_READY" | "NO_RUNNABLE_FRONTIER" | "NO_RESEARCH_SLOT" | "NO_CUSTODY_SLOT" | "CUSTODY_OPERATOR_GATE" | "EPOCH_BUDGET" | "SCHEDULE_CONFIRMATION";
   blocker: string;
   effectiveTokenLimit: number;
   minimumRunnableTokenCap: number;
@@ -66,6 +67,12 @@ export function evaluateAutopilotStartReadiness(input: {
   const custody = input.custodyCandidates || [];
   const runnableTasks = [...custody.map((candidate) => candidate.taskId), ...runnable.map((candidate) => candidate.taskId)];
   if (custody.length) {
+    const operatorGate = custody.find((candidate) => candidate.requiresOperatorRelease);
+    if (operatorGate) return blocked(
+      "CUSTODY_OPERATOR_GATE",
+      `${operatorGate.taskId} exceeds the charter's automatic repair-generation limit. Authorize that exact frozen repair from the primary custody gate before resuming autopilot.`,
+      { runnableTasks },
+    );
     const needsSlot = custody.some((candidate) => !candidate.active);
     const custodySlots = Math.max(0, Math.floor(Number(input.availableCustodySlots) || 0));
     if (needsSlot && !custodySlots) return blocked("NO_CUSTODY_SLOT", "The checked dependency plan has bounded custody work, but no Terra custody slot is currently available.", { runnableTasks });
