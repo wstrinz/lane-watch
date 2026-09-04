@@ -666,7 +666,7 @@ function strategyReviewSchema(): Record<string, unknown> {
             items: {
               type: "object",
               additionalProperties: false,
-              required: ["task", "reason", "urgency", "blocksResearch", "strategicTrack", "capability", "repairGeneration", "effortClass", "acceptanceCriteria", "allowedPaths", "receiptType", "stopCondition"],
+              required: ["task", "reason", "urgency", "blocksResearch", "strategicTrack", "capability", "repairGeneration", "effortClass", "acceptanceCriteria", "allowedPaths", "receiptType", "stopCondition", "inputManifest"],
               properties: {
                 task: { type: "string" },
                 reason: { type: "string" },
@@ -676,6 +676,16 @@ function strategyReviewSchema(): Record<string, unknown> {
                 capability: { type: "string", enum: ["repair", "verification", "archive", "provenance", "portability"] },
                 repairGeneration: { type: "integer", minimum: 0 },
                 effortClass: { type: "string", enum: ["small", "medium"] },
+                inputManifest: {
+                  type: ["object", "null"], additionalProperties: false,
+                  required: ["files", "recordIds", "requiredRecordCount", "requiredHost"],
+                  properties: {
+                    files: { type: "array", items: { type: "object", additionalProperties: false, required: ["commit", "path", "sha256"], properties: { commit: { type: "string" }, path: { type: "string" }, sha256: { type: "string" } } } },
+                    recordIds: { type: "array", items: { type: "string" } },
+                    requiredRecordCount: { type: ["integer", "null"] },
+                    requiredHost: { type: ["string", "null"], enum: ["win32", "darwin", "linux", null] },
+                  },
+                },
                 acceptanceCriteria: { type: "array", items: { type: "string" } },
                 allowedPaths: { type: "array", items: { type: "string" } },
                 receiptType: { type: "string" },
@@ -1393,6 +1403,7 @@ export class CampaignControl {
       "campaign.redirect.apply": (action) => this.waveSemantics.applyRedirect(action.project_id, action.target_id, action.created_by),
       "campaign.recovery.prepare": (action) => this.campaignRecovery.prepare(action.project_id, action.created_by),
       "campaign.recovery.apply": (action, args) => this.campaignRecovery.apply(action.project_id, args, action.created_by),
+      "strategy.review.reconcile": (action) => this.strategyCommands.reconcileReview(action.project_id, action.target_id, action.created_by),
       "strategy.review.request": (action, args) => this.requestStrategyReview(action.project_id, args, action.created_by),
       "strategy.proposal.activate": (action, args) => this.activateStrategyProposal(action.project_id, action.target_id, args, action.created_by),
       "strategy.proposal.dismiss": (action, args) => this.dismissStrategyProposal(action.project_id, action.target_id, args, action.created_by),

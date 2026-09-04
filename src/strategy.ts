@@ -220,6 +220,7 @@ export function deriveStrategyState(input: StrategyStateInput): Record<string, a
       snapshotCount: input.snapshots.length,
     },
     cost: {
+      scope: "research-epoch",
       runs: work.length,
       knownTokenRuns: work.length - unreportedRuns,
       unreportedRuns,

@@ -6,6 +6,8 @@ import type { CampaignCoordinationInterface } from "./campaign-coordination-inte
 import { CoordinatorSessionService } from "./coordinator-session-service";
 import type { ResearchLaunchSpec } from "./research-execution-service";
 
+import { requireExperimentValidity } from "./research-validity";
+
 interface ResearchRequestRow {
   request_id: string;
   project_id: string;
@@ -116,6 +118,7 @@ export class ResearchPlanningService {
     `).all({ $project: projectId }) as Array<{ action_id: string; result_json: string; completed_at: string }>;
     const bundleBody = {
       schema: "campaign-research-plan-review/v1",
+      experimentValidityRequired: true,
       projectId,
       waveId: wave.wave_id,
       waveEvidenceDigest: wave.evidence_digest,
@@ -162,6 +165,7 @@ export class ResearchPlanningService {
         `Follow this operator direction exactly: ${revisionDecision?.note || "Address every blocker and warning in the previous checked plan."}`,
         "Use the previous checked plan in the frozen bundle as the baseline. Return a corrected structured plan, not a commentary on the old one.",
       ] : []),
+      "For each retained experiment, return exactly one quickChecks entry named experiment-validity:<requestId>, with PASS only when its justification is supported; use BLOCK otherwise. Explain in its detail its exact input domain and observable, why outcomes can differ on legal inputs, the control or proof supporting that claim, and how each possible outcome changes the decision. A constant statistic or impossible trigger cannot justify a discriminating assay. DROP such an assay; a theorem about constancy is a different result. Do not credit representation calibration as new candidate supply. Report unknown validity as a blocker before an expensive measurement.",
       "Perform a quick but adversarial planning pass. Check dependency order, duplicate or obsolete work, whether each lane has an enforced launch contract, profile fit, evidence/stop conditions, resource proportionality, and signs of tunnel vision.",
       "Use the included shadow-mode strategy context. Return portfolioAssessment and classify every retained lane with a strategic track, work kind, expected measurable delta, evidence tier, parent/repair generation, and cost class. Infrastructure is charged to the strategic track it supports and does not count as a fourth research track.",
       "The charter is advisory in this pass, but do not hide violations: identify an imbalanced or outside-charter plan, estimate its maintenance share, and explain how the plan responds to every active drift signal. A maintenance or audit descendant beyond one automatic repair generation should normally be DROP or operator-held unless it fixes a demonstrated critical-path correctness defect.",
@@ -258,6 +262,7 @@ export class ResearchPlanningService {
       let frozenRequestIds = new Set<string>();
       if (plan.bundle_path && await Bun.file(plan.bundle_path).exists()) {
         const frozenBundle = parseJson<Record<string, any>>(await Bun.file(plan.bundle_path).text(), {});
+        if (frozenBundle.experimentValidityRequired) requireExperimentValidity(lanes, Array.isArray(planResponse.quickChecks) ? planResponse.quickChecks : []);
         frozenRequestIds = new Set((Array.isArray(frozenBundle.proposedRequests) ? frozenBundle.proposedRequests : [])
           .map((request: any) => typeof request?.id === "string" ? request.id : "")
           .filter(Boolean));

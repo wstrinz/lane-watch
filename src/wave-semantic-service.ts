@@ -232,6 +232,12 @@ export class WaveSemanticService {
     const project = this.port.project(projectId);
     const wave = this.waves.latest(projectId);
     const stamp = this.port.now();
+    const replanReady = project.current_phase === "RESEARCH_READY" && response.decision === "READY_FOR_GATE";
+    if (replanReady) {
+      const reserved = this.database.query("SELECT COUNT(*) AS count FROM campaign_wave_schedules WHERE project_id = $project AND status IN ('confirmed', 'dispatching', 'running')").get({ $project: projectId }) as { count: number };
+      const active = this.database.query("SELECT COUNT(*) AS count FROM campaign_research_runs WHERE project_id = $project AND status IN ('launching', 'running', 'blocked', 'awaiting_evidence', 'evidence_ready')").get({ $project: projectId }) as { count: number };
+      if (reserved.count || active.count) throw new Error("Settle the confirmed schedule and active research before applying a redirect to the launch gate");
+    }
     let inserted = 0;
     if (wave && response.decision === "READY_FOR_GATE") {
       const existing = this.database.query("SELECT question FROM campaign_research_requests WHERE project_id = $project AND wave_id = $wave")
@@ -251,7 +257,12 @@ export class WaveSemanticService {
     }
     this.database.query("UPDATE campaign_redirect_inputs SET status = 'applied', updated_at = $now, applied_at = $now WHERE input_id = $id")
       .run({ $id: input.input_id, $now: stamp });
-    const canOpenReview = inserted > 0 && ["DECISION_REQUIRED", "NEXT_WAVE_READY", "PLANNING"].includes(project.current_phase);
+    const canOpenReview = (inserted > 0 || replanReady) && ["DECISION_REQUIRED", "NEXT_WAVE_READY", "PLANNING", "RESEARCH_READY"].includes(project.current_phase);
+    if (wave && replanReady) {
+      this.database.query("UPDATE campaign_research_requests SET status = 'proposed', updated_at = $now WHERE project_id = $project AND wave_id = $wave AND status IN ('approved_for_dispatch', 'planned_followup')").run({ $project: projectId, $wave: wave.wave_id, $now: stamp });
+      this.database.query("UPDATE campaign_research_plans SET status = 'superseded', updated_at = $now WHERE project_id = $project AND wave_id = $wave").run({ $project: projectId, $wave: wave.wave_id, $now: stamp });
+      this.database.query("UPDATE campaign_wave_schedules SET status = 'superseded', updated_at = $now WHERE project_id = $project AND status = 'prepared'").run({ $project: projectId, $now: stamp });
+    }
     const phase = canOpenReview ? "RESEARCH_REVIEW" : project.current_phase;
     if (wave && canOpenReview) this.database.query("UPDATE campaign_waves SET phase = 'RESEARCH_REVIEW', updated_at = $now WHERE wave_id = $wave").run({ $wave: wave.wave_id, $now: stamp });
     const decisionId = crypto.randomUUID();

@@ -188,6 +188,31 @@ export class StrategyCommandService {
     this.port.recordEvent(projectId, "strategy", epoch.epoch_id, "strategy.wave.snapshot-recorded", { waveId, mode: "shadow", metrics, driftStatus: strategy.drift.status });
   }
 
+  async reconcileReview(projectId: string, reviewId: string, actor: string): Promise<Record<string, unknown>> {
+    const row = this.database.query("SELECT * FROM campaign_strategy_reviews WHERE review_id = $id AND project_id = $project")
+      .get({ $id: reviewId, $project: projectId }) as (StrategyReviewRow & { thread_id: string; turn_id: string }) | null;
+    if (!row || row.status !== "drafting" || !row.thread_id || !row.turn_id) throw new Error("Select a drafting strategy review with an exact task and turn identity");
+    await this.codex.resumeThread(row.thread_id);
+    const detail = await this.codex.readThreadDetail(row.thread_id);
+    const turn = (Array.isArray(detail.turns) ? detail.turns : []).find((candidate: any) => candidate.id === row.turn_id);
+    if (!turn) throw new Error("The exact strategy review turn is unavailable; no state changed");
+    if (!["completed", "interrupted", "failed"].includes(turn.status)) return { reviewId, status: "drafting", observedTurnStatus: turn.status, changed: false };
+    const messages = (Array.isArray(turn.items) ? turn.items : []).filter((item: any) => item.type === "agentMessage" && (!item.phase || item.phase === "final_answer"));
+    const message = messages[messages.length - 1];
+    const response = parseJson<Record<string, any>>(message?.text, {});
+    const complete = turn.status === "completed" && Boolean(response.summary && response.proposal && response.recommendation);
+    const status = complete ? "drafted" : "failed";
+    const error = complete ? "" : "Strategy review turn ended " + turn.status + "; no complete final proposal accepted";
+    const stamp = this.port.now();
+    const changed = this.database.query("UPDATE campaign_strategy_reviews SET status = $status, response_json = $response, error = $error, updated_at = $now, completed_at = $now WHERE review_id = $id AND status = 'drafting' AND turn_id = $turn")
+      .run({ $id: reviewId, $turn: row.turn_id, $status: status, $response: complete ? JSON.stringify(response) : row.response_json, $error: error, $now: stamp }).changes;
+    if (changed) {
+      this.port.touchProject(projectId);
+      this.port.recordEvent(projectId, "strategy-review", reviewId, "strategy.review.reconciled", { actor, turnId: row.turn_id, observedTurnStatus: turn.status, status, claimPromotions: [] });
+    }
+    return { reviewId, status, observedTurnStatus: turn.status, changed: Boolean(changed) };
+  }
+
   async requestReview(projectId: string, args: Record<string, any>, actor: string): Promise<Record<string, unknown>> {
     const active = this.database.query(`
       SELECT review_id, status FROM campaign_strategy_reviews
@@ -307,7 +332,7 @@ export class StrategyCommandService {
         ...(reviewKind === "idea-search" ? ["Search deliberately outside the current dominant line. Put falsifiable, dependency-aware candidate directions in portfolioActions.start, but do not create research requests or launch contracts. Any direction remains inert unless a human later activates the exact charter proposal and separately approves a checked research plan."] : []),
         "Return a coherent proposed charter even if your recommendation is to continue the current epoch, so the operator can compare exact alternatives. Track weights must contain coverage, supply, and decision exactly once and sum to 1.",
         "Propose a provisional epoch and wave token envelope, per-kind token caps, redirect reserve, and shared strategy/research/custody slot pools. Ground the numbers in measured history, explicitly account for missing usage, and explain the tradeoff in resourcePolicy.rationale. These values feed a shadow scheduler only and confer no execution authority.",
-        "Custody candidates are recommendations for a future separate service. Give each one a strategic cost track, capability, repair generation, small/medium effort class, allowed paths, acceptance checks, receipt type, and hard stop condition. Non-blocking upkeep should usually be PARK or SOON, not NOW.",
+        "Custody candidates are recommendations for a future separate service. Give each one a strategic cost track, capability, repair generation, small/medium effort class, allowed paths, acceptance checks, receipt type, and hard stop condition. Non-blocking upkeep should usually be PARK or SOON, not NOW. Every runnable custody candidate needs inputManifest: exact source commit/path/SHA-256 entries, explicit recordIds and requiredRecordCount when a named set is needed, and requiredHost if constrained. Use null for an unavailable manifest and keep that work held; never ask a steward to rediscover missing IDs.",
         "Do not create or execute custody work, research requests, launch contracts, or campaign mutations. The control plane will only stage your candidates into a non-executing inbox after a human activates this charter.",
         "This is a read-only governance task. Do not edit files, message or interrupt the regular coordinator, dispatch workers, change campaign phase, merge, push, or promote claims. A separate explicit human gate controls activation.",
       ].join("\n\n");
@@ -497,6 +522,7 @@ export class StrategyCommandService {
         acceptanceCriteria: (Array.isArray(candidate?.acceptanceCriteria) ? candidate.acceptanceCriteria : []).map((item: unknown) => boundedText(item, 500)).filter(Boolean).slice(0, 12),
         allowedPaths: (Array.isArray(candidate?.allowedPaths) ? candidate.allowedPaths : []).map((item: unknown) => boundedText(item, 500)).filter(Boolean).slice(0, 24),
         receiptType: boundedText(candidate?.receiptType, 200),
+        inputManifest: candidate?.inputManifest,
         stopCondition: boundedText(candidate?.stopCondition, 1_000),
       };
       if (!task || !reason) continue;

@@ -1033,6 +1033,7 @@ test("an exact custody lease runs one isolated Terra steward and lands only afte
       allowedPaths: ["custody/index.json"],
       receiptType: "campaign-custody-execution-receipt/v1",
       stopCondition: "Stop if any other file must change.",
+      inputManifest: { files: [{ commit: baseCommit, path: "README.md", sha256: createHash("sha256").update("campaign\n").digest("hex") }] },
     }),
     $now: stamp,
   });
@@ -1370,6 +1371,16 @@ test("external perspectives produce an inspectable Sol redirect before a human a
   codex.emit({ method: "turn/completed", params: { threadId: "thr_sol", turn: { id: "turn_redirect", status: "completed" } } });
   project = (control.snapshot() as any).projects[0];
   expect(project.externalInputs[0]).toMatchObject({ status: "drafted", response: redirectResponse });
+  const redirectDb = new Database(join(dataDir, "observer.sqlite"));
+  redirectDb.query("UPDATE campaign_projects SET current_phase = 'RESEARCH_READY' WHERE project_id = 'demo'").run();
+  redirectDb.query("INSERT INTO campaign_waves(wave_id, project_id, label, phase, lane_ids_json, evidence_digest, bundle_path, synthesis_turn_id, created_at, updated_at) VALUES ('redirect-wave', 'demo', 'Review', 'RESEARCH_READY', '[]', 'digest', '', '', '2026-09-04', '2026-09-04')").run();
+  redirectDb.query("INSERT INTO campaign_wave_schedules(schedule_id,project_id,wave_id,schedule_digest,plan_digest,resource_digest,status,proposal_json,created_by,confirmed_by,created_at,updated_at,confirmed_at,completed_at) VALUES ('reserved','demo','redirect-wave','a','b','c','confirmed','{}','test','test','2026-09-04','2026-09-04','','')").run();
+  project = (control.snapshot() as any).projects[0];
+  await control.enqueueAction({ projectId: "demo", type: "campaign.redirect.apply", targetId: project.externalInputs[0].id, expectedVersion: project.version, idempotencyKey: "reject-reserved-redirect" }, "test");
+  expect(await waitForAction(control, "demo", "campaign.redirect.apply")).toMatchObject({ status: "failed", error: expect.stringContaining("confirmed schedule") });
+  expect((control.snapshot() as any).projects[0].externalInputs[0].status).toBe("drafted");
+  redirectDb.query("UPDATE campaign_wave_schedules SET status = 'prepared' WHERE schedule_id = 'reserved'").run();
+  project = (control.snapshot() as any).projects[0];
   await control.enqueueAction({
     projectId: "demo",
     type: "campaign.redirect.apply",
@@ -1380,6 +1391,9 @@ test("external perspectives produce an inspectable Sol redirect before a human a
   expect((await waitForAction(control, "demo", "campaign.redirect.apply")).status).toBe("completed");
   project = (control.snapshot() as any).projects[0];
   expect(project.externalInputs[0].status).toBe("applied");
+  expect(project.phase).toBe("RESEARCH_REVIEW");
+  expect(redirectDb.query("SELECT status FROM campaign_wave_schedules WHERE schedule_id = 'reserved'").get()).toEqual({ status: "superseded" });
+  redirectDb.close();
   expect(project.workflowHistory.some((event: any) => event.type === "campaign.redirect.applied")).toBe(true);
   control.stop();
 });

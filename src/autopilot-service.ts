@@ -141,6 +141,9 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   }
   if (!item) return null;
   const lease = item.activeLease;
+  if (!occupied && item.inputReadiness?.ready === false) return {
+    kind: "attention", message: `${item.task}: ${item.inputReadiness.reason}`,
+  };
   if (item.status === "proposed") return { kind: "action", type: "custody.item.promote", targetId: item.id, key: `custody:${item.id}:enable` };
   if (["blocked", "failed"].includes(item.status)) {
     if (custodyHasBudgetUpgrade(item)) return {

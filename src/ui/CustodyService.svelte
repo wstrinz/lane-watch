@@ -204,7 +204,7 @@
   <details id="custody-service" class="custody-service" open={custody.counts.open > 0}>
     <summary>
       <span><small>CUSTODY SERVICE</small><strong>{custody.counts.open ? `${custody.counts.open} item${custody.counts.open === 1 ? "" : "s"} in the service inbox` : "Mechanical work has its own boundary"}</strong></span>
-      <span class="custody-summary-counts"><b>{custody.counts.blocking} blocking</b><b>{custody.counts.active} active</b><i>SEPARATE EXECUTOR</i></span>
+      <span class="custody-summary-counts"><b>{custody.counts.blocking} blocking</b><b>{custody.counts.active} active</b><b>{custody.counts.landed || 0} landed</b><b>{custody.counts.superseded || 0} superseded</b><i>SEPARATE EXECUTOR</i></span>
     </summary>
     <div class="custody-body">
       <div class="custody-boundary">
@@ -227,6 +227,8 @@
                 <b class={`custody-status-${item.status}`}>{item.status.toUpperCase()}</b>
               </header>
               <p>{item.reason}</p>
+              {#if item.inputReadiness?.ready === false}<p class="custody-input-blocker"><strong>INPUTS REQUIRED:</strong> {item.inputReadiness.reason}</p>{/if}
+              {#if item.lineageCost}<p>Entire repair family: {item.lineageCost.attempts} attempts · {Number(item.lineageCost.knownTokens).toLocaleString()} known tokens · {item.lineageCost.unreported} unknown · {item.lineageCost.landed} landed</p>{/if}
               <div class="custody-item-facts">
                 <span>{item.blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"}</span>
                 <span>repair generation {item.repairGeneration}/{custody.policy.maxAutomaticRepairGeneration}</span>

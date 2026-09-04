@@ -155,6 +155,8 @@ function parseJson<T>(value: string | undefined, fallback: T): T {
   try { return JSON.parse(value || "") as T; } catch { return fallback; }
 }
 
+import { custodyLineageCosts, custodyMeasuredTokens } from "./custody-cost";
+
 export class CampaignDomainReader {
   constructor(private readonly port: CampaignDomainReaderPort) {}
 
@@ -338,7 +340,7 @@ export class CampaignDomainReader {
     const policy = parseJson<Record<string, any>>(charter?.charter_json || "{}", {}).maintenancePolicy || {};
     const service = deriveCustodyServiceState(items, Number(policy.maxAutomaticRepairGeneration ?? 1), true);
     const leaseRows = this.port.queryAll<CustodyLeaseRow>(`
-      SELECT * FROM campaign_custody_leases WHERE project_id = $project ORDER BY created_at DESC LIMIT 24
+      SELECT * FROM campaign_custody_leases WHERE project_id = $project ORDER BY created_at DESC
     `, { $project: projectId });
     const leases = leaseRows.map((row) => ({
       id: row.lease_id,
@@ -364,11 +366,12 @@ export class CampaignDomainReader {
       producerCommit: row.producer_commit,
       startedAt: row.started_at,
     }));
+    const lineageCosts = custodyLineageCosts(service.items, leases);
     const activeStatuses = ["prepared", "confirmed", "running", "finalizing", "awaiting_review", "simulated"];
     const activeByItem = new Map(leases.filter((lease) => activeStatuses.includes(lease.status)).map((lease) => [lease.itemId, lease]));
     return {
       ...service,
-      items: service.items.map((item: any) => ({ ...item, activeLease: activeByItem.get(item.id) || null })),
+      items: service.items.map((item: any) => ({ ...item, lineageCost: lineageCosts.get(item.id), activeLease: activeByItem.get(item.id) || null })),
       protocol: {
         schema: "campaign-custody-adapter-protocol/v1",
         mode: "bounded-autopilot-execution",
@@ -464,10 +467,7 @@ export class CampaignDomainReader {
         continue;
       }
       if (!["running", "finalizing", "awaiting_review", "completed", "blocked", "failed", "rejected"].includes(String(lease.status))) continue;
-      const reportedTokens = lease.receipt?.usage?.tokens;
-      const numericTokens = reportedTokens !== null && reportedTokens !== undefined && Number.isFinite(Number(reportedTokens)) ? Number(reportedTokens) : null;
-      const leaseTokenCap = Number(lease.lease?.budget?.maxTokens || 0);
-      const tokens = numericTokens !== null && (!leaseTokenCap || numericTokens <= leaseTokenCap * 4) ? numericTokens : null;
+      const tokens = custodyMeasuredTokens(lease);
       const minutes = Number(lease.receipt?.usage?.minutes || 0);
       const receiptBound = lease.status === "completed" && Boolean(lease.receiptDigest) && Boolean(lease.verification?.ok)
         && lease.receipt?.usage?.tokenMeasurement === "app-server";

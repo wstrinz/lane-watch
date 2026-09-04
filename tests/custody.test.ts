@@ -123,3 +123,8 @@ describe("custody contracts", () => {
     expect(service.items.find((candidate: any) => candidate.id === "measure")).toMatchObject({ dependencyItemIds: expect.arrayContaining(["replay", "inventory"]), dependenciesSatisfied: false });
   });
 });
+
+ test("superseded contracts are not counted as landed", () => {
+  const state = deriveCustodyServiceState([item({ status: "complete", receipt: { status: "SUPERSEDED" } })]);
+  expect(state.counts).toMatchObject({ complete: 0, landed: 0, superseded: 1 });
+});

@@ -472,3 +472,30 @@ On iOS, add the page to the Home Screen before enabling alerts.
 ```powershell
 bun run check
 ```
+
+## September 4 research reset
+
+Executable custody leases now require an explicit inputManifest in the acceptance
+contract: immutable Git commit/path/SHA-256 entries, explicit record IDs and an
+expected count when needed, and an optional host requirement. Preparation and
+dispatch verify exact blob bytes before creating an agent. Legacy contracts
+without a manifest remain visible and cannot dispatch; a revised review or
+reshape must supply their inputs. These checks establish input availability,
+not mathematical acceptance. Source checks are bounded to 32 files, 5 MiB per
+file, and 16 MiB total.
+
+Custody counts distinguish landed receipts from superseded contracts. Each
+item displays the full cost of its reshape ancestry and descendants, including
+unknown measurements. Research strategy costs are explicitly scoped to research;
+the overview also shows all-layer campaign spend from the resource ledger.
+
+New planning bundles require a PASS experiment-validity:<requestId> check for
+each retained experiment. Its justification covers the legal domain, possible
+outcomes, controls, and decision consequences. The controller enforces review
+completion; it does not decide mathematical validity automatically.
+
+An operator-applied redirect can reopen an idle RESEARCH_READY launch gate,
+superseding the old plan and unconfirmed schedules. Confirmed schedules and
+unsettled research prevent this transition. The strategy workspace can reconcile
+an exact recorded review turn after a lost completion notification, without
+starting another agent or accepting interrupted commentary as a proposal.

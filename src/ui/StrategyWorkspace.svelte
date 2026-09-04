@@ -20,7 +20,7 @@
     if (!project || working) throw new Error("Another strategy action is still settling");
     working = type;
     feedbackKind = "pending";
-    feedback = type === "strategy.review.request"
+    feedback = type === "strategy.review.reconcile" ? "Checking the exact recorded strategy turn…" : type === "strategy.review.request"
       ? "Freezing the epoch ledger and starting an independent read-only Sol task…"
       : type === "strategy.proposal.activate"
         ? "Recording the charter revision and opening a fresh measurement epoch…"
@@ -28,7 +28,7 @@
     try {
       const settlement = await settleCampaignAction({ projectId: project.id, type, targetId, args, scope: "strategy-workspace", pollLimit: 160 });
       feedbackKind = "success";
-      feedback = type === "strategy.review.request"
+      feedback = type === "strategy.review.reconcile" ? "Recorded strategy status reconciled. No work was dispatched." : type === "strategy.review.request"
         ? "Independent epoch review started. The regular campaign coordinator and campaign phase were not changed."
         : type === "strategy.proposal.activate"
           ? "The new advisory charter is active in a fresh epoch. No work was dispatched."
@@ -97,6 +97,7 @@
           </button>
         </div>
       {:else if review.status === "drafting" || review.status === "queued"}
+        {#if review.status === "drafting"}<button class="outline-button" disabled={Boolean(working)} onclick={() => submit("strategy.review.reconcile", review.id).catch(() => undefined)}>Check recorded review status</button>{/if}
         <div class="strategy-review-running">
           <span class="strategy-pulse"></span>
           <div><strong>{review.reviewKind === "idea-search" ? "Searching for independent directions" : "Reviewing the epoch ledger"}</strong><p>{review.triggerReason}</p><small>{review.requestSource} · cap {Number(review.resourceCap || 0).toLocaleString()} · frozen bundle {review.bundleDigest || "being prepared"}</small></div>

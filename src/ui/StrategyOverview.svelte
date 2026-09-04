@@ -56,16 +56,17 @@
     <div class="strategy-heading">
       <div>
         <p>CAMPAIGN STRATEGY · {strategy.epoch.label}</p>
-        <h2>{topSignal?.label || "The portfolio is moving within its charter"}</h2>
+        <h2>{topSignal?.label || (strategy.cost.runs ? "Research allocation is within advisory thresholds" : "No research results recorded in this epoch")}</h2>
         <span>{topSignal?.detail || strategy.charter.thesis}</span>
       </div>
-      <div class="strategy-status"><strong>{strategy.drift.status === "attention" ? "RECENTER" : strategy.drift.status === "watch" ? "WATCH" : "ON TRACK"}</strong><span>shadow mode · advisory</span></div>
+      <div class="strategy-status"><strong>{strategy.drift.status === "attention" ? "RECENTER" : strategy.drift.status === "watch" ? "WATCH" : strategy.cost.runs ? "RESEARCH MIX" : "NO RESEARCH DATA"}</strong><span>shadow mode · advisory</span></div>
     </div>
 
     <div class="strategy-vitals">
       <div><span>Frontier motion</span><strong>{strategy.progress.advancedDeltaCount || 0}</strong><small>recorded advances</small></div>
-      <div><span>Measured spend</span><strong>{compactNumber(strategy.cost.knownTokens)}</strong><small>known tokens · {strategy.cost.unreportedRuns} unreported</small></div>
-      <div class:over={Number(strategy.cost.maintenanceShare) > Number(strategy.charter.maintenancePolicy?.rollingShareLimit || .15)}><span>Support share</span><strong>{percent(strategy.cost.maintenanceShare)}</strong><small>charter ceiling {percent(strategy.charter.maintenancePolicy?.rollingShareLimit || .15)}</small></div>
+      <div><span>Campaign spend</span><strong>{compactNumber(project?.resources?.ledger?.knownTokens)}</strong><small>all layers · {project?.resources?.ledger?.unreported ?? "unknown"} unreported</small></div>
+      <div><span>Research spend</span><strong>{compactNumber(strategy.cost.knownTokens)}</strong><small>research only · {strategy.cost.unreportedRuns} unreported</small></div>
+      <div class:over={Number(strategy.cost.maintenanceShare) > Number(strategy.charter.maintenancePolicy?.rollingShareLimit || .15)}><span>Research support share</span><strong>{percent(strategy.cost.maintenanceShare)}</strong><small>charter ceiling {percent(strategy.charter.maintenancePolicy?.rollingShareLimit || .15)}</small></div>
       <div><span>Frontier ledger</span><strong>{frontierAge(strategy.progress.frontierUpdatedAt)}</strong><small>{strategy.progress.frontierPath ? "durable source detected" : "source missing"}</small></div>
     </div>
 

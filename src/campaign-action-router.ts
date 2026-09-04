@@ -35,6 +35,7 @@ export const CAMPAIGN_ACTION_TYPES = [
   "campaign.recovery.prepare",
   "campaign.recovery.apply",
   "strategy.review.request",
+  "strategy.review.reconcile",
   "strategy.proposal.activate",
   "strategy.proposal.dismiss",
   "custody.item.promote",

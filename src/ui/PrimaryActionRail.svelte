@@ -72,6 +72,10 @@
     const suffix = count > 1 ? ` · 1 of ${count}` : "";
     const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
     const lease = item.activeLease;
+    if (!lease && item.inputReadiness?.ready === false) return {
+      status: "INPUTS REQUIRED", title: item.task, detail: item.inputReadiness.reason,
+      actions: [inspect],
+    };
     const loopError = String(value.loop?.error || "");
     const reshapeChildren = custodyReshapeChildren(item);
     const needsReshape = custodyNeedsReshape(item, loopError);
@@ -246,6 +250,11 @@
   }
 
   function focusFor(value: any): RailFocus {
+    if ((value.externalInputs || []).some((input: any) => input.status === "drafted" && input.response?.decision === "READY_FOR_GATE")) return {
+      status: "DIRECTION REVIEW READY", title: "Review the revised research direction",
+      detail: "A checked redirect may replace the current experiment or its dependencies. Review it before retrying custody for the old plan.",
+      actions: [{ key: "reveal", label: "Review proposed direction", target: "#external-perspective", style: "primary-button" }],
+    };
     const recovery = value.controlState?.recovery;
     const failedRun = (value.researchRuns || []).find((candidate: any) => candidate.status === "failed" && !candidate.evidenceSha256);
     if (recovery?.required && failedRun && value.researchSchedule?.status === "failed") {

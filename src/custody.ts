@@ -1,4 +1,5 @@
 import type { StrategyTrackId } from "./strategy";
+import { custodyInputReadiness, type CustodyInputManifest } from "./custody-input-manifest";
 
 export type CustodyUrgency = "NOW" | "SOON" | "PARK";
 export type CustodyStatus = "proposed" | "ready" | "parked" | "assigned" | "verifying" | "complete" | "blocked" | "failed";
@@ -13,6 +14,7 @@ export interface CustodyAcceptanceContract {
   dependsOnItemIds?: string[];
   /** Human-readable dependency references resolved to the latest matching item. */
   dependsOnTasks?: string[];
+  inputManifest?: CustodyInputManifest;
 }
 
 export const CUSTODY_OPERATOR_REPAIR_CONFIRMATION = "AUTHORIZE THIS FROZEN REPAIR";
@@ -172,6 +174,8 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
     const dependenciesSatisfied = missingDependencies.length === 0;
     return {
       ...item,
+      outcome: item.receipt?.status === "SUPERSEDED" ? "superseded" : item.status === "complete" ? "landed" : item.status,
+      inputReadiness: custodyInputReadiness(item.acceptance.inputManifest),
       tokenCap: custodyTokenCap(item.effortClass),
       contractComplete,
       generationAllowed,
@@ -222,7 +226,10 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
       parked: decorated.filter((item) => item.status === "parked").length,
       active: decorated.filter((item) => ["assigned", "verifying"].includes(item.status)).length,
       failed: decorated.filter((item) => item.status === "failed").length,
-      complete: decorated.filter((item) => item.status === "complete").length,
+      complete: decorated.filter((item) => item.outcome === "landed").length,
+      landed: decorated.filter((item) => item.outcome === "landed").length,
+      superseded: decorated.filter((item) => item.outcome === "superseded").length,
+      blocked: decorated.filter((item) => item.status === "blocked").length,
       blocking: open.filter((item) => item.blocksResearch && item.status !== "parked").length,
     },
     policy: {

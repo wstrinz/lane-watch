@@ -3888,7 +3888,14 @@ function Xs(e, t) {
 			label: "Inspect custody queue",
 			target: "#custody-service",
 			style: "outline-button"
-		}, o = t.activeLease, s = String(e.loop?.error || ""), c = Ns(t), l = Ms(t, s), u = n.filter((e) => e.dependenciesSatisfied !== !1 && As(e)), d = u.length ? Math.min(...u.map((e) => Number(e.tokenCap || 0)).filter((e) => e > 0)) : 0, f = Number(e.resources?.ledger?.remainingBeforeCommitments || 0), p = Number(e.resources?.ledger?.schedulableTokens ?? f), m = e.strategy?.workspace, h = m?.activeReview;
+		}, o = t.activeLease;
+		if (!o && t.inputReadiness?.ready === !1) return {
+			status: "INPUTS REQUIRED",
+			title: t.task,
+			detail: t.inputReadiness.reason,
+			actions: [a]
+		};
+		let s = String(e.loop?.error || ""), c = Ns(t), l = Ms(t, s), u = n.filter((e) => e.dependenciesSatisfied !== !1 && As(e)), d = u.length ? Math.min(...u.map((e) => Number(e.tokenCap || 0)).filter((e) => e > 0)) : 0, f = Number(e.resources?.ledger?.remainingBeforeCommitments || 0), p = Number(e.resources?.ledger?.schedulableTokens ?? f), m = e.strategy?.workspace, h = m?.activeReview;
 		if (u.length && d > f) return h?.status === "drafting" || h?.status === "queued" ? {
 			status: "RESOURCE RECENTER RUNNING",
 			title: "Sol is reviewing the exhausted epoch",
@@ -4088,6 +4095,17 @@ function Xs(e, t) {
 		};
 	}
 	function k(e) {
+		if ((e.externalInputs || []).some((e) => e.status === "drafted" && e.response?.decision === "READY_FOR_GATE")) return {
+			status: "DIRECTION REVIEW READY",
+			title: "Review the revised research direction",
+			detail: "A checked redirect may replace the current experiment or its dependencies. Review it before retrying custody for the old plan.",
+			actions: [{
+				key: "reveal",
+				label: "Review proposed direction",
+				target: "#external-perspective",
+				style: "primary-button"
+			}]
+		};
 		let t = e.controlState?.recovery, n = (e.researchRuns || []).find((e) => e.status === "failed" && !e.evidenceSha256);
 		if (t?.required && n && e.researchSchedule?.status === "failed") return {
 			status: "SAFE RETRY READY",
@@ -15637,7 +15655,7 @@ function Lx(e, t) {
 //#endregion
 //#region src/ui/StrategyOverview.svelte
 Zi(["click"]), Ho();
-var Rx = /* @__PURE__ */ G("<article><div><strong> </strong><span> </span></div> <div class=\"track-meter\"><i></i><b></b></div> <small> </small></article>"), zx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small><p> </p></div></li>"), Bx = /* @__PURE__ */ G("<article><strong> </strong><p> </p><small> </small></article>"), Vx = /* @__PURE__ */ G("<div class=\"drift-list\"></div>"), Hx = /* @__PURE__ */ G("<p class=\"strategy-empty\">No active drift signal crosses the charter’s advisory thresholds.</p>"), Ux = /* @__PURE__ */ G("<section id=\"campaign-strategy\" aria-label=\"Campaign strategy and drift\" aria-live=\"polite\"><div class=\"strategy-heading\"><div><p> </p> <h2> </h2> <span> </span></div> <div class=\"strategy-status\"><strong> </strong><span>shadow mode · advisory</span></div></div> <div class=\"strategy-vitals\"><div><span>Frontier motion</span><strong> </strong><small>recorded advances</small></div> <div><span>Measured spend</span><strong> </strong><small> </small></div> <div><span>Support share</span><strong> </strong><small> </small></div> <div><span>Frontier ledger</span><strong> </strong><small> </small></div></div> <div class=\"strategy-tracks\" aria-label=\"Strategic track allocation\"></div> <details class=\"strategy-details\"><summary><span>Inspect timescales, drift evidence, and custody separation</span><strong> </strong></summary> <div class=\"strategy-detail-grid\"><section><h3>Nested control loops</h3> <ol class=\"strategy-layers\"></ol></section> <section><h3>Drift evidence</h3> <!></section></div> <p class=\"strategy-shadow-note\"><strong>Shadow mode:</strong> these measurements are supplied to Sol synthesis and lane planning, but they do not yet approve, reject, or dispatch work.</p></details></section>");
+var Rx = /* @__PURE__ */ G("<article><div><strong> </strong><span> </span></div> <div class=\"track-meter\"><i></i><b></b></div> <small> </small></article>"), zx = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small><p> </p></div></li>"), Bx = /* @__PURE__ */ G("<article><strong> </strong><p> </p><small> </small></article>"), Vx = /* @__PURE__ */ G("<div class=\"drift-list\"></div>"), Hx = /* @__PURE__ */ G("<p class=\"strategy-empty\">No active drift signal crosses the charter’s advisory thresholds.</p>"), Ux = /* @__PURE__ */ G("<section id=\"campaign-strategy\" aria-label=\"Campaign strategy and drift\" aria-live=\"polite\"><div class=\"strategy-heading\"><div><p> </p> <h2> </h2> <span> </span></div> <div class=\"strategy-status\"><strong> </strong><span>shadow mode · advisory</span></div></div> <div class=\"strategy-vitals\"><div><span>Frontier motion</span><strong> </strong><small>recorded advances</small></div> <div><span>Campaign spend</span><strong> </strong><small> </small></div> <div><span>Research spend</span><strong> </strong><small> </small></div> <div><span>Research support share</span><strong> </strong><small> </small></div> <div><span>Frontier ledger</span><strong> </strong><small> </small></div></div> <div class=\"strategy-tracks\" aria-label=\"Strategic track allocation\"></div> <details class=\"strategy-details\"><summary><span>Inspect timescales, drift evidence, and custody separation</span><strong> </strong></summary> <div class=\"strategy-detail-grid\"><section><h3>Nested control loops</h3> <ol class=\"strategy-layers\"></ol></section> <section><h3>Drift evidence</h3> <!></section></div> <p class=\"strategy-shadow-note\"><strong>Shadow mode:</strong> these measurements are supplied to Sol synthesis and lane planning, but they do not yet approve, reject, or dispatch work.</p></details></section>");
 function Wx(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(null), o = /* @__PURE__ */ F(null), s = /* @__PURE__ */ F(null);
@@ -15662,32 +15680,36 @@ function Wx(e, t) {
 		I(s, H(o)?.drift?.signals?.[0] || null);
 	}), Br(), vo();
 	var d = ca(), f = R(d), p = (e) => {
-		var t = Ux(), n = L(t), r = L(n), i = L(r), a = L(i);
+		var t = Ux(), n = L(t), r = L(n), i = L(r), d = L(i);
 		N(i);
-		var d = z(i, 2), f = L(d, !0);
-		N(d);
-		var p = z(d, 2), m = L(p, !0);
-		N(p), N(r);
-		var h = z(r, 2), g = L(h), _ = L(g, !0);
-		N(g), Ke(), N(h), N(n);
-		var v = z(n, 2), y = L(v), b = z(L(y)), x = L(b, !0);
-		N(b), Ke(), N(y);
-		var S = z(y, 2), C = z(L(S)), w = L(C, !0);
-		N(C);
-		var T = z(C), E = L(T);
-		N(T), N(S);
-		var D = z(S, 2);
-		let O;
-		var k = z(L(D)), A = L(k, !0);
+		var f = z(i, 2), p = L(f, !0);
+		N(f);
+		var m = z(f, 2), h = L(m, !0);
+		N(m), N(r);
+		var g = z(r, 2), _ = L(g), v = L(_, !0);
+		N(_), Ke(), N(g), N(n);
+		var y = z(n, 2), b = L(y), x = z(L(b)), S = L(x, !0);
+		N(x), Ke(), N(b);
+		var C = z(b, 2), w = z(L(C)), T = L(w, !0);
+		N(w);
+		var E = z(w), D = L(E);
+		N(E), N(C);
+		var O = z(C, 2), k = z(L(O)), A = L(k, !0);
 		N(k);
 		var j = z(k), ee = L(j);
-		N(j), N(D);
-		var M = z(D, 2), te = z(L(M)), ne = L(te, !0);
-		N(te);
-		var re = z(te), ie = L(re, !0);
-		N(re), N(M), N(v);
-		var ae = z(v, 2);
-		Y(ae, 5, () => (H(o), U(() => H(o).tracks)), (e) => e.id, (e, t) => {
+		N(j), N(O);
+		var M = z(O, 2);
+		let te;
+		var ne = z(L(M)), re = L(ne, !0);
+		N(ne);
+		var ie = z(ne), ae = L(ie);
+		N(ie), N(M);
+		var oe = z(M, 2), se = z(L(oe)), ce = L(se, !0);
+		N(se);
+		var le = z(se), ue = L(le, !0);
+		N(le), N(oe), N(y);
+		var de = z(y, 2);
+		Y(de, 5, () => (H(o), U(() => H(o).tracks)), (e) => e.id, (e, t) => {
 			var n = Rx(), r = L(n), i = L(r), a = L(i, !0);
 			N(i);
 			var o = z(i), s = L(o);
@@ -15704,11 +15726,11 @@ function Wx(e, t) {
 				() => (H(t), U(() => `left:${Math.min(100, Number(H(t).targetShare || 0) * 100)}%`)),
 				() => (H(t), U(() => l(H(t).knownTokens)))
 			]), K(e, n);
-		}), N(ae);
-		var oe = z(ae, 2), se = L(oe), ce = z(L(se)), le = L(ce);
-		N(ce), N(se);
-		var ue = z(se, 2), de = L(ue), fe = z(L(de), 2);
-		Y(fe, 7, () => (H(o), U(() => H(o).layers)), (e) => e.id, (e, t, n) => {
+		}), N(de);
+		var fe = z(de, 2), pe = L(fe), me = z(L(pe)), he = L(me);
+		N(me), N(pe);
+		var ge = z(pe, 2), _e = L(ge), ve = z(L(_e), 2);
+		Y(ve, 7, () => (H(o), U(() => H(o).layers)), (e) => e.id, (e, t, n) => {
 			var r = zx();
 			let i;
 			var a = L(r), o = L(a, !0);
@@ -15721,8 +15743,8 @@ function Wx(e, t) {
 			N(f), N(s), N(r), V(() => {
 				i = X(r, 1, "", null, i, { planned: H(t).status === "planned" || H(t).status === "shadow" }), q(o, H(n) + 1), q(l, (H(t), U(() => H(t).label))), q(d, `${H(t), U(() => H(t).cadence) ?? ""} · ${H(t), U(() => H(t).owner) ?? ""}${H(t), U(() => H(t).status ? ` · ${H(t).status}` : "") ?? ""}`), q(p, (H(t), U(() => H(t).purpose)));
 			}), K(e, r);
-		}), N(fe), N(de);
-		var pe = z(de, 2), me = z(L(pe), 2), he = (e) => {
+		}), N(ve), N(_e);
+		var ye = z(_e, 2), be = z(L(ye), 2), xe = (e) => {
 			var t = Vx();
 			Y(t, 5, () => (H(o), U(() => H(o).drift.signals)), (e) => e.id, (e, t) => {
 				var n = Bx(), r = L(n), i = L(r, !0);
@@ -15734,14 +15756,15 @@ function Wx(e, t) {
 					X(n, 1, `severity-${H(t), U(() => H(t).severity) ?? ""}`), q(i, (H(t), U(() => H(t).label))), q(o, (H(t), U(() => H(t).evidence))), q(c, (H(t), U(() => H(t).action)));
 				}), K(e, n);
 			}), N(t), K(e, t);
-		}, ge = (e) => {
+		}, Se = (e) => {
 			K(e, Hx());
 		};
-		J(me, (e) => {
-			H(o), U(() => H(o).drift.signals.length) ? e(he) : e(ge, -1);
-		}), N(pe), N(ue), Ke(2), N(oe), N(t), V((e, n, r, i, c) => {
-			X(t, 1, `strategy-overview status-${H(o), U(() => H(o).drift.status) ?? ""}`), q(a, `CAMPAIGN STRATEGY · ${H(o), U(() => H(o).epoch.label) ?? ""}`), q(f, (H(s), U(() => H(s)?.label || "The portfolio is moving within its charter"))), q(m, (H(s), H(o), U(() => H(s)?.detail || H(o).charter.thesis))), q(_, (H(o), U(() => H(o).drift.status === "attention" ? "RECENTER" : H(o).drift.status === "watch" ? "WATCH" : "ON TRACK"))), q(x, (H(o), U(() => H(o).progress.advancedDeltaCount || 0))), q(w, e), q(E, `known tokens · ${H(o), U(() => H(o).cost.unreportedRuns) ?? ""} unreported`), O = X(D, 1, "", null, O, n), q(A, r), q(ee, `charter ceiling ${i ?? ""}`), q(ne, c), q(ie, (H(o), U(() => H(o).progress.frontierPath ? "durable source detected" : "source missing"))), q(le, `${H(o), U(() => H(o).drift.signals.length) ?? ""} signal${H(o), U(() => H(o).drift.signals.length === 1 ? "" : "s") ?? ""}`);
+		J(be, (e) => {
+			H(o), U(() => H(o).drift.signals.length) ? e(xe) : e(Se, -1);
+		}), N(ye), N(ge), Ke(2), N(fe), N(t), V((e, n, r, i, c, l) => {
+			X(t, 1, `strategy-overview status-${H(o), U(() => H(o).drift.status) ?? ""}`), q(d, `CAMPAIGN STRATEGY · ${H(o), U(() => H(o).epoch.label) ?? ""}`), q(p, (H(s), H(o), U(() => H(s)?.label || (H(o).cost.runs ? "Research allocation is within advisory thresholds" : "No research results recorded in this epoch")))), q(h, (H(s), H(o), U(() => H(s)?.detail || H(o).charter.thesis))), q(v, (H(o), U(() => H(o).drift.status === "attention" ? "RECENTER" : H(o).drift.status === "watch" ? "WATCH" : H(o).cost.runs ? "RESEARCH MIX" : "NO RESEARCH DATA"))), q(S, (H(o), U(() => H(o).progress.advancedDeltaCount || 0))), q(T, e), q(D, `all layers · ${H(a), U(() => H(a)?.resources?.ledger?.unreported ?? "unknown") ?? ""} unreported`), q(A, n), q(ee, `research only · ${H(o), U(() => H(o).cost.unreportedRuns) ?? ""} unreported`), te = X(M, 1, "", null, te, r), q(re, i), q(ae, `charter ceiling ${c ?? ""}`), q(ce, l), q(ue, (H(o), U(() => H(o).progress.frontierPath ? "durable source detected" : "source missing"))), q(he, `${H(o), U(() => H(o).drift.signals.length) ?? ""} signal${H(o), U(() => H(o).drift.signals.length === 1 ? "" : "s") ?? ""}`);
 		}, [
+			() => (H(a), U(() => l(H(a)?.resources?.ledger?.knownTokens))),
 			() => (H(o), U(() => l(H(o).cost.knownTokens))),
 			() => ({ over: Number(H(o).cost.maintenanceShare) > Number(H(o).charter.maintenancePolicy?.rollingShareLimit || .15) }),
 			() => (H(o), U(() => c(H(o).cost.maintenanceShare))),
@@ -16084,13 +16107,13 @@ function uS(e, t) {
 //#endregion
 //#region src/ui/StrategyWorkspace.svelte
 Zi(["click"]), Ho();
-var dS = /* @__PURE__ */ G("<label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Exact thread or turn ID</span><input maxlength=\"500\" placeholder=\"Attached coordinator reference\" class=\"svelte-1ull9g0\"/></label>"), fS = /* @__PURE__ */ G("<div class=\"strategy-review-request\"><div><span>CURRENT EPOCH</span> <strong> </strong> <p> </p></div> <label><span>Review focus</span><textarea rows=\"3\" maxlength=\"2000\"></textarea></label> <div class=\"strategy-review-provenance svelte-1ull9g0\"><label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Review kind</span><select class=\"svelte-1ull9g0\"><option>Epoch audit</option><option>Independent idea search</option></select></label> <label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Request source</span><select class=\"svelte-1ull9g0\"><option>Operator</option><option>Coordinator request</option></select></label> <!></div> <button class=\"primary-button\"> </button></div>"), pS = /* @__PURE__ */ G("<div class=\"strategy-review-running\"><span class=\"strategy-pulse\"></span> <div><strong> </strong><p> </p><small> </small></div></div>"), mS = /* @__PURE__ */ G("<div><span> </span><strong> </strong><small> </small></div>"), hS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"> </li>"), gS = /* @__PURE__ */ G("<ul></ul>"), _S = /* @__PURE__ */ G("<p>None proposed.</p>"), vS = /* @__PURE__ */ G("<section><strong> </strong><!></section>"), yS = /* @__PURE__ */ G("<li><strong> </strong><span> </span><p> </p></li>"), bS = /* @__PURE__ */ G("<details class=\"custody-candidates\"><summary> </summary><ul></ul></details>"), xS = /* @__PURE__ */ G("<label><input type=\"checkbox\"/><span>I approve this exact advisory charter as the next epoch.</span></label> <div><button class=\"outline-button\">Keep current charter</button><button class=\"primary-button\"> </button></div>", 1), SS = /* @__PURE__ */ G("<button class=\"outline-button\">Close proposal and keep current charter</button>"), CS = /* @__PURE__ */ G("<div class=\"strategy-proposal\"><header><div><span> </span><h3> </h3></div> <strong> </strong></header> <div class=\"strategy-proposal-objective\"><span>PROPOSED EPOCH</span> <strong> </strong> <p> </p></div> <div class=\"strategy-proposal-weights\" aria-label=\"Proposed track weights\"></div> <div class=\"strategy-action-diff\"></div> <!> <div class=\"strategy-human-gate\"><div><span>HUMAN ACTIVATION GATE</span><strong> </strong><small> </small></div> <!></div></div>"), wS = /* @__PURE__ */ G("<div role=\"status\"> </div>"), TS = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), ES = /* @__PURE__ */ G("<details class=\"strategy-history\"><summary>Charter history <strong> </strong></summary><ol></ol></details>"), DS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\"> </span><div><strong> </strong><small> </small></div></li>"), OS = /* @__PURE__ */ G("<details class=\"strategy-history strategy-review-history svelte-1ull9g0\"><summary>Independent review history <strong> </strong></summary><ol></ol></details>"), kS = /* @__PURE__ */ G("<details id=\"strategy-workspace\" class=\"strategy-workspace\"><summary><span><small>STRATEGY WORKSPACE</small><strong> </strong></span> <span class=\"strategy-workspace-state\"> </span></summary> <div class=\"strategy-workspace-body\"><div class=\"strategy-workspace-boundary\"><strong>Independent governance lane</strong> <p>Epoch and idea-search reviews run in one dedicated read-only Sol lane. Each request binds its strategy slot and token cap, and cannot interrupt the regular coordinator, change campaign phase, dispatch workers, or activate its own proposal.</p></div> <!> <!> <!> <!></div></details>");
-function AS(e, t) {
+var dS = /* @__PURE__ */ G("<label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Exact thread or turn ID</span><input maxlength=\"500\" placeholder=\"Attached coordinator reference\" class=\"svelte-1ull9g0\"/></label>"), fS = /* @__PURE__ */ G("<div class=\"strategy-review-request\"><div><span>CURRENT EPOCH</span> <strong> </strong> <p> </p></div> <label><span>Review focus</span><textarea rows=\"3\" maxlength=\"2000\"></textarea></label> <div class=\"strategy-review-provenance svelte-1ull9g0\"><label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Review kind</span><select class=\"svelte-1ull9g0\"><option>Epoch audit</option><option>Independent idea search</option></select></label> <label class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\">Request source</span><select class=\"svelte-1ull9g0\"><option>Operator</option><option>Coordinator request</option></select></label> <!></div> <button class=\"primary-button\"> </button></div>"), pS = /* @__PURE__ */ G("<button class=\"outline-button\">Check recorded review status</button>"), mS = /* @__PURE__ */ G("<!> <div class=\"strategy-review-running\"><span class=\"strategy-pulse\"></span> <div><strong> </strong><p> </p><small> </small></div></div>", 1), hS = /* @__PURE__ */ G("<div><span> </span><strong> </strong><small> </small></div>"), gS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"> </li>"), _S = /* @__PURE__ */ G("<ul></ul>"), vS = /* @__PURE__ */ G("<p>None proposed.</p>"), yS = /* @__PURE__ */ G("<section><strong> </strong><!></section>"), bS = /* @__PURE__ */ G("<li><strong> </strong><span> </span><p> </p></li>"), xS = /* @__PURE__ */ G("<details class=\"custody-candidates\"><summary> </summary><ul></ul></details>"), SS = /* @__PURE__ */ G("<label><input type=\"checkbox\"/><span>I approve this exact advisory charter as the next epoch.</span></label> <div><button class=\"outline-button\">Keep current charter</button><button class=\"primary-button\"> </button></div>", 1), CS = /* @__PURE__ */ G("<button class=\"outline-button\">Close proposal and keep current charter</button>"), wS = /* @__PURE__ */ G("<div class=\"strategy-proposal\"><header><div><span> </span><h3> </h3></div> <strong> </strong></header> <div class=\"strategy-proposal-objective\"><span>PROPOSED EPOCH</span> <strong> </strong> <p> </p></div> <div class=\"strategy-proposal-weights\" aria-label=\"Proposed track weights\"></div> <div class=\"strategy-action-diff\"></div> <!> <div class=\"strategy-human-gate\"><div><span>HUMAN ACTIVATION GATE</span><strong> </strong><small> </small></div> <!></div></div>"), TS = /* @__PURE__ */ G("<div role=\"status\"> </div>"), ES = /* @__PURE__ */ G("<li><span> </span><div><strong> </strong><small> </small></div></li>"), DS = /* @__PURE__ */ G("<details class=\"strategy-history\"><summary>Charter history <strong> </strong></summary><ol></ol></details>"), OS = /* @__PURE__ */ G("<li class=\"svelte-1ull9g0\"><span class=\"svelte-1ull9g0\"> </span><div><strong> </strong><small> </small></div></li>"), kS = /* @__PURE__ */ G("<details class=\"strategy-history strategy-review-history svelte-1ull9g0\"><summary>Independent review history <strong> </strong></summary><ol></ol></details>"), AS = /* @__PURE__ */ G("<details id=\"strategy-workspace\" class=\"strategy-workspace\"><summary><span><small>STRATEGY WORKSPACE</small><strong> </strong></span> <span class=\"strategy-workspace-state\"> </span></summary> <div class=\"strategy-workspace-body\"><div class=\"strategy-workspace-boundary\"><strong>Independent governance lane</strong> <p>Epoch and idea-search reviews run in one dedicated read-only Sol lane. Each request binds its strategy slot and token cap, and cannot interrupt the regular coordinator, change campaign phase, dispatch workers, or activate its own proposal.</p></div> <!> <!> <!> <!></div></details>");
+function jS(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(), s = /* @__PURE__ */ F(), c = /* @__PURE__ */ F(), l = /* @__PURE__ */ F(null), u = /* @__PURE__ */ F(null), d = /* @__PURE__ */ F(null), f = /* @__PURE__ */ F(""), p = /* @__PURE__ */ F(!1), m = /* @__PURE__ */ F("epoch"), h = /* @__PURE__ */ F("operator"), g = /* @__PURE__ */ F(""), _ = /* @__PURE__ */ F("Review whether the current epoch is producing durable frontier motion and whether its portfolio should be rebalanced."), v = /* @__PURE__ */ F(""), y = /* @__PURE__ */ F("pending"), b = (e) => `${Math.round(Number(e || 0) * 100)}%`;
 	async function x(e, t = "", n = {}) {
 		if (!H(l) || H(f)) throw Error("Another strategy action is still settling");
-		I(f, e), I(y, "pending"), I(v, e === "strategy.review.request" ? "Freezing the epoch ledger and starting an independent read-only Sol task…" : e === "strategy.proposal.activate" ? "Recording the charter revision and opening a fresh measurement epoch…" : "Keeping the current charter and closing this proposal…");
+		I(f, e), I(y, "pending"), I(v, e === "strategy.review.reconcile" ? "Checking the exact recorded strategy turn…" : e === "strategy.review.request" ? "Freezing the epoch ledger and starting an independent read-only Sol task…" : e === "strategy.proposal.activate" ? "Recording the charter revision and opening a fresh measurement epoch…" : "Keeping the current charter and closing this proposal…");
 		try {
 			let r = await ns({
 				projectId: H(l).id,
@@ -16100,7 +16123,7 @@ function AS(e, t) {
 				scope: "strategy-workspace",
 				pollLimit: 160
 			});
-			return I(y, "success"), I(v, e === "strategy.review.request" ? "Independent epoch review started. The regular campaign coordinator and campaign phase were not changed." : e === "strategy.proposal.activate" ? "The new advisory charter is active in a fresh epoch. No work was dispatched." : "Proposal closed; the current charter remains active."), r.action;
+			return I(y, "success"), I(v, e === "strategy.review.reconcile" ? "Recorded strategy status reconciled. No work was dispatched." : e === "strategy.review.request" ? "Independent epoch review started. The regular campaign coordinator and campaign phase were not changed." : e === "strategy.proposal.activate" ? "The new advisory charter is active in a fresh epoch. No work was dispatched." : "Proposal closed; the current charter remains active."), r.action;
 		} catch (e) {
 			throw I(y, "error"), I(v, e instanceof Error ? e.message : String(e)), e;
 		} finally {
@@ -16138,11 +16161,11 @@ function AS(e, t) {
 		I(c, !!(H(d) && ["drafting", "drafted"].includes(H(d).status)));
 	}), Br(), vo();
 	var T = ca(), E = R(T), D = (e) => {
-		var t = kS(), n = L(t), r = L(n), i = z(L(r)), x = L(i);
+		var t = AS(), n = L(t), r = L(n), i = z(L(r)), T = L(i);
 		N(i), N(r);
-		var T = z(r, 2), E = L(T, !0);
-		N(T), N(n);
-		var D = z(n, 2), O = z(L(D), 2), k = (e) => {
+		var E = z(r, 2), D = L(E, !0);
+		N(E), N(n);
+		var O = z(n, 2), k = z(L(O), 2), A = (e) => {
 			var t = fS(), n = L(t), r = z(L(n), 2), i = L(r, !0);
 			N(r);
 			var a = z(r, 2), o = L(a, !0);
@@ -16168,17 +16191,24 @@ function AS(e, t) {
 			N(O), N(t), V((e) => {
 				q(i, (H(l), U(() => H(l).strategy.epoch.label))), q(o, (H(l), U(() => H(l).strategy.charter.epoch?.objective || H(l).strategy.charter.thesis))), O.disabled = e, q(k, H(f) === "strategy.review.request" ? "Starting independent review…" : "Ask independent Sol strategist");
 			}, [() => (H(f), H(u), H(_), H(h), H(g), U(() => !!H(f) || !H(u).reviewAvailable || !H(_).trim() || H(h) === "coordinator-request" && !H(g).trim()))]), so(c, () => H(_), (e) => I(_, e)), Ha(v, () => H(m), (e) => I(m, e)), Ha(C, () => H(h), (e) => I(h, e)), W("click", O, S), K(e, t);
-		}, A = (e) => {
-			var t = pS(), n = z(L(t), 2), r = L(n), i = L(r, !0);
-			N(r);
-			var a = z(r), o = L(a, !0);
-			N(a);
-			var s = z(a), c = L(s);
-			N(s), N(n), N(t), V((e) => {
-				q(i, (H(d), U(() => H(d).reviewKind === "idea-search" ? "Searching for independent directions" : "Reviewing the epoch ledger"))), q(o, (H(d), U(() => H(d).triggerReason))), q(c, `${H(d), U(() => H(d).requestSource) ?? ""} · cap ${e ?? ""} · frozen bundle ${H(d), U(() => H(d).bundleDigest || "being prepared") ?? ""}`);
-			}, [() => (H(d), U(() => Number(H(d).resourceCap || 0).toLocaleString()))]), K(e, t);
 		}, j = (e) => {
-			var t = CS(), n = L(t), r = L(n), i = L(r), c = L(i);
+			var t = mS(), n = R(t), r = (e) => {
+				var t = pS();
+				V((e) => t.disabled = e, [() => (H(f), U(() => !!H(f)))]), W("click", t, () => x("strategy.review.reconcile", H(d).id).catch(() => void 0)), K(e, t);
+			};
+			J(n, (e) => {
+				H(d), U(() => H(d).status === "drafting") && e(r);
+			});
+			var i = z(n, 2), a = z(L(i), 2), o = L(a), s = L(o, !0);
+			N(o);
+			var c = z(o), l = L(c, !0);
+			N(c);
+			var u = z(c), p = L(u);
+			N(u), N(a), N(i), V((e) => {
+				q(s, (H(d), U(() => H(d).reviewKind === "idea-search" ? "Searching for independent directions" : "Reviewing the epoch ledger"))), q(l, (H(d), U(() => H(d).triggerReason))), q(p, `${H(d), U(() => H(d).requestSource) ?? ""} · cap ${e ?? ""} · frozen bundle ${H(d), U(() => H(d).bundleDigest || "being prepared") ?? ""}`);
+			}, [() => (H(d), U(() => Number(H(d).resourceCap || 0).toLocaleString()))]), K(e, t);
+		}, ee = (e) => {
+			var t = wS(), n = L(t), r = L(n), i = L(r), c = L(i);
 			N(i);
 			var m = z(i), h = L(m, !0);
 			N(m), N(r);
@@ -16190,7 +16220,7 @@ function AS(e, t) {
 			N(S), N(v);
 			var E = z(v, 2);
 			Y(E, 5, () => H(s), (e) => e.trackId, (e, t) => {
-				var n = mS(), r = L(n), i = L(r, !0);
+				var n = hS(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a, !0);
 				N(a);
@@ -16205,16 +16235,16 @@ function AS(e, t) {
 				["CONTINUE", H(a).portfolioActions?.continue],
 				["START", H(a).portfolioActions?.start]
 			])), _a, (e, t) => {
-				var n = vS(), r = L(n), i = L(r, !0);
+				var n = yS(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = (e) => {
-					var n = gS();
+					var n = _S();
 					Y(n, 5, () => (H(t), U(() => H(t)[1])), _a, (e, t) => {
-						var n = hS(), r = L(n, !0);
+						var n = gS(), r = L(n, !0);
 						N(n), V(() => q(r, H(t))), K(e, n);
 					}), N(n), K(e, n);
 				}, s = /* @__PURE__ */ P(() => (H(t), U(() => Array.isArray(H(t)[1]) && H(t)[1].length))), c = (e) => {
-					K(e, _S());
+					K(e, vS());
 				};
 				J(a, (e) => {
 					H(s) ? e(o) : e(c, -1);
@@ -16223,11 +16253,11 @@ function AS(e, t) {
 				}, [() => (H(t), U(() => `strategy-action-${String(H(t)[0]).toLowerCase()}`))]), K(e, n);
 			}), N(D);
 			var O = z(D, 2), k = (e) => {
-				var t = bS(), n = L(t), r = L(n);
+				var t = xS(), n = L(t), r = L(n);
 				N(n);
 				var i = z(n);
 				Y(i, 5, () => (H(o), U(() => H(o).custodyCandidates)), _a, (e, t) => {
-					var n = yS(), r = L(n), i = L(r, !0);
+					var n = bS(), r = L(n), i = L(r, !0);
 					N(r);
 					var a = z(r), o = L(a);
 					N(a);
@@ -16245,14 +16275,14 @@ function AS(e, t) {
 			var te = z(ee), ne = L(te);
 			N(te), N(j);
 			var re = z(j, 2), ie = (e) => {
-				var t = xS(), n = R(t), r = L(n);
+				var t = SS(), n = R(t), r = L(n);
 				$a(r), Ke(), N(n);
 				var i = z(n, 2), a = L(i), o = z(a), s = L(o, !0);
 				N(o), N(i), V((e, t) => {
 					a.disabled = e, o.disabled = t, q(s, H(f) === "strategy.proposal.activate" ? "Activating revision…" : "Activate new epoch");
 				}, [() => (H(f), U(() => !!H(f))), () => (H(p), H(f), U(() => !H(p) || !!H(f)))]), co(r, () => H(p), (e) => I(p, e)), W("click", a, w), W("click", o, C), K(e, t);
 			}, ae = (e) => {
-				var t = SS();
+				var t = CS();
 				V((e) => t.disabled = e, [() => (H(f), U(() => !!H(f)))]), W("click", t, w), K(e, t);
 			};
 			J(re, (e) => {
@@ -16261,24 +16291,24 @@ function AS(e, t) {
 				q(c, `${e ?? ""} · ${H(a), U(() => H(a).assessment?.epochStatus || "COMPLETE") ?? ""}`), q(h, (H(a), U(() => H(a).summary || "Independent strategy proposal"))), q(_, t), q(x, (H(o), U(() => H(o).epochLabel))), q(T, (H(o), U(() => H(o).epochObjective))), q(M, (H(a), U(() => H(a).operatorDecision))), q(ne, `Activation records revision ${H(l), U(() => H(l).strategy.charter.revision + 1) ?? ""} and resets measurement boundaries. Campaign phase and dispatch state remain unchanged.`);
 			}, [() => (H(d), U(() => H(d).reviewKind?.replaceAll("-", " ") || "REVIEW")), () => (H(a), U(() => H(a).recommendation?.replaceAll("_", " ")))]), K(e, t);
 		};
-		J(O, (e) => {
-			H(d) ? (H(d), U(() => H(d).status === "drafting" || H(d).status === "queued") ? e(A, 1) : (H(d), U(() => H(d).status === "drafted") && e(j, 2))) : e(k);
+		J(k, (e) => {
+			H(d) ? (H(d), U(() => H(d).status === "drafting" || H(d).status === "queued") ? e(j, 1) : (H(d), U(() => H(d).status === "drafted") && e(ee, 2))) : e(A);
 		});
-		var ee = z(O, 2), M = (e) => {
-			var t = wS(), n = L(t, !0);
+		var M = z(k, 2), te = (e) => {
+			var t = TS(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `strategy-workspace-feedback ${H(y) ?? ""}`, "svelte-1ull9g0"), q(n, H(v));
 			}), K(e, t);
 		};
-		J(ee, (e) => {
-			H(v) && e(M);
+		J(M, (e) => {
+			H(v) && e(te);
 		});
-		var te = z(ee, 2), ne = (e) => {
-			var t = ES(), n = L(t), r = z(L(n)), i = L(r);
+		var ne = z(M, 2), re = (e) => {
+			var t = DS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(u), U(() => H(u).charterHistory)), _a, (e, t) => {
-				var n = TS(), r = L(n), i = L(r);
+				var n = ES(), r = L(n), i = L(r);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -16288,15 +16318,15 @@ function AS(e, t) {
 				}, [() => (H(t), U(() => new Date(H(t).createdAt).toLocaleString()))]), K(e, n);
 			}), N(a), N(t), V(() => q(i, `${H(u), U(() => H(u).charterHistory.length) ?? ""} revision${H(u), U(() => H(u).charterHistory.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(te, (e) => {
-			H(u), U(() => H(u).charterHistory?.length) && e(ne);
+		J(ne, (e) => {
+			H(u), U(() => H(u).charterHistory?.length) && e(re);
 		});
-		var re = z(te, 2), ie = (e) => {
-			var t = OS(), n = L(t), r = z(L(n)), i = L(r);
+		var ie = z(ne, 2), ae = (e) => {
+			var t = kS(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(u), U(() => H(u).reviews)), _a, (e, t) => {
-				var n = DS(), r = L(n), i = L(r, !0);
+				var n = OS(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -16310,10 +16340,10 @@ function AS(e, t) {
 				]), K(e, n);
 			}), N(a), N(t), V(() => q(i, `${H(u), U(() => H(u).reviews.length) ?? ""} review${H(u), U(() => H(u).reviews.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(re, (e) => {
-			H(u), U(() => H(u).reviews?.length) && e(ie);
-		}), N(D), N(t), V(() => {
-			t.open = H(c), q(x, `Charter revision ${H(l), U(() => H(l).strategy.charter.revision) ?? ""}`), q(E, (H(d), U(() => H(d)?.status === "drafting" ? "SOL REVIEW RUNNING" : H(d)?.status === "drafted" ? "HUMAN GATE" : "NO STRATEGY JOB RUNNING")));
+		J(ie, (e) => {
+			H(u), U(() => H(u).reviews?.length) && e(ae);
+		}), N(O), N(t), V(() => {
+			t.open = H(c), q(T, `Charter revision ${H(l), U(() => H(l).strategy.charter.revision) ?? ""}`), q(D, (H(d), U(() => H(d)?.status === "drafting" ? "SOL REVIEW RUNNING" : H(d)?.status === "drafted" ? "HUMAN GATE" : "NO STRATEGY JOB RUNNING")));
 		}), K(e, t);
 	};
 	J(E, (e) => {
@@ -16323,8 +16353,8 @@ function AS(e, t) {
 //#endregion
 //#region src/ui/CustodyService.svelte
 Zi(["click"]), Ho();
-var jS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span>"), MS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"> </li>"), NS = /* @__PURE__ */ G("<section><header class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">WHAT HAPPENED</span><strong class=\"svelte-pcnttw\"> </strong></header> <p class=\"svelte-pcnttw\"> </p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">RECOMMENDED NEXT</span><b class=\"svelte-pcnttw\"> </b></div> <small class=\"svelte-pcnttw\"> </small></section>"), PS = /* @__PURE__ */ G("<button class=\"primary-button compact svelte-pcnttw\"> </button>"), FS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\"> </button>"), IS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\" disabled=\"\">Contract reshape required</button>"), LS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\" disabled=\"\">Queued · custody slot busy</button>"), RS = /* @__PURE__ */ G("<code class=\"svelte-pcnttw\"> </code>"), zS = /* @__PURE__ */ G("<b class=\"svelte-pcnttw\"> </b><p class=\"svelte-pcnttw\"> </p>", 1), BS = /* @__PURE__ */ G("<div class=\"custody-receipt-review svelte-pcnttw\"><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">MEASURED RESULT</span><strong class=\"svelte-pcnttw\"> </strong></div><b class=\"svelte-pcnttw\"> </b></header> <div class=\"custody-receipt-metrics svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span></div> <!> <details class=\"svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect checks, worktree, and immutable bindings</summary><div class=\"svelte-pcnttw\"><b class=\"svelte-pcnttw\">Producer</b><code class=\"svelte-pcnttw\"> </code><b class=\"svelte-pcnttw\">Worktree</b><code class=\"svelte-pcnttw\"> </code><!></div></details> <footer class=\"svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\">Reject result</button><button class=\"primary-button svelte-pcnttw\"> </button></footer> <small class=\"svelte-pcnttw\">Landing rechecks the exact receipt and clean checkout, then cherry-picks only the frozen producer commit. It never pushes or promotes a claim.</small></div>"), VS = /* @__PURE__ */ G("<div><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <strong class=\"svelte-pcnttw\"> </strong> <small class=\"svelte-pcnttw\"> </small></div> <!></div> <!>", 1), HS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\">Park</button> <button class=\"primary-button svelte-pcnttw\"> </button>", 1), US = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), WS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Research continues independently while this isolated steward works.</span>"), GS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The measured receipt above has no landing authority until you accept it.</span>"), KS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"primary-button svelte-pcnttw\"> </button></div>"), qS = /* @__PURE__ */ G("<button class=\"primary-button svelte-pcnttw\"> </button>"), JS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><!> <!></div>"), YS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"primary-button svelte-pcnttw\">Park until macOS is available</button></div>"), XS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\"> </button><button class=\"primary-button svelte-pcnttw\"> </button></div>"), ZS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><!></div>"), QS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span> <!>", 1), $S = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Outside the active service queue.</span><button class=\"outline-button compact svelte-pcnttw\">Restore to inbox</button>", 1), eC = /* @__PURE__ */ G("<article><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><strong class=\"svelte-pcnttw\"> </strong></div> <b> </b></header> <p class=\"svelte-pcnttw\"> </p> <div class=\"custody-item-facts svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <!></div> <details class=\"custody-contract svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect acceptance contract <strong class=\"svelte-pcnttw\"> </strong></summary> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ACCEPT WHEN</span><ul class=\"svelte-pcnttw\"></ul></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ALLOWED PATHS</span><code class=\"svelte-pcnttw\"> </code></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HARD STOP</span><p class=\"svelte-pcnttw\"> </p></div></details> <!> <!> <footer class=\"svelte-pcnttw\"><!></footer></article>"), tC = /* @__PURE__ */ G("<div class=\"custody-inbox svelte-pcnttw\"></div>"), nC = /* @__PURE__ */ G("<div class=\"custody-empty svelte-pcnttw\"><strong class=\"svelte-pcnttw\">No custody contracts are queued</strong><p class=\"svelte-pcnttw\">Future strategy reviews can stage bounded candidates here. Until then, the service has no authority and consumes no resources.</p></div>"), rC = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><div class=\"svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><small class=\"svelte-pcnttw\"> </small></div></li>"), iC = /* @__PURE__ */ G("<details class=\"custody-protocol-history svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Custody lease and receipt history <strong> </strong></summary><ol class=\"svelte-pcnttw\"></ol></details>"), aC = /* @__PURE__ */ G("<p class=\"svelte-pcnttw\"> </p>"), oC = /* @__PURE__ */ G("<div class=\"custody-violations svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><!></div>"), sC = /* @__PURE__ */ G("<div role=\"status\"> </div>"), cC = /* @__PURE__ */ G("<details id=\"custody-service\" class=\"custody-service svelte-pcnttw\"><summary class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"><small class=\"svelte-pcnttw\">CUSTODY SERVICE</small><strong class=\"svelte-pcnttw\"> </strong></span> <span class=\"custody-summary-counts svelte-pcnttw\"><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><i class=\"svelte-pcnttw\">SEPARATE EXECUTOR</i></span></summary> <div class=\"custody-body svelte-pcnttw\"><div class=\"custody-boundary svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ADAPTER</span><strong class=\"svelte-pcnttw\">Terra local steward</strong><small class=\"svelte-pcnttw\"> </small></div> <p class=\"svelte-pcnttw\">Terra may repair small mechanical or mathematical mistakes only inside the listed paths and acceptance checks. It cannot choose direction, spawn children, promote claims, merge, or push.</p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">AUTOPILOT RULE</span><strong class=\"svelte-pcnttw\">Land verified custody</strong><small class=\"svelte-pcnttw\">active loop may dispatch · only exact landable receipts integrate</small></div></div> <!> <!> <!> <!></div></details>");
-function lC(e, t) {
+var MS = /* @__PURE__ */ G("<p class=\"custody-input-blocker svelte-pcnttw\"><strong>INPUTS REQUIRED:</strong> </p>"), NS = /* @__PURE__ */ G("<p class=\"svelte-pcnttw\"> </p>"), PS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span>"), FS = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"> </li>"), IS = /* @__PURE__ */ G("<section><header class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">WHAT HAPPENED</span><strong class=\"svelte-pcnttw\"> </strong></header> <p class=\"svelte-pcnttw\"> </p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">RECOMMENDED NEXT</span><b class=\"svelte-pcnttw\"> </b></div> <small class=\"svelte-pcnttw\"> </small></section>"), LS = /* @__PURE__ */ G("<button class=\"primary-button compact svelte-pcnttw\"> </button>"), RS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\"> </button>"), zS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\" disabled=\"\">Contract reshape required</button>"), BS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\" disabled=\"\">Queued · custody slot busy</button>"), VS = /* @__PURE__ */ G("<code class=\"svelte-pcnttw\"> </code>"), HS = /* @__PURE__ */ G("<b class=\"svelte-pcnttw\"> </b><p class=\"svelte-pcnttw\"> </p>", 1), US = /* @__PURE__ */ G("<div class=\"custody-receipt-review svelte-pcnttw\"><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">MEASURED RESULT</span><strong class=\"svelte-pcnttw\"> </strong></div><b class=\"svelte-pcnttw\"> </b></header> <div class=\"custody-receipt-metrics svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span><span class=\"svelte-pcnttw\"> </span></div> <!> <details class=\"svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect checks, worktree, and immutable bindings</summary><div class=\"svelte-pcnttw\"><b class=\"svelte-pcnttw\">Producer</b><code class=\"svelte-pcnttw\"> </code><b class=\"svelte-pcnttw\">Worktree</b><code class=\"svelte-pcnttw\"> </code><!></div></details> <footer class=\"svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\">Reject result</button><button class=\"primary-button svelte-pcnttw\"> </button></footer> <small class=\"svelte-pcnttw\">Landing rechecks the exact receipt and clean checkout, then cherry-picks only the frozen producer commit. It never pushes or promotes a claim.</small></div>"), WS = /* @__PURE__ */ G("<div><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <strong class=\"svelte-pcnttw\"> </strong> <small class=\"svelte-pcnttw\"> </small></div> <!></div> <!>", 1), GS = /* @__PURE__ */ G("<button class=\"outline-button compact svelte-pcnttw\">Park</button> <button class=\"primary-button svelte-pcnttw\"> </button>", 1), KS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span><button class=\"outline-button compact svelte-pcnttw\">Park</button>", 1), qS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Research continues independently while this isolated steward works.</span>"), JS = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">The measured receipt above has no landing authority until you accept it.</span>"), YS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"primary-button svelte-pcnttw\"> </button></div>"), XS = /* @__PURE__ */ G("<button class=\"primary-button svelte-pcnttw\"> </button>"), ZS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><!> <!></div>"), QS = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"primary-button svelte-pcnttw\">Park until macOS is available</button></div>"), $S = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><button class=\"outline-button compact svelte-pcnttw\"> </button><button class=\"primary-button svelte-pcnttw\"> </button></div>"), eC = /* @__PURE__ */ G("<div class=\"custody-footer-actions svelte-pcnttw\"><!></div>"), tC = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\"> </span> <!>", 1), nC = /* @__PURE__ */ G("<span class=\"svelte-pcnttw\">Outside the active service queue.</span><button class=\"outline-button compact svelte-pcnttw\">Restore to inbox</button>", 1), rC = /* @__PURE__ */ G("<article><header class=\"svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><strong class=\"svelte-pcnttw\"> </strong></div> <b> </b></header> <p class=\"svelte-pcnttw\"> </p> <!> <!> <div class=\"custody-item-facts svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <span class=\"svelte-pcnttw\"> </span> <!></div> <details class=\"custody-contract svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Inspect acceptance contract <strong class=\"svelte-pcnttw\"> </strong></summary> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ACCEPT WHEN</span><ul class=\"svelte-pcnttw\"></ul></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ALLOWED PATHS</span><code class=\"svelte-pcnttw\"> </code></div> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">HARD STOP</span><p class=\"svelte-pcnttw\"> </p></div></details> <!> <!> <footer class=\"svelte-pcnttw\"><!></footer></article>"), iC = /* @__PURE__ */ G("<div class=\"custody-inbox svelte-pcnttw\"></div>"), aC = /* @__PURE__ */ G("<div class=\"custody-empty svelte-pcnttw\"><strong class=\"svelte-pcnttw\">No custody contracts are queued</strong><p class=\"svelte-pcnttw\">Future strategy reviews can stage bounded candidates here. Until then, the service has no authority and consumes no resources.</p></div>"), oC = /* @__PURE__ */ G("<li class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"> </span><div class=\"svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><small class=\"svelte-pcnttw\"> </small></div></li>"), sC = /* @__PURE__ */ G("<details class=\"custody-protocol-history svelte-pcnttw\"><summary class=\"svelte-pcnttw\">Custody lease and receipt history <strong> </strong></summary><ol class=\"svelte-pcnttw\"></ol></details>"), cC = /* @__PURE__ */ G("<div class=\"custody-violations svelte-pcnttw\"><strong class=\"svelte-pcnttw\"> </strong><!></div>"), lC = /* @__PURE__ */ G("<div role=\"status\"> </div>"), uC = /* @__PURE__ */ G("<details id=\"custody-service\" class=\"custody-service svelte-pcnttw\"><summary class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\"><small class=\"svelte-pcnttw\">CUSTODY SERVICE</small><strong class=\"svelte-pcnttw\"> </strong></span> <span class=\"custody-summary-counts svelte-pcnttw\"><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><b class=\"svelte-pcnttw\"> </b><i class=\"svelte-pcnttw\">SEPARATE EXECUTOR</i></span></summary> <div class=\"custody-body svelte-pcnttw\"><div class=\"custody-boundary svelte-pcnttw\"><div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">ADAPTER</span><strong class=\"svelte-pcnttw\">Terra local steward</strong><small class=\"svelte-pcnttw\"> </small></div> <p class=\"svelte-pcnttw\">Terra may repair small mechanical or mathematical mistakes only inside the listed paths and acceptance checks. It cannot choose direction, spawn children, promote claims, merge, or push.</p> <div class=\"svelte-pcnttw\"><span class=\"svelte-pcnttw\">AUTOPILOT RULE</span><strong class=\"svelte-pcnttw\">Land verified custody</strong><small class=\"svelte-pcnttw\">active loop may dispatch · only exact landable receipts integrate</small></div></div> <!> <!> <!> <!></div></details>");
+function dC(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ F(), o = /* @__PURE__ */ F(null), s = /* @__PURE__ */ F(null), c = /* @__PURE__ */ F(""), l = /* @__PURE__ */ F(""), u = /* @__PURE__ */ F("pending");
 	function d(e) {
@@ -16484,19 +16514,23 @@ function lC(e, t) {
 		I(a, H(s)?.items?.filter((e) => e.status !== "complete") || []);
 	}), Br(), vo();
 	var v = ca(), y = R(v), b = (e) => {
-		var t = cC(), n = L(t), r = L(n), i = z(L(r)), f = L(i, !0);
+		var t = uC(), n = L(t), r = L(n), i = z(L(r)), f = L(i, !0);
 		N(i), N(r);
 		var v = z(r, 2), y = L(v), b = L(y);
 		N(y);
 		var x = z(y), S = L(x);
-		N(x), Ke(), N(v), N(n);
-		var C = z(n, 2), w = L(C), T = L(w), E = z(L(T), 2), D = L(E, !0);
-		N(E), N(T), Ke(4), N(w);
-		var O = z(w, 2), k = (e) => {
-			var t = tC();
+		N(x);
+		var C = z(x), w = L(C);
+		N(C);
+		var T = z(C), E = L(T);
+		N(T), Ke(), N(v), N(n);
+		var D = z(n, 2), O = L(D), k = L(O), A = z(L(k), 2), j = L(A, !0);
+		N(A), N(k), Ke(4), N(O);
+		var ee = z(O, 2), M = (e) => {
+			var t = iC();
 			Y(t, 5, () => H(a), (e) => e.id, (e, t) => {
 				let n = /* @__PURE__ */ Cn(() => (H(t), U(() => p(H(t))))), r = /* @__PURE__ */ Cn(() => (H(t), U(() => m(H(t))))), i = /* @__PURE__ */ Cn(() => (Si(Ns), H(t), U(() => Ns(H(t))))), a = /* @__PURE__ */ Cn(() => (Si(Ms), H(t), H(o), U(() => Ms(H(t), String(H(o)?.loop?.error || ""))))), l = /* @__PURE__ */ Cn(() => (H(o), H(t), U(() => Number(H(o)?.resources?.ledger?.remainingBeforeCommitments || 0) >= Number(H(t).tokenCap || 0))));
-				var u = eC();
+				var u = rC();
 				let f;
 				var v = L(u), y = L(v), b = L(y), x = L(b);
 				N(b);
@@ -16506,34 +16540,48 @@ function lC(e, t) {
 				N(w), N(v);
 				var E = z(v, 2), D = L(E, !0);
 				N(E);
-				var O = z(E, 2), k = L(O), A = L(k, !0);
-				N(k);
-				var j = z(k, 2), ee = L(j);
-				N(j);
-				var M = z(j, 2), te = L(M);
+				var O = z(E, 2), k = (e) => {
+					var n = MS(), r = z(L(n));
+					N(n), V(() => q(r, ` ${H(t), U(() => H(t).inputReadiness.reason) ?? ""}`)), K(e, n);
+				};
+				J(O, (e) => {
+					H(t), U(() => H(t).inputReadiness?.ready === !1) && e(k);
+				});
+				var A = z(O, 2), j = (e) => {
+					var n = NS(), r = L(n);
+					N(n), V((e) => q(r, `Entire repair family: ${H(t), U(() => H(t).lineageCost.attempts) ?? ""} attempts · ${e ?? ""} known tokens · ${H(t), U(() => H(t).lineageCost.unreported) ?? ""} unknown · ${H(t), U(() => H(t).lineageCost.landed) ?? ""} landed`), [() => (H(t), U(() => Number(H(t).lineageCost.knownTokens).toLocaleString()))]), K(e, n);
+				};
+				J(A, (e) => {
+					H(t), U(() => H(t).lineageCost) && e(j);
+				});
+				var ee = z(A, 2), M = L(ee), te = L(M, !0);
 				N(M);
-				var ne = z(M, 2), re = L(ne, !0);
+				var ne = z(M, 2), re = L(ne);
 				N(ne);
-				var ie = z(ne, 2), ae = (e) => {
-					var n = jS(), r = L(n);
+				var ie = z(ne, 2), ae = L(ie);
+				N(ie);
+				var oe = z(ie, 2), se = L(oe, !0);
+				N(oe);
+				var ce = z(oe, 2), le = (e) => {
+					var n = PS(), r = L(n);
 					N(n), V(() => q(r, `waiting on ${H(t), U(() => H(t).missingDependencies?.length || 1) ?? ""} predecessor receipt${H(t), U(() => H(t).missingDependencies?.length === 1 ? "" : "s") ?? ""}`)), K(e, n);
 				};
-				J(ie, (e) => {
-					H(t), U(() => !H(t).dependenciesSatisfied) && e(ae);
-				}), N(O);
-				var oe = z(O, 2), se = L(oe), ce = z(L(se)), le = L(ce, !0);
-				N(ce), N(se);
-				var ue = z(se, 2), de = z(L(ue));
-				Y(de, 5, () => (H(t), U(() => H(t).acceptance.acceptanceCriteria)), _a, (e, t) => {
-					var n = MS(), r = L(n, !0);
+				J(ce, (e) => {
+					H(t), U(() => !H(t).dependenciesSatisfied) && e(le);
+				}), N(ee);
+				var ue = z(ee, 2), de = L(ue), fe = z(L(de)), pe = L(fe, !0);
+				N(fe), N(de);
+				var me = z(de, 2), he = z(L(me));
+				Y(he, 5, () => (H(t), U(() => H(t).acceptance.acceptanceCriteria)), _a, (e, t) => {
+					var n = FS(), r = L(n, !0);
 					N(n), V(() => q(r, H(t))), K(e, n);
-				}), N(de), N(ue);
-				var fe = z(ue, 2), pe = z(L(fe)), me = L(pe, !0);
-				N(pe), N(fe);
-				var he = z(fe, 2), ge = z(L(he)), _e = L(ge, !0);
-				N(ge), N(he), N(oe);
-				var ve = z(oe, 2), ye = (e) => {
-					var t = NS(), r = L(t), i = z(L(r)), a = L(i, !0);
+				}), N(he), N(me);
+				var ge = z(me, 2), _e = z(L(ge)), ve = L(_e, !0);
+				N(_e), N(ge);
+				var ye = z(ge, 2), be = z(L(ye)), xe = L(be, !0);
+				N(be), N(ye), N(ue);
+				var Se = z(ue, 2), Ce = (e) => {
+					var t = IS(), r = L(t), i = z(L(r)), a = L(i, !0);
 					N(i), N(r);
 					var o = z(r, 2), s = L(o, !0);
 					N(o);
@@ -16543,12 +16591,12 @@ function lC(e, t) {
 					N(d), N(t), V((e) => {
 						X(t, 1, (Si(H(n)), U(() => `custody-failure ${H(n).kind}`)), "svelte-pcnttw"), q(a, (Si(H(n)), U(() => H(n).state))), q(s, (Si(H(n)), U(() => H(n).summary))), q(u, (Si(H(n)), U(() => H(n).next))), q(f, `${Si(H(n)), U(() => H(n).attempts) ?? ""} lease attempt${Si(H(n)), U(() => H(n).attempts === 1 ? "" : "s") ?? ""}${e ?? ""} · 0 changes landed`);
 					}, [() => (Si(H(n)), U(() => H(n).tokens ? ` · latest measured ${Number(H(n).tokens).toLocaleString()} tokens` : ""))]), K(e, t);
-				}, be = /* @__PURE__ */ P(() => (H(t), U(() => ["blocked", "failed"].includes(H(t).status))));
-				J(ve, (e) => {
-					H(be) && e(ye);
+				}, we = /* @__PURE__ */ P(() => (H(t), U(() => ["blocked", "failed"].includes(H(t).status))));
+				J(Se, (e) => {
+					H(we) && e(Ce);
 				});
-				var xe = z(ve, 2), Se = (e) => {
-					var n = VS(), o = R(n);
+				var Te = z(Se, 2), Ee = (e) => {
+					var n = WS(), o = R(n);
 					let s;
 					var l = L(o), u = L(l), d = L(u, !0);
 					N(u);
@@ -16557,46 +16605,46 @@ function lC(e, t) {
 					var m = z(f, 2), h = L(m, !0);
 					N(m), N(l);
 					var v = z(l, 2), y = (e) => {
-						var n = PS(), r = L(n, !0);
+						var n = LS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).id}:lease.prepare` ? "Freezing…" : "Freeze custody lease")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.prepare")), K(e, n);
 					}, b = (e) => {
-						var n = FS(), r = L(n, !0);
+						var n = RS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.simulate` ? "Simulating…" : "Simulate zero-effect receipt")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.simulate")), K(e, n);
 					}, x = (e) => {
 						var n = ca(), r = R(n), a = (e) => {
-							var n = PS(), r = L(n, !0);
+							var n = LS(), r = L(n, !0);
 							N(n), V((e) => {
 								n.disabled = e, q(r, (H(c), H(t), Si(H(i)), U(() => H(c) === `${H(t).id}:reshape` ? "Splitting…" : `Split into ${H(i).length} bounded checks`)));
 							}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => g(H(t), H(i))), K(e, n);
 						}, o = (e) => {
-							K(e, IS());
+							K(e, zS());
 						};
 						J(r, (e) => {
 							Si(H(i)), U(() => H(i).length) ? e(a) : e(o, -1);
 						}), K(e, n);
 					}, S = (e) => {
-						K(e, LS());
+						K(e, BS());
 					}, C = (e) => {
-						var n = PS(), r = L(n, !0);
+						var n = LS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.confirm` ? "Confirming…" : "Confirm exact lease")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.confirm")), K(e, n);
 					}, w = (e) => {
-						var n = PS(), r = L(n, !0);
+						var n = LS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.dispatch` ? "Starting…" : "Dispatch Terra steward")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.dispatch")), K(e, n);
 					}, T = (e) => {
-						var n = FS(), r = L(n, !0);
+						var n = RS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.reconcile` ? "Reconciling…" : "Recheck interrupted steward")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.reconcile")), K(e, n);
 					}, E = /* @__PURE__ */ P(() => (H(t), U(() => ["running", "finalizing"].includes(H(t).activeLease.status) && Date.now() - Date.parse(H(t).activeLease.updatedAt || H(t).activeLease.startedAt || "") >= 6e4))), D = (e) => {
-						var n = FS(), r = L(n, !0);
+						var n = RS(), r = L(n, !0);
 						N(n), V((e) => {
 							n.disabled = e, q(r, (H(c), H(t), U(() => H(c) === `${H(t).activeLease.id}:lease.replay` ? "Verifying replay…" : "Replay & verify receipt")));
 						}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => _(H(t), "lease.replay")), K(e, n);
@@ -16605,7 +16653,7 @@ function lC(e, t) {
 						H(t), U(() => !H(t).activeLease) ? e(y) : (H(t), U(() => H(t).activeLease.lease?.adapter?.executionMode === "disconnected" && H(t).activeLease.status === "prepared") ? e(b, 1) : (H(t), Si(H(a)), U(() => H(t).activeLease.status === "prepared" && H(a)) ? e(x, 2) : (H(t), Si(H(r)), U(() => H(t).activeLease.status === "prepared" && H(r)) ? e(S, 3) : (H(t), U(() => H(t).activeLease.status === "prepared") ? e(C, 4) : (H(t), U(() => H(t).activeLease.status === "confirmed") ? e(w, 5) : H(E) ? e(T, 6) : (H(t), U(() => H(t).activeLease.status === "simulated") && e(D, 7)))))));
 					}), N(o);
 					var O = z(o, 2), k = (e) => {
-						var n = BS(), r = L(n), i = L(r), a = z(L(i)), o = L(a, !0);
+						var n = US(), r = L(n), i = L(r), a = z(L(i)), o = L(a, !0);
 						N(a), N(i);
 						var s = z(i), l = L(s, !0);
 						N(s), N(r);
@@ -16618,7 +16666,7 @@ function lC(e, t) {
 						var v = z(h), y = L(v);
 						N(v), N(u);
 						var b = z(u, 2), x = (e) => {
-							var n = RS(), r = L(n, !0);
+							var n = VS(), r = L(n, !0);
 							N(n), V((e) => q(r, e), [() => (H(t), U(() => H(t).activeLease.receipt.effects.changedPaths.join(" · ")))]), K(e, n);
 						};
 						J(b, (e) => {
@@ -16628,7 +16676,7 @@ function lC(e, t) {
 						N(w);
 						var E = z(w, 2), D = L(E, !0);
 						N(E), Y(z(E), 1, () => (H(t), U(() => H(t).activeLease.receipt?.checks || [])), _a, (e, t) => {
-							var n = zS(), r = R(n), i = L(r, !0);
+							var n = HS(), r = R(n), i = L(r, !0);
 							N(r);
 							var a = z(r), o = L(a, !0);
 							N(a), V(() => {
@@ -16649,41 +16697,41 @@ function lC(e, t) {
 					}), V(() => {
 						s = X(o, 1, "custody-protocol-lab execution svelte-pcnttw", null, s, { attention: H(t).activeLease?.status === "awaiting_review" }), q(d, (H(t), Si(H(a)), Si(H(r)), U(() => H(t).activeLease?.status === "prepared" && H(a) ? "CONTRACT RESHAPE REQUIRED" : H(t).activeLease?.status === "prepared" && H(r) ? "QUEUED CUSTODY LEASE" : H(t).activeLease?.status === "awaiting_review" ? "RECEIPT LANDING GATE" : H(t).activeLease?.status === "running" || H(t).activeLease?.status === "finalizing" ? "ISOLATED STEWARD ACTIVE" : "CUSTODY ACTION RAIL"))), q(p, (H(t), Si(H(a)), Si(H(i)), Si(H(r)), U(() => H(t).activeLease ? H(t).activeLease.status === "prepared" && H(a) ? H(i).length ? `Replace with ${H(i).length} bounded successor checks` : "Hold for a smaller successor contract" : H(t).activeLease.status === "prepared" && H(r) ? `Waiting for ${H(r).task}` : H(t).activeLease.status === "prepared" ? "2. Confirm this revision and contract" : H(t).activeLease.status === "confirmed" ? "3. Dispatch one bounded Terra steward" : H(t).activeLease.status === "running" ? "Steward working in detached custody" : H(t).activeLease.status === "finalizing" ? "Measuring paths, usage, and checks" : H(t).activeLease.status === "awaiting_review" ? "4. Review and land—or reject" : `Lease ${H(t).activeLease.status}` : "1. Freeze the exact lease"))), q(h, (H(t), Si(H(a)), Si(H(r)), U(() => H(t).activeLease?.status === "prepared" && H(a) ? "Prior zero-effect attempts exceeded the lease. This supersedes the prepared retry without bypassing its dependency." : H(t).activeLease?.status === "prepared" && H(r) ? "This immutable lease is preserved. Autopilot will continue it after the active receipt releases the single Terra slot." : H(t).activeLease?.receiptDigest || H(t).activeLease?.leaseDigest || "Preparing a lease changes no files and starts no worker.")));
 					}), K(e, n);
-				}, Ce = /* @__PURE__ */ P(() => (H(t), U(() => [
+				}, De = /* @__PURE__ */ P(() => (H(t), U(() => [
 					"ready",
 					"assigned",
 					"verifying"
 				].includes(H(t).status))));
-				J(xe, (e) => {
-					H(Ce) && e(Se);
+				J(Te, (e) => {
+					H(De) && e(Ee);
 				});
-				var we = z(xe, 2), Te = L(we), Ee = (e) => {
-					var n = HS(), r = R(n), i = z(r, 2), a = L(i, !0);
+				var Oe = z(Te, 2), ke = L(Oe), Ae = (e) => {
+					var n = GS(), r = R(n), i = z(r, 2), a = L(i, !0);
 					N(i), V((e, n) => {
 						r.disabled = e, i.disabled = n, q(a, (H(c), H(t), U(() => H(c) === `${H(t).id}:promote` ? "Checking contract…" : H(t).dependenciesSatisfied ? "Mark ready for steward" : `Waiting for ${H(t).missingDependencies?.[0]?.task || "predecessor"}`)));
 					}, [() => (H(c), U(() => !!H(c))), () => (H(c), H(t), U(() => !!H(c) || !H(t).eligibleToReady))]), W("click", r, () => _(H(t), "park")), W("click", i, () => _(H(t), "promote")), K(e, n);
-				}, De = (e) => {
-					var n = US(), r = R(n), i = L(r, !0);
+				}, je = (e) => {
+					var n = KS(), r = R(n), i = L(r, !0);
 					N(r);
 					var a = z(r);
 					V((e) => {
 						q(i, (H(t), U(() => H(t).activeLease ? "Lease sequence is controlled above." : "Eligible for the separate custody executor; still not dispatched."))), a.disabled = e;
 					}, [() => (H(c), H(t), U(() => !!H(c) || !!H(t).activeLease))]), W("click", a, () => _(H(t), "park")), K(e, n);
-				}, Oe = (e) => {
-					K(e, WS());
-				}, ke = (e) => {
-					K(e, GS());
-				}, Ae = (e) => {
-					var r = QS(), a = R(r), s = L(a, !0);
+				}, Me = (e) => {
+					K(e, qS());
+				}, Ne = (e) => {
+					K(e, JS());
+				}, Pe = (e) => {
+					var r = tC(), a = R(r), s = L(a, !0);
 					N(a);
 					var u = z(a, 2), f = (e) => {
-						var n = KS(), r = L(n), i = L(r, !0);
+						var n = YS(), r = L(n), i = L(r, !0);
 						N(r), N(n), V((e) => {
 							r.disabled = e, q(i, H(c) ? "Starting Terra…" : H(l) ? "Retry with corrected lease" : "Fresh epoch required");
 						}, [() => (H(c), Si(H(l)), H(t), U(() => !!H(c) || !H(l) || !H(t).eligibleToRetry))]), W("click", r, () => _(H(t), "promote", !0)), K(e, n);
 					}, p = (e) => {
-						var n = JS(), r = L(n), a = (e) => {
-							var n = qS(), r = L(n, !0);
+						var n = ZS(), r = L(n), a = (e) => {
+							var n = XS(), r = L(n, !0);
 							N(n), V((e) => {
 								n.disabled = e, q(r, (H(c), H(t), Si(H(i)), U(() => H(c) === `${H(t).id}:reshape` ? "Splitting…" : `Split into ${H(i).length} bounded checks`)));
 							}, [() => (H(c), U(() => !!H(c)))]), W("click", n, () => g(H(t), H(i))), K(e, n);
@@ -16692,7 +16740,7 @@ function lC(e, t) {
 							Si(H(i)), U(() => H(i).length) && e(a);
 						});
 						var s = z(r, 2), l = (e) => {
-							var t = FS(), n = L(t, !0);
+							var t = RS(), n = L(t, !0);
 							N(t), V((e) => {
 								t.disabled = e, q(n, H(c) === "loop:stop" ? "Stopping…" : "Stop at this boundary");
 							}, [() => (H(c), U(() => !!H(c)))]), W("click", t, h), K(e, t);
@@ -16705,18 +16753,18 @@ function lC(e, t) {
 							H(u) && e(l);
 						}), N(n), K(e, n);
 					}, m = (e) => {
-						var n = YS(), r = L(n);
+						var n = QS(), r = L(n);
 						N(n), V((e) => r.disabled = e, [() => (H(c), U(() => !!H(c)))]), W("click", r, () => _(H(t), "park")), K(e, n);
 					}, v = (e) => {
-						var n = XS(), r = L(n), i = L(r, !0);
+						var n = $S(), r = L(n), i = L(r, !0);
 						N(r);
 						var a = z(r), o = L(a, !0);
 						N(a), N(n), V((e, n) => {
 							r.disabled = e, q(i, (H(t), U(() => H(t).blocksResearch ? "Remove dependency…" : "Park"))), a.disabled = n, q(o, H(c) ? "Starting Terra…" : "Retry with Terra");
 						}, [() => (H(c), U(() => !!H(c))), () => (H(c), H(t), U(() => !!H(c) || !H(t).eligibleToRetry))]), W("click", r, () => _(H(t), "park")), W("click", a, () => _(H(t), "promote", !0)), K(e, n);
 					}, y = (e) => {
-						var t = ZS(), n = L(t), r = (e) => {
-							var t = FS(), n = L(t, !0);
+						var t = eC(), n = L(t), r = (e) => {
+							var t = RS(), n = L(t, !0);
 							N(t), V((e) => {
 								t.disabled = e, q(n, H(c) === "loop:stop" ? "Stopping…" : "Stop at this boundary");
 							}, [() => (H(c), U(() => !!H(c)))]), W("click", t, h), K(e, t);
@@ -16732,31 +16780,31 @@ function lC(e, t) {
 					J(u, (e) => {
 						Si(H(n)), U(() => H(n).kind === "rebudget") ? e(f) : (Si(H(n)), U(() => H(n).kind === "reshape") ? e(p, 1) : (Si(H(n)), U(() => H(n).kind === "wait-for-mac") ? e(m, 2) : (Si(H(n)), U(() => H(n).kind === "retry") ? e(v, 3) : e(y, -1))));
 					}), V((e) => q(s, e), [() => (Si(H(n)), Si(H(l)), H(t), U(() => H(n).kind === "rebudget" ? H(l) ? "The corrected total-turn envelope is available. Retry this exact zero-effect contract once." : "The lease policy is corrected, but the current epoch is exhausted. Open a fresh resource envelope from the primary action rail first." : d(H(t)) ? "Automatic retries are exhausted. Split or resize this exact contract; parking would bypass the dependency." : H(t).receipt?.effects?.changedPaths?.length ? "The steward stopped after bounded changes; inspect before retrying." : "Nothing landed. Retry the same bounded contract, or park only if this dependency is no longer wanted."))]), K(e, r);
-				}, je = /* @__PURE__ */ P(() => (H(t), U(() => ["blocked", "failed"].includes(H(t).status)))), Me = (e) => {
-					var n = $S(), r = z(R(n));
+				}, Fe = /* @__PURE__ */ P(() => (H(t), U(() => ["blocked", "failed"].includes(H(t).status)))), Ie = (e) => {
+					var n = nC(), r = z(R(n));
 					V((e) => r.disabled = e, [() => (H(c), U(() => !!H(c)))]), W("click", r, () => _(H(t), "restore")), K(e, n);
 				};
-				J(Te, (e) => {
-					H(t), U(() => H(t).status === "proposed") ? e(Ee) : (H(t), U(() => H(t).status === "ready") ? e(De, 1) : (H(t), U(() => H(t).status === "assigned") ? e(Oe, 2) : (H(t), U(() => H(t).status === "verifying") ? e(ke, 3) : H(je) ? e(Ae, 4) : (H(t), U(() => H(t).status === "parked") && e(Me, 5)))));
-				}), N(we), N(u), V((e, n) => {
+				J(ke, (e) => {
+					H(t), U(() => H(t).status === "proposed") ? e(Ae) : (H(t), U(() => H(t).status === "ready") ? e(je, 1) : (H(t), U(() => H(t).status === "assigned") ? e(Me, 2) : (H(t), U(() => H(t).status === "verifying") ? e(Ne, 3) : H(Fe) ? e(Pe, 4) : (H(t), U(() => H(t).status === "parked") && e(Ie, 5)))));
+				}), N(Oe), N(u), V((e, n) => {
 					f = X(u, 1, "svelte-pcnttw", null, f, {
 						blocking: H(t).blocksResearch,
 						parked: H(t).status === "parked"
-					}), q(x, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(C, (H(t), U(() => H(t).task))), X(w, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(T, e), q(D, (H(t), U(() => H(t).reason))), q(A, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(ee, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(te, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(re, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(le, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(me, n), q(_e, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
+					}), q(x, `${H(t), U(() => H(t).urgency) ?? ""} · ${H(t), U(() => H(t).capability) ?? ""} · ${H(t), U(() => H(t).strategicTrack) ?? ""}`), q(C, (H(t), U(() => H(t).task))), X(w, 1, (H(t), U(() => `custody-status-${H(t).status}`)), "svelte-pcnttw"), q(T, e), q(D, (H(t), U(() => H(t).reason))), q(te, (H(t), U(() => H(t).blocksResearch ? "BLOCKS RESEARCH" : "NON-BLOCKING"))), q(re, `repair generation ${H(t), U(() => H(t).repairGeneration) ?? ""}/${H(s), U(() => H(s).policy.maxAutomaticRepairGeneration) ?? ""}`), q(ae, `${H(t), U(() => H(t).effortClass) ?? ""} effort`), q(se, (H(t), U(() => H(t).contractComplete ? "contract complete" : "contract incomplete"))), q(pe, (H(t), U(() => H(t).acceptance.receiptType || "receipt missing"))), q(ve, n), q(xe, (H(t), U(() => H(t).acceptance.stopCondition || "No stop condition declared")));
 				}, [() => (H(t), U(() => H(t).status.toUpperCase())), () => (H(t), U(() => H(t).acceptance.allowedPaths.length ? H(t).acceptance.allowedPaths.join(" · ") : "No paths declared"))]), K(e, u);
 			}), N(t), K(e, t);
-		}, A = (e) => {
-			K(e, nC());
+		}, te = (e) => {
+			K(e, aC());
 		};
-		J(O, (e) => {
-			H(a), U(() => H(a).length) ? e(k) : e(A, -1);
+		J(ee, (e) => {
+			H(a), U(() => H(a).length) ? e(M) : e(te, -1);
 		});
-		var j = z(O, 2), ee = (e) => {
-			var t = iC(), n = L(t), r = z(L(n)), i = L(r);
+		var ne = z(ee, 2), re = (e) => {
+			var t = sC(), n = L(t), r = z(L(n)), i = L(r);
 			N(r), N(n);
 			var a = z(n);
 			Y(a, 5, () => (H(s), U(() => H(s).protocol.leases)), _a, (e, t) => {
-				var n = rC(), r = L(n), i = L(r, !0);
+				var n = oC(), r = L(n), i = L(r, !0);
 				N(r);
 				var a = z(r), o = L(a), s = L(o, !0);
 				N(o);
@@ -16766,29 +16814,29 @@ function lC(e, t) {
 				}, [() => (H(t), U(() => H(t).status.toUpperCase())), () => (H(t), U(() => new Date(H(t).createdAt).toLocaleString()))]), K(e, n);
 			}), N(a), N(t), V(() => q(i, `${H(s), U(() => H(s).protocol.leases.length) ?? ""} lease${H(s), U(() => H(s).protocol.leases.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(j, (e) => {
-			H(s), U(() => H(s).protocol?.leases?.length) && e(ee);
+		J(ne, (e) => {
+			H(s), U(() => H(s).protocol?.leases?.length) && e(re);
 		});
-		var M = z(j, 2), te = (e) => {
-			var t = oC(), n = L(t), r = L(n);
+		var ie = z(ne, 2), ae = (e) => {
+			var t = cC(), n = L(t), r = L(n);
 			N(n), Y(z(n), 1, () => (H(s), U(() => H(s).violations)), _a, (e, t) => {
-				var n = aC(), r = L(n, !0);
+				var n = NS(), r = L(n, !0);
 				N(n), V(() => q(r, (H(t), U(() => H(t).detail)))), K(e, n);
 			}), N(t), V(() => q(r, `${H(s), U(() => H(s).violations.length) ?? ""} contract warning${H(s), U(() => H(s).violations.length === 1 ? "" : "s") ?? ""}`)), K(e, t);
 		};
-		J(M, (e) => {
-			H(s), U(() => H(s).violations?.length) && e(te);
+		J(ie, (e) => {
+			H(s), U(() => H(s).violations?.length) && e(ae);
 		});
-		var ne = z(M, 2), re = (e) => {
-			var t = sC(), n = L(t, !0);
+		var oe = z(ie, 2), se = (e) => {
+			var t = lC(), n = L(t, !0);
 			N(t), V(() => {
 				X(t, 1, `custody-feedback ${H(u) ?? ""}`, "svelte-pcnttw"), q(n, H(l));
 			}), K(e, t);
 		};
-		J(ne, (e) => {
-			H(l) && e(re);
-		}), N(C), N(t), V(() => {
-			t.open = (H(s), U(() => H(s).counts.open > 0)), q(f, (H(s), U(() => H(s).counts.open ? `${H(s).counts.open} item${H(s).counts.open === 1 ? "" : "s"} in the service inbox` : "Mechanical work has its own boundary"))), q(b, `${H(s), U(() => H(s).counts.blocking) ?? ""} blocking`), q(S, `${H(s), U(() => H(s).counts.active) ?? ""} active`), q(D, (H(s), U(() => H(s).executorConnected ? "ready on demand · isolated worktree" : "simulation only")));
+		J(oe, (e) => {
+			H(l) && e(se);
+		}), N(D), N(t), V(() => {
+			t.open = (H(s), U(() => H(s).counts.open > 0)), q(f, (H(s), U(() => H(s).counts.open ? `${H(s).counts.open} item${H(s).counts.open === 1 ? "" : "s"} in the service inbox` : "Mechanical work has its own boundary"))), q(b, `${H(s), U(() => H(s).counts.blocking) ?? ""} blocking`), q(S, `${H(s), U(() => H(s).counts.active) ?? ""} active`), q(w, `${H(s), U(() => H(s).counts.landed || 0) ?? ""} landed`), q(E, `${H(s), U(() => H(s).counts.superseded || 0) ?? ""} superseded`), q(j, (H(s), U(() => H(s).executorConnected ? "ready on demand · isolated worktree" : "simulation only")));
 		}), K(e, t);
 	};
 	J(y, (e) => {
@@ -16798,8 +16846,8 @@ function lC(e, t) {
 //#endregion
 //#region src/ui/App.svelte
 Zi(["click"]), Ho();
-var uC = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), dC = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), fC = /* @__PURE__ */ G("<!> <!> <!> <!> <details class=\"autopilot-ledger\"><summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary> <!></details> <!> <section class=\"workspace-switchboard\" aria-label=\"Campaign detail drawers\"><header><div><p class=\"eyebrow\">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header> <details id=\"campaign-context\" class=\"workspace-group\"><summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details> <details id=\"process-history\" class=\"workspace-group\"><summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!></div></details> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), pC = /* @__PURE__ */ G("<header class=\"topbar\"><a class=\"topbar-brand\" href=\"/\" title=\"Open all jobs\"><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></a> <!> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!></main>", 1);
-function mC(e, t) {
+var fC = /* @__PURE__ */ G("<span class=\"access-identity\"><b> </b> </span>"), pC = /* @__PURE__ */ G("<section id=\"observer-lanes\" class=\"observer-surface all-jobs-surface\" aria-label=\"All observed agent lanes\"><header><div><p class=\"eyebrow\">ALL JOBS OVERVIEW</p><h2>Every visible lane, in one place</h2></div><span>Read-only across projects · choose a campaign to open its controls</span></header> <!></section>"), mC = /* @__PURE__ */ G("<!> <!> <!> <!> <details class=\"autopilot-ledger\"><summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary> <!></details> <!> <section class=\"workspace-switchboard\" aria-label=\"Campaign detail drawers\"><header><div><p class=\"eyebrow\">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header> <details id=\"campaign-context\" class=\"workspace-group\"><summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details> <details id=\"process-history\" class=\"workspace-group\"><summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary> <div class=\"workspace-group-body\"><!></div></details> <details id=\"evidence-workspace\" class=\"workspace-group\"><summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <section id=\"observer-lanes\" class=\"observer-surface\" aria-label=\"Observed agent lanes\"><header><div><p class=\"eyebrow\">LANE OBSERVER</p><h2>Workers, receipts, and recent history</h2></div><span>Drill down without leaving campaign control</span></header> <!></section></div></details> <details id=\"strategy-workspaces\" class=\"workspace-group\"><summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!> <!> <!></div></details> <details id=\"system-workspace\" class=\"workspace-group\"><summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary> <div class=\"workspace-group-body\"><!> <!></div></details></section>", 1), hC = /* @__PURE__ */ G("<header class=\"topbar\"><a class=\"topbar-brand\" href=\"/\" title=\"Open all jobs\"><p class=\"eyebrow\">CAMPAIGN CONTROL</p> <h1>Lane Watch</h1></a> <!> <div class=\"connection-wrap\"><!> <button aria-label=\"Refresh all campaign and lane states\">↻</button> <span></span> <span> </span></div></header> <main><!></main>", 1);
+function gC(e, t) {
 	bt(t, !1);
 	let n = () => Kt(Vo, "$campaignState", r), [r, i] = qt();
 	wo(() => {
@@ -16808,10 +16856,10 @@ function mC(e, t) {
 			e(), t();
 		};
 	}), vo();
-	var a = pC(), o = R(a), s = L(o), c = z(s, 2);
+	var a = hC(), o = R(a), s = L(o), c = z(s, 2);
 	xx(c, {});
 	var l = z(c, 2), u = L(l), d = (e) => {
-		var t = uC(), r = L(t), i = L(r, !0);
+		var t = fC(), r = L(t), i = L(r, !0);
 		N(r);
 		var a = z(r, 1, !0);
 		N(t), V((e) => {
@@ -16828,10 +16876,10 @@ function mC(e, t) {
 	var g = z(m, 2), _ = L(g, !0);
 	N(g), N(l), N(o);
 	var v = z(o, 2), y = L(v), b = (e) => {
-		var t = dC();
+		var t = pC();
 		Ds(z(L(t), 2), {}), N(t), K(e, t);
 	}, x = (e) => {
-		var t = fC(), n = R(t);
+		var t = mC(), n = R(t);
 		wx(n, {});
 		var r = z(n, 2);
 		Qx(r, {});
@@ -16850,7 +16898,7 @@ function mC(e, t) {
 		var m = z(f, 2), h = z(L(m), 2), g = L(h);
 		hl(g, {});
 		var _ = z(g, 2);
-		lC(_, {});
+		dC(_, {});
 		var v = z(_, 2);
 		Ds(z(L(v), 2), {}), N(v), N(h), N(m);
 		var y = z(m, 2), b = z(L(y), 2), x = L(b);
@@ -16858,7 +16906,7 @@ function mC(e, t) {
 		var S = z(x, 2);
 		uS(S, {});
 		var C = z(S, 2);
-		AS(C, {}), Rc(z(C, 2), {}), N(b), N(y);
+		jS(C, {}), Rc(z(C, 2), {}), N(b), N(y);
 		var w = z(y, 2), T = z(L(w), 2), E = L(T);
 		ll(E, {}), $c(z(E, 2), {}), N(T), N(w), N(c), K(e, t);
 	};
@@ -16875,5 +16923,5 @@ function mC(e, t) {
 }
 //#endregion
 //#region src/ui/main.ts
-Zi(["click"]), la(mC, { target: document.querySelector("#app") });
+Zi(["click"]), la(gC, { target: document.querySelector("#app") });
 //#endregion

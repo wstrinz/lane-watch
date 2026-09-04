@@ -9,6 +9,7 @@ import { CUSTODY_OPERATOR_REPAIR_CONFIRMATION, custodyContractComplete, type Cus
 import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorReportSchema, custodyInterruptThreshold, verifyCustodyExecutionReceipt, type CustodyExecutionMeasurement, type CustodyExecutionReceipt, type CustodyExecutorReport } from "./custody-executor";
 import { createCustodyLease, protocolDigest, simulateCustodyProtocol, verifyCustodyProtocolReceipt, type CustodyLeaseEnvelope, type CustodyProtocolReceipt } from "./custody-protocol";
 import { runGit } from "./git";
+import { verifyCustodyInputs } from "./custody-inputs";
 
 interface CustodyItemRow {
   item_id: string;
@@ -210,6 +211,7 @@ export class CustodyCommandService {
         stopCondition: boundedText(candidate?.acceptance?.stopCondition, 1_000),
         dependsOnItemIds: (Array.isArray(candidate?.acceptance?.dependsOnItemIds) ? candidate.acceptance.dependsOnItemIds : []).map((value: unknown) => boundedText(value, 100)).filter(Boolean).slice(0, 12),
         dependsOnTasks: (Array.isArray(candidate?.acceptance?.dependsOnTasks) ? candidate.acceptance.dependsOnTasks : []).map((value: unknown) => boundedText(value, 1_000)).filter(Boolean).slice(0, 12),
+        inputManifest: candidate?.acceptance?.inputManifest,
       };
       const child = {
         id: crypto.randomUUID(),
@@ -291,6 +293,7 @@ export class CustodyCommandService {
     const exactRepositoryRoot = repository.exitCode === 0 && Boolean(repository.stdout) && resolve(repository.stdout) === resolve(sourceRoot);
     const executableWorkspace = exactRepositoryRoot && head.exitCode === 0 && /^[0-9a-f]{40}$/i.test(head.stdout);
     const repositoryRoot = executableWorkspace ? resolve(repository.stdout) : "";
+    if (executableWorkspace) await verifyCustodyInputs(repositoryRoot, item.acceptance.inputManifest);
     if (executableWorkspace && !within(repositoryRoot, sourceRoot)) throw new Error("Campaign workspace is outside its resolved Git repository");
     const projectRelativePath = executableWorkspace ? (relative(repositoryRoot, sourceRoot).replace(/\\/g, "/") || ".") : ".";
     const issuedAt = this.port.now();
@@ -386,6 +389,7 @@ export class CustodyCommandService {
     if (Date.parse(row.expires_at) <= Date.now()) throw new Error("The confirmed custody lease expired before dispatch");
     const strategy = this.domains.strategySnapshot(projectId);
     const custodySlots = Math.max(0, Number(strategy.charter?.resourcePolicy?.slots?.custody ?? 1));
+    await verifyCustodyInputs(lease.workspace.repositoryRoot, lease.contract.acceptance.inputManifest);
     const active = this.database.query(
       "SELECT COUNT(*) AS count FROM campaign_custody_leases WHERE project_id = $project AND status IN ('running', 'finalizing')",
     ).get({ $project: projectId }) as { count: number } | null;
