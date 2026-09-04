@@ -125,6 +125,7 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   // correctly rejects a second slot and the loop appears to repeat forever.
   const dependencyReady = items.filter((candidate: any) => candidate.dependenciesSatisfied !== false);
   const actionable = dependencyReady.filter((candidate: any) => {
+    if (candidate.inputReadiness?.ready === false || candidate.generationAllowed === false) return false;
     if (["proposed", "ready"].includes(candidate.status)) return true;
     if (custodyHasBudgetUpgrade(candidate)) return true;
     if (!["blocked", "failed"].includes(candidate.status) || !controllerOwnedCustodyStop(candidate)) return false;

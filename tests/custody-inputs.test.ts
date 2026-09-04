@@ -38,3 +38,9 @@ test("all attempts remain charged through splits and unknown usage is explicit",
   const leases = [{ itemId: "parent", status: "failed", receipt: { usage: { tokens: 200 } } }, { itemId: "child", status: "blocked", receipt: {} }, { itemId: "grandchild", status: "completed", receipt: { usage: { tokens: 50 } } }];
   expect(custodyLineageCosts(items, leases).get("grandchild")).toEqual({ attempts: 3, knownTokens: 250, unreported: 1, landed: 1 });
 });
+
+test("a missing-input branch preserves its hold while an independent ready root advances", () => {
+  const stopped = { id: "missing", task: "Missing sources", status: "proposed", blocksResearch: true, inputReadiness: { ready: false, reason: "Missing manifest" }, createdAt: "2026-09-01" };
+  const ready = { id: "ready", task: "Independent check", status: "ready", blocksResearch: true, inputReadiness: { ready: true }, createdAt: "2026-09-02" };
+  expect(nextCustodyAutopilotStep({ items: [stopped, ready] })).toMatchObject({ kind: "action", type: "custody.lease.prepare", targetId: "ready" });
+});

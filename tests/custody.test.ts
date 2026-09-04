@@ -128,3 +128,9 @@ describe("custody contracts", () => {
   const state = deriveCustodyServiceState([item({ status: "complete", receipt: { status: "SUPERSEDED" } })]);
   expect(state.counts).toMatchObject({ complete: 0, landed: 0, superseded: 1 });
 });
+
+test("an unresolved named predecessor cannot disappear from dependency checks", () => {
+  const candidate = item(); candidate.acceptance.dependsOnTasks = ["Missing source inventory"];
+  const service = deriveCustodyServiceState([candidate]);
+  expect(service.items[0]).toMatchObject({ dependenciesSatisfied: false, eligibleToReady: false });
+});

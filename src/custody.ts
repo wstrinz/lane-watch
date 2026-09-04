@@ -135,7 +135,7 @@ export function deriveCustodyServiceState(items: CustodyWorkItem[], maxAutomatic
     const nextSeen = new Set(seen).add(item.id);
     const explicitIds = Array.isArray(item.acceptance.dependsOnItemIds) ? item.acceptance.dependsOnItemIds : [];
     const taskIds = (Array.isArray(item.acceptance.dependsOnTasks) ? item.acceptance.dependsOnTasks : [])
-      .map((task) => byTask.get(task.trim().toLowerCase())?.id || "").filter(Boolean);
+      .map((task) => byTask.get(task.trim().toLowerCase())?.id || `missing-task:${task.trim().toLowerCase()}`);
     const siblingId = previousSibling.get(item.id);
     // A reshape narrows a contract; it does not erase the source contract's
     // prerequisites. This also repairs ordering for successors created before
