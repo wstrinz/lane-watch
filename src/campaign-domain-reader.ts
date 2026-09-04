@@ -455,6 +455,10 @@ export class CampaignDomainReader {
       });
     }
     for (const lease of custody.protocol?.leases || []) {
+      // A strategy activation opens a fresh resource envelope. Preserve older
+      // receipts in custody history, but do not charge their measured usage to
+      // the successor epoch.
+      if (epochStart && String(lease.createdAt || "") < epochStart) continue;
       if (["simulated", "verified"].includes(String(lease.status))) {
         usage.push({ id: lease.id, layer: "custody", trackId: "shared", workKind: "simulation", tokens: 0, wallHours: 0, status: lease.status, receiptBound: false, measurementComplete: false });
         continue;

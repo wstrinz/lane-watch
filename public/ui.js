@@ -3888,8 +3888,8 @@ function Xs(e, t) {
 			label: "Inspect custody queue",
 			target: "#custody-service",
 			style: "outline-button"
-		}, o = t.activeLease, s = String(e.loop?.error || ""), c = Ns(t), l = Ms(t, s), u = n.filter((e) => e.dependenciesSatisfied !== !1 && As(e)), d = u.length ? Math.min(...u.map((e) => Number(e.tokenCap || 0)).filter((e) => e > 0)) : 0, f = Number(e.resources?.ledger?.remainingBeforeCommitments || 0), p = e.strategy?.workspace, m = p?.activeReview;
-		if (u.length && d > f) return m?.status === "drafting" || m?.status === "queued" ? {
+		}, o = t.activeLease, s = String(e.loop?.error || ""), c = Ns(t), l = Ms(t, s), u = n.filter((e) => e.dependenciesSatisfied !== !1 && As(e)), d = u.length ? Math.min(...u.map((e) => Number(e.tokenCap || 0)).filter((e) => e > 0)) : 0, f = Number(e.resources?.ledger?.remainingBeforeCommitments || 0), p = Number(e.resources?.ledger?.schedulableTokens ?? f), m = e.strategy?.workspace, h = m?.activeReview;
+		if (u.length && d > f) return h?.status === "drafting" || h?.status === "queued" ? {
 			status: "RESOURCE RECENTER RUNNING",
 			title: "Sol is reviewing the exhausted epoch",
 			detail: "Both legacy custody failures are recoverable under the corrected lease policy, but the current epoch has no spendable tokens. The independent review is preparing a fresh resource proposal; it cannot dispatch work or change the campaign.",
@@ -3899,7 +3899,7 @@ function Xs(e, t) {
 				target: "#strategy-workspace",
 				style: "outline-button"
 			}, a]
-		} : m?.status === "drafted" ? {
+		} : h?.status === "drafted" ? {
 			status: "FRESH EPOCH GATE",
 			title: "Review and activate the proposed resource envelope",
 			detail: "The strategy proposal is ready for a human decision. Activation opens a fresh measured epoch but dispatches nothing; after that, custody autopilot can retry the two zero-effect roots under corrected leases.",
@@ -3914,7 +3914,7 @@ function Xs(e, t) {
 			title: "Open a fresh epoch before retrying custody",
 			detail: "The two failed stewards were starved by the old 20,000-token total-turn lease, but this epoch has also spent its full envelope. Recommended: run one read-only strategy review, approve a fresh envelope, then let autopilot retry both dependency roots.",
 			actions: [
-				...p?.reviewAvailable ? [{
+				...m?.reviewAvailable ? [{
 					key: "strategy.review.request",
 					label: "Ask Sol to recenter resources",
 					style: "primary-button",
@@ -3935,9 +3935,13 @@ function Xs(e, t) {
 			]
 		};
 		if (u.length) return {
-			status: "CUSTODY LEASE UPDATE · " + u.length + " READY",
+			status: `${e.strategy?.epoch?.label || "FRESH EPOCH"} · ${p.toLocaleString()} TOKENS SCHEDULABLE`,
 			title: "Retry the starved custody roots under corrected envelopes",
-			detail: "The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click marks both exact contracts ready under the new total-turn caps and resumes the one-at-a-time Terra steward.",
+			detail: `The new epoch is active and its historical spend has been closed behind the epoch boundary. The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click rebudgets ${u.length} exact contracts and resumes the one-at-a-time Terra steward.${[
+				"queued",
+				"drafting",
+				"drafted"
+			].includes(String(h?.status || "")) ? " The extra resource review can finish in the background; it no longer blocks custody." : ""}`,
 			actions: [{
 				key: "custody.rebudget-and-resume",
 				args: { itemIds: u.map((e) => e.id) },
@@ -3945,27 +3949,27 @@ function Xs(e, t) {
 				style: "primary-button"
 			}, a]
 		};
-		let h = n.map((e) => ({
+		let g = n.map((e) => ({
 			targetId: e.id,
 			task: e.task,
 			children: Ns(e)
-		})).filter((e) => e.children.length >= 2 && Ms(n.find((t) => t.id === e.targetId), s)), g = n.find((e) => e.id !== t.id && e.dependenciesSatisfied !== !1 && ["proposed", "ready"].includes(e.status));
+		})).filter((e) => e.children.length >= 2 && Ms(n.find((t) => t.id === e.targetId), s)), _ = n.find((e) => e.id !== t.id && e.dependenciesSatisfied !== !1 && ["proposed", "ready"].includes(e.status));
 		if (c.length && l) return {
-			status: h.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${h.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${i}`,
-			title: h.length > 1 ? `${h.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
-			detail: h.length > 1 ? `All ${h.length} failed receipts landed zero changes. One approval replaces them with ${h.reduce((e, t) => e + t.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.` : `The failed receipt landed no changes. Recommended: replace it with ${c.length} dependency-ordered successors and resume. ${g ? `Or run the independent “${S(g.task, 70)}” branch first; this stopped branch will remain preserved.` : ""}`,
+			status: g.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${g.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${i}`,
+			title: g.length > 1 ? `${g.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
+			detail: g.length > 1 ? `All ${g.length} failed receipts landed zero changes. One approval replaces them with ${g.reduce((e, t) => e + t.children.length, 0)} dependency-ordered successors and resumes the one-at-a-time custody steward.` : `The failed receipt landed no changes. Recommended: replace it with ${c.length} dependency-ordered successors and resume. ${_ ? `Or run the independent “${S(_.task, 70)}” branch first; this stopped branch will remain preserved.` : ""}`,
 			actions: [
 				{
 					key: "custody.reshape-and-resume",
-					args: { batch: h.length > 1 ? h : [{
+					args: { batch: g.length > 1 ? g : [{
 						targetId: t.id,
 						task: t.task,
 						children: c
 					}] },
-					label: h.length > 1 ? `Split all ${h.length} & resume custody` : "Split & resume custody",
+					label: g.length > 1 ? `Split all ${g.length} & resume custody` : "Split & resume custody",
 					style: "primary-button"
 				},
-				...g ? [{
+				..._ ? [{
 					key: "loop.resume",
 					label: "Run independent custody first",
 					style: "outline-button"

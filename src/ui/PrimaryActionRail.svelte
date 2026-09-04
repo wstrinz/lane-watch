@@ -81,6 +81,7 @@
       ? Math.min(...budgetUpgrades.map((candidate: any) => Number(candidate.tokenCap || 0)).filter((amount: number) => amount > 0))
       : 0;
     const remainingTokens = Number(value.resources?.ledger?.remainingBeforeCommitments || 0);
+    const schedulableTokens = Number(value.resources?.ledger?.schedulableTokens ?? remainingTokens);
     const strategyWorkspace = value.strategy?.workspace;
     const strategyReview = strategyWorkspace?.activeReview;
     if (budgetUpgrades.length && requiredTokens > remainingTokens) {
@@ -118,9 +119,9 @@
       };
     }
     if (budgetUpgrades.length) return {
-      status: "CUSTODY LEASE UPDATE · " + budgetUpgrades.length + " READY",
+      status: `${value.strategy?.epoch?.label || "FRESH EPOCH"} · ${schedulableTokens.toLocaleString()} TOKENS SCHEDULABLE`,
       title: "Retry the starved custody roots under corrected envelopes",
-      detail: "The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click marks both exact contracts ready under the new total-turn caps and resumes the one-at-a-time Terra steward.",
+      detail: `The new epoch is active and its historical spend has been closed behind the epoch boundary. The prior attempts changed no files and stopped before useful work because fixed App Server context consumed most of each 20,000-token lease. One click rebudgets ${budgetUpgrades.length} exact contracts and resumes the one-at-a-time Terra steward.${["queued", "drafting", "drafted"].includes(String(strategyReview?.status || "")) ? " The extra resource review can finish in the background; it no longer blocks custody." : ""}`,
       actions: [
         { key: "custody.rebudget-and-resume", args: { itemIds: budgetUpgrades.map((candidate: any) => candidate.id) }, label: "Rebudget " + budgetUpgrades.length + " checks & resume", style: "primary-button" },
         inspect,

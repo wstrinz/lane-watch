@@ -634,6 +634,22 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   let project = (control.snapshot() as any).projects[0];
   const originalPhase = project.phase;
   const originalEpoch = project.strategy.epoch.id;
+  const historicalLeaseDatabase = new Database(join(dataDir, "observer.sqlite"));
+  historicalLeaseDatabase.query(`
+    INSERT INTO campaign_custody_leases(
+      lease_id, item_id, project_id, adapter_id, status, bundle_path, lease_digest, lease_json,
+      receipt_json, receipt_digest, verification_json, issued_by, created_at, expires_at, updated_at, completed_at
+    ) VALUES (
+      'historical-epoch-lease', 'historical-epoch-item', 'demo', 'terra-local-steward', 'completed', '',
+      'sha256:historical', '{}', $receipt, 'sha256:receipt', '{}', 'test-operator', $created, $created, $created, $created
+    )
+  `).run({
+    $receipt: JSON.stringify({ usage: { tokens: 123_456, minutes: 12, tokenMeasurement: "app-server" } }),
+    $created: project.strategy.epoch.createdAt,
+  });
+  historicalLeaseDatabase.close();
+  project = (control.snapshot() as any).projects[0];
+  expect(project.resources.ledger.knownTokens).toBe(123_456);
   await control.enqueueAction({
     projectId: "demo",
     type: "strategy.review.request",
@@ -758,6 +774,10 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   expect(project.strategy.charter).toMatchObject({ revision: 2, thesis: response.proposal.thesis, epoch: { label: response.proposal.epochLabel }, resourcePolicy: response.proposal.resourcePolicy });
   expect(project.strategy.epoch.id).not.toBe(originalEpoch);
   expect(project.strategy.epoch).toMatchObject({ label: response.proposal.epochLabel, charterRevision: 2, status: "active" });
+  expect(project.resources.ledger).toMatchObject({ knownTokens: 0, remainingBeforeCommitments: 680_000, schedulableTokens: 680_000 });
+  const successorEpochDatabase = new Database(join(dataDir, "observer.sqlite"));
+  successorEpochDatabase.query("DELETE FROM campaign_custody_leases WHERE lease_id = 'historical-epoch-lease'").run();
+  successorEpochDatabase.close();
   expect(project.strategy.workspace.charterHistory.map((item: any) => item.revision)).toEqual([2, 1]);
   expect(project.custody).toMatchObject({
     mode: "bounded-autopilot-ready",
