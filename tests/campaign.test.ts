@@ -991,7 +991,7 @@ test("an exact custody lease runs one isolated Terra steward and lands only afte
   expect(codex.startThreadParams).toMatchObject({ model: "gpt-5.6-terra", approvalPolicy: "never", sandbox: "workspace-write" });
   expect(codex.startThreadParams?.cwd).not.toBe(dispatched.result.worktreePath);
   expect(codex.startParams).toMatchObject({
-    threadId: "thr_strategy", cwd: codex.startThreadParams?.cwd, model: "gpt-5.6-terra", effort: "medium", approvalPolicy: "never",
+    threadId: "thr_strategy", cwd: codex.startThreadParams?.cwd, model: "gpt-5.6-terra", effort: "low", approvalPolicy: "never",
     sandboxPolicy: { type: "workspaceWrite", writableRoots: expect.arrayContaining([dispatched.result.worktreePath, codex.startThreadParams?.cwd]), networkAccess: false },
   });
   const expectedBundleHash = `sha256:${createHash("sha256").update(readFileSync(prepared.result.bundlePath)).digest("hex")}`;

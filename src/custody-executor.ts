@@ -48,6 +48,11 @@ export interface CustodyExecutionMeasurement {
   producerCommit?: string;
 }
 
+/** Reserve enough telemetry/interrupt latency for the turn to stop below its immutable hard ceiling. */
+export function custodyInterruptThreshold(maxTokens: number): number {
+  return Math.max(1, Math.floor(Math.max(1, maxTokens) * 0.7));
+}
+
 function normalizedPath(value: string): string {
   return value.replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/{2,}/g, "/");
 }
@@ -122,7 +127,7 @@ export function custodyExecutorPrompt(lease: CustodyLeaseEnvelope, bundlePath: s
     `Acceptance criteria:\n${criteria}`,
     `The only paths you may change, relative to the detached campaign workspace, are:\n${allowed}`,
     `Hard stop: ${lease.contract.acceptance.stopCondition}`,
-    `Budget: at most ${lease.budget.maxMinutes} minutes and ${lease.budget.maxChangedPaths} changed paths. The controller separately meters tokens where available.`,
+    `Budget: at most ${lease.budget.maxTokens.toLocaleString()} total tokens, ${lease.budget.maxMinutes} minutes, and ${lease.budget.maxChangedPaths} changed paths. Aim to return the final structured report before 60% of the token ceiling. If the checks cannot fit, stop early as BLOCKED with the exact missing prerequisite; do not spend the remaining budget exploring broadly. The controller begins interrupting near 70% to reserve telemetry and cancellation headroom.`,
     "The workspace is a detached custody worktree. Disposable files in the runner directory are allowed only to replay immutable blobs and are not campaign effects. Do not commit, merge, cherry-pick, push, switch branches, alter Git configuration, access the network, start another agent, dispatch any worker, modify the campaign control database, choose research direction, or promote a mathematical claim.",
     "Inspect first. Make only the smallest changes needed by the acceptance contract. Stop as BLOCKED instead of guessing whenever the contract, source bytes, allowed paths, or evidence are insufficient.",
     "Return the structured report requested by the host. changedPaths must exactly name every file you changed relative to the current project directory. A COMPLETED report requires every acceptance check to PASS; otherwise return BLOCKED or FAILED.",

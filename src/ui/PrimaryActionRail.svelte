@@ -66,19 +66,32 @@
     return activeCustodyItem(value) || namedBlocker || blockers[0];
   }
 
-  function custodyBlockerFocus(value: any, item: any, count: number): RailFocus {
+  function custodyBlockerFocus(value: any, item: any, blockers: any[]): RailFocus {
+    const count = blockers.length;
     const suffix = count > 1 ? ` · 1 of ${count}` : "";
     const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
     const lease = item.activeLease;
     const loopError = String(value.loop?.error || "");
     const reshapeChildren = custodyReshapeChildren(item);
     const needsReshape = custodyNeedsReshape(item, loopError);
+    const reshapeBatch = blockers.map((candidate: any) => ({
+      targetId: candidate.id,
+      task: candidate.task,
+      children: custodyReshapeChildren(candidate),
+    })).filter((candidate: any) => candidate.children.length >= 2 && custodyNeedsReshape(
+      blockers.find((item: any) => item.id === candidate.targetId),
+      loopError,
+    ));
     if (reshapeChildren.length && needsReshape) return {
-      status: `CUSTODY CONTRACT RESHAPE${suffix}`,
-      title: "This job is larger than one custody lease",
-      detail: `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} bounded successors; the original dependency remains enforced and no steward starts until autopilot is resumed.`,
+      status: reshapeBatch.length > 1 ? `CUSTODY CONTRACT RESHAPE · ${reshapeBatch.length} OVERSIZED` : `CUSTODY CONTRACT RESHAPE${suffix}`,
+      title: reshapeBatch.length > 1 ? `${reshapeBatch.length} jobs are larger than their custody leases` : "This job is larger than one custody lease",
+      detail: reshapeBatch.length > 1
+        ? `All ${reshapeBatch.length} failed receipts landed zero changes. One approval replaces them with ${reshapeBatch.reduce((total: number, candidate: any) => total + candidate.children.length, 0)} bounded successors; every dependency remains enforced and no steward starts until autopilot is resumed.`
+        : `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} bounded successors; the original dependency remains enforced and no steward starts until autopilot is resumed.`,
       actions: [
-        { key: "custody.item.reshape", targetId: item.id, args: { children: reshapeChildren }, label: `Split into ${reshapeChildren.length} bounded checks`, style: "primary-button" },
+        reshapeBatch.length > 1
+          ? { key: "custody.items.reshape", args: { batch: reshapeBatch }, label: `Split all ${reshapeBatch.length} oversized jobs`, style: "primary-button" }
+          : { key: "custody.item.reshape", targetId: item.id, args: { children: reshapeChildren }, label: `Split into ${reshapeChildren.length} bounded checks`, style: "primary-button" },
         inspect,
       ],
     };
@@ -237,7 +250,7 @@
       const blocked = plan?.status === "drafted" && plan?.response?.decision === "BLOCKED";
       if (plan?.status === "drafting") return { status: "SOL CHECKING", title: "Sol is shaping the next bounded wave", detail: `The coordinator is checking ${currentRequests(value).length} requests for grain, dependencies, contracts, resources, and tunnel vision. It cannot dispatch.`, actions: [] };
       if (blocked) return { status: "OPERATOR TRANSITION", title: "The checked plan needs one operator-owned change", detail: compact(plan?.response?.operatorGuidance || "No safe lane can launch until the required transition is resolved."), actions: [{ key: "scroll", label: "Open required operator gate", target: "#operator-gate", style: "primary-button" }] };
-      if (plan?.status === "drafted" && !ready.length && dependent.length && custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers.length);
+      if (plan?.status === "drafted" && !ready.length && dependent.length && custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers);
       if (plan?.status === "drafted" && !ready.length) return { status: "DEPENDENCY PLAN", title: "No research lane can launch from this revision", detail: compact(plan?.response?.operatorGuidance || "The checked plan contains only dependent or excluded work. Request a revision after resolving its named prerequisites."), actions: [
         { key: "research.review.resolve", label: "Request dependency-aware revision", style: "primary-button", args: { decision: "revise" } },
         { key: "inspect", label: "Inspect checked plan", style: "outline-button" },
@@ -251,7 +264,7 @@
     }
     if (value.phase === "RESEARCH_READY") {
       const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
-      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers.length);
+      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers);
       const schedule = value.researchSchedule;
       if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
       if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
@@ -328,6 +341,23 @@
         await refreshAll();
         feedbackKind = "success";
         feedback = "The worker and receipt boundary is current.";
+        return;
+      }
+      if (item.key === "custody.items.reshape") {
+        const batch = Array.isArray(item.args?.batch) ? item.args.batch : [];
+        if (!batch.length) throw new Error("No oversized custody contracts were selected");
+        for (const candidate of batch) {
+          await settleCampaignAction({
+            projectId: project.id,
+            type: "custody.item.reshape",
+            targetId: String(candidate.targetId || ""),
+            args: { children: candidate.children },
+            scope: "primary-rail-custody-batch",
+            pollLimit: 80,
+          });
+        }
+        feedbackKind = "success";
+        feedback = `${batch.length} oversized contracts were replaced by bounded successors. No steward was started; resume autopilot when you are ready.`;
         return;
       }
       const args = { ...(item.args || {}), ...(["synthesis.review", "research.review.resolve"].includes(item.key) ? { note: decisionNote } : {}) };

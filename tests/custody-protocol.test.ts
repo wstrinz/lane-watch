@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { createCustodyLease, simulateCustodyProtocol, verifyCustodyProtocolReceipt } from "../src/custody-protocol";
-import { buildCustodyExecutionReceipt, custodyPathAllowed, verifyCustodyExecutionReceipt, type CustodyExecutorReport } from "../src/custody-executor";
+import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyInterruptThreshold, custodyPathAllowed, verifyCustodyExecutionReceipt, type CustodyExecutorReport } from "../src/custody-executor";
 import type { CustodyWorkItem } from "../src/custody";
 
 const item: CustodyWorkItem = {
@@ -66,6 +66,15 @@ describe("custody adapter protocol", () => {
       usage: { tokens: 0, minutes: 0 },
     });
     expect(verifyCustodyProtocolReceipt(envelope, first)).toMatchObject({ ok: true, errors: [], replayKey: first.replayKey, executorConnected: false, realEffects: false });
+  });
+
+  test("gives the steward an explicit token ceiling and reserves cancellation headroom", () => {
+    const envelope = lease();
+    const prompt = custodyExecutorPrompt(envelope, "C:/leases/lease.json", "sha256:bundle", "C:/worktree");
+    expect(prompt).toContain("at most 20,000 total tokens");
+    expect(prompt).toContain("before 60% of the token ceiling");
+    expect(custodyInterruptThreshold(20_000)).toBe(14_000);
+    expect(custodyInterruptThreshold(50_000)).toBe(35_000);
   });
 
   test("rejects tampered leases, excess budgets, and forbidden effects", () => {

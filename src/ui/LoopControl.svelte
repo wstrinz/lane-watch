@@ -123,8 +123,10 @@
   $: activeRuns = project?.researchRuns?.filter((run: any) => ["launching", "running", "blocked"].includes(run.status)) || [];
   $: schedule = project?.researchSchedule || null;
   $: scheduleGate = project?.phase === "RESEARCH_READY";
+  $: custodyBlockers = (project?.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
+  $: custodyGate = scheduleGate && custodyBlockers.length > 0;
   $: scheduleClosed = Boolean(schedule && ["completed", "failed", "superseded"].includes(schedule.status));
-  $: scheduleNeedsPreparation = scheduleGate && (!schedule || scheduleClosed);
+  $: scheduleNeedsPreparation = scheduleGate && !custodyGate && (!schedule || scheduleClosed);
   $: scheduleVisible = Boolean(schedule && !scheduleClosed && ["RESEARCH_READY", "RESEARCH_RUNNING", "RESEARCH_INTAKE", "SYNTHESIZING"].includes(project?.phase || ""));
   $: startBlocked = Boolean(project && !active && !project.canStartLoop && project.loopStart?.blocker
     && !(scheduleGate && schedule && ["proposed", "confirmed"].includes(schedule.status)));
@@ -150,8 +152,8 @@
     <div class="loop-control-heading">
       <div>
         <p class="eyebrow">ONE-LOOP AUTOPILOT</p>
-        <h3>{startBlocked ? "Recenter resources before starting the loop" : scheduleNeedsPreparation ? "Freeze the resource-bounded wave" : scheduleGate && schedule?.status === "proposed" ? `Confirm ${schedule.members?.length || 0} scheduled member${schedule.members?.length === 1 ? "" : "s"}` : scheduleGate && schedule?.status === "confirmed" ? "Dispatch the confirmed wave" : operatorTransitionRequired ? "Paused for one operator approval" : activeRun ? `${activeRuns.length} bounded lane${activeRuns.length === 1 ? " is" : "s are"} working` : active ? (current?.label || (loop?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step")) : loop?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"}</h3>
-        <p>{startBlocked ? project?.loopStart?.blocker : scheduleNeedsPreparation ? `${scheduleClosed ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : scheduleGate && schedule?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : scheduleGate && schedule?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : operatorTransitionRequired ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : activeRun ? `${activeRuns.map((run: any) => run.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."}</p>
+        <h3>{startBlocked ? "Recenter resources before starting the loop" : custodyGate ? "Resolve custody before scheduling research" : scheduleNeedsPreparation ? "Freeze the resource-bounded wave" : scheduleGate && schedule?.status === "proposed" ? `Confirm ${schedule.members?.length || 0} scheduled member${schedule.members?.length === 1 ? "" : "s"}` : scheduleGate && schedule?.status === "confirmed" ? "Dispatch the confirmed wave" : operatorTransitionRequired ? "Paused for one operator approval" : activeRun ? `${activeRuns.length} bounded lane${activeRuns.length === 1 ? " is" : "s are"} working` : active ? (current?.label || (loop?.status === "attention" ? "Waiting at a checked boundary" : "Watching for the next safe step")) : loop?.status === "completed" ? "A full bounded loop is captured" : "Continue to the next fresh decision"}</h3>
+        <p>{startBlocked ? project?.loopStart?.blocker : custodyGate ? `${custodyBlockers.length} required custody contract${custodyBlockers.length === 1 ? " remains" : "s remain"}. Wave scheduling is locked until the focused dependency above is reshaped or settled.` : scheduleNeedsPreparation ? `${scheduleClosed ? "The previous schedule is closed. " : ""}Freeze the current dependency-safe frontier under the slot and token policy before operator review.` : scheduleGate && schedule?.status === "proposed" ? "Review the exact tasks, contracts, resource caps, and deferred lanes below. Confirmation reserves this digest but launches nothing." : scheduleGate && schedule?.status === "confirmed" ? "The operator gate is captured. Dispatch will launch only these immutable members and will preserve a batch evidence boundary." : operatorTransitionRequired ? "The checked staging evidence is ready; approve DOC-A1 below, then Sol will replan automatically." : activeRun ? `${activeRuns.map((run: any) => run.taskId).join(", ")}. Autopilot will wait for the whole wave, perform batch intake, and continue the loop.` : "decision → checked plan → resource-bounded wave → custody → batch synthesis → next decision. Every action and receipt stays inspectable."}</p>
       </div>
       <span class="loop-status {statusClass}">{statusLabel}</span>
     </div>
@@ -191,10 +193,13 @@
     <div class="loop-control-row">
       <div class="loop-now">
         <span>{scheduleGate ? "Current position" : loop?.haltAfterStep ? "Halt armed" : active ? "Current position" : "Scope"}</span>
-        <strong>{startBlocked ? "Resource gate → unlock autopilot" : scheduleNeedsPreparation ? "Checked plan → freeze schedule" : scheduleGate && schedule?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : scheduleGate && schedule?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : operatorTransitionRequired ? "DOC-A1 preflight passed · your approval is next" : activeRun ? `${activeRun.taskId} · ${activeRun.status}` : loop?.haltAfterStep ? "Will pause when this step settles" : current ? `${current.index}. ${current.label} · ${current.status}` : "One decision-to-decision cycle"}</strong>
+        <strong>{startBlocked ? "Resource gate → unlock autopilot" : custodyGate ? "Custody dependency → bounded successor → resume" : scheduleNeedsPreparation ? "Checked plan → freeze schedule" : scheduleGate && schedule?.status === "proposed" ? "Resource frontier frozen → operator confirmation" : scheduleGate && schedule?.status === "confirmed" ? "Operator confirmed → bounded wave dispatch" : operatorTransitionRequired ? "DOC-A1 preflight passed · your approval is next" : activeRun ? `${activeRun.taskId} · ${activeRun.status}` : loop?.haltAfterStep ? "Will pause when this step settles" : current ? `${current.index}. ${current.label} · ${current.status}` : "One decision-to-decision cycle"}</strong>
       </div>
       <div class="loop-buttons">
-        {#if startBlocked}
+        {#if custodyGate}
+          <button class="primary-button compact" onclick={revealRequiredGate}>Return to custody action</button>
+          {#if active}<button class="outline-button compact" disabled={Boolean(working)} onclick={() => submit("loop.stop")}>Stop & capture here</button>{/if}
+        {:else if startBlocked}
           <button class="primary-button autopilot-start-button" disabled>▶ Start one-loop autopilot</button>
           <button class="outline-button compact autopilot-unlock-button" onclick={revealStrategyProposal}>{strategyProposal?.epochLabel ? "Review Epoch 2 resource proposal →" : "Open strategy & resources →"}</button>
         {:else if scheduleNeedsPreparation}

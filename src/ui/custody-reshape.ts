@@ -145,5 +145,34 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       "Stop if the predecessor receipt is absent or ambiguous. Do not estimate missing usage, rerun research, or create another repair generation.",
     ),
   ];
+  if (/bind missing epoch token measurements to their source runs/i.test(item?.task || "")) return [
+    base(
+      item,
+      "Inventory the six epoch run identifiers and token-source locations",
+      "Freeze the source map before attempting any token-value recovery so discovery cannot consume the reconciliation lease.",
+      "small",
+      [
+        "Enumerate exactly the six named run IDs from the predecessor contract.",
+        "Classify each available source location as receipt-bound, ledger-only, or absent.",
+        "Record immutable source references without estimating, copying, or reconciling token values.",
+      ],
+      "results/inbox/strategy-cost-source-inventory-v1/**",
+      "One bounded source-location inventory only. Do not recover values, inspect unrelated runs, estimate usage, or rerun research.",
+    ),
+    base(
+      item,
+      "Bind epoch token values to the frozen six-run inventory",
+      "Recover values only from the predecessor's exact source map and preserve irrecoverable measurements explicitly.",
+      "small",
+      [
+        "Consume the exact six-run source inventory receipt without reopening discovery.",
+        "Give every run a source-bound token total or an explicit IRRECOVERABLE/UNKNOWN status.",
+        "Never impute an unknown value as zero and preserve receipt-bound versus ledger-only provenance.",
+        "Change no resource policy, mathematical claim, or campaign phase.",
+      ],
+      "results/inbox/strategy-cost-value-binding-v1/**",
+      "Stop when an inventoried source is absent or ambiguous and record UNKNOWN with provenance. Do not estimate, rerun research, or reconcile reservation policy.",
+    ),
+  ];
   return [];
 }

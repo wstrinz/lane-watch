@@ -6,7 +6,7 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import type { CodexAppServerClient, CodexNotification, CodexServerRequest } from "./codex";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
 import { custodyContractComplete, type CustodyAcceptanceContract, type CustodyStatus, type CustodyWorkItem } from "./custody";
-import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorReportSchema, verifyCustodyExecutionReceipt, type CustodyExecutionMeasurement, type CustodyExecutionReceipt, type CustodyExecutorReport } from "./custody-executor";
+import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorReportSchema, custodyInterruptThreshold, verifyCustodyExecutionReceipt, type CustodyExecutionMeasurement, type CustodyExecutionReceipt, type CustodyExecutorReport } from "./custody-executor";
 import { createCustodyLease, protocolDigest, simulateCustodyProtocol, verifyCustodyProtocolReceipt, type CustodyLeaseEnvelope, type CustodyProtocolReceipt } from "./custody-protocol";
 import { runGit } from "./git";
 
@@ -380,7 +380,7 @@ export class CustodyCommandService {
         input: [{ type: "text", text: custodyExecutorPrompt(lease, row.bundle_path, bundleFileSha256, worktreeCwd) }],
         cwd: runnerCwd,
         model: "gpt-5.6-terra",
-        effort: "medium",
+        effort: lease.contract.effortClass === "small" ? "low" : "medium",
         approvalPolicy: "never",
         sandboxPolicy: {
           type: "workspaceWrite",
@@ -643,18 +643,19 @@ export class CustodyCommandService {
         const prior = parseJson<Record<string, any>>(row.verification_json, {});
         const lease = parseJson<CustodyLeaseEnvelope | null>(row.lease_json, null);
         const maxTokens = Number(lease?.budget?.maxTokens || 0);
-        const exceeded = maxTokens > 0 && measuredTokens > maxTokens;
+        const interruptThresholdTokens = custodyInterruptThreshold(maxTokens);
+        const thresholdReached = maxTokens > 0 && measuredTokens >= interruptThresholdTokens;
         const alreadyInterrupted = Boolean(prior.telemetry?.budgetInterruptRequestedAt);
         const telemetry = {
           ...(prior.telemetry || {}), measuredTokens, updatedAt: stamp,
-          ...(exceeded ? { budgetInterruptRequestedAt: prior.telemetry?.budgetInterruptRequestedAt || stamp, maxTokens } : {}),
+          ...(thresholdReached ? { budgetInterruptRequestedAt: prior.telemetry?.budgetInterruptRequestedAt || stamp, maxTokens, interruptThresholdTokens } : {}),
         };
         this.database.query(
           "UPDATE campaign_custody_leases SET verification_json = $verification, updated_at = $now WHERE lease_id = $id",
         ).run({ $id: row.lease_id, $verification: JSON.stringify({ ...prior, telemetry }), $now: stamp });
-        if (exceeded && !alreadyInterrupted && row.thread_id && row.turn_id) {
+        if (thresholdReached && !alreadyInterrupted && row.thread_id && row.turn_id) {
           this.port.recordEvent(row.project_id, "custody-lease", row.lease_id, "custody.execution.budget-interrupt-requested", {
-            itemId: row.item_id, measuredTokens, maxTokens, threadId: row.thread_id, turnId: row.turn_id,
+            itemId: row.item_id, measuredTokens, maxTokens, interruptThresholdTokens, threadId: row.thread_id, turnId: row.turn_id,
           });
           void this.codex.interruptTurn(row.thread_id, row.turn_id).catch((error) => {
             this.port.recordEvent(row.project_id, "custody-lease", row.lease_id, "custody.execution.budget-interrupt-failed", {
@@ -761,8 +762,10 @@ export class CustodyCommandService {
       : turnStatus === "interrupted" && budgetInterrupted
         ? {
           status: "FAILED",
-          summary: `Custody executor exceeded its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease budget and was stopped before landing.`,
-          stopReason: "The controller enforced the immutable token ceiling; reshape or resize the task before retrying.",
+          summary: Number(telemetry.measuredTokens || 0) > lease.budget.maxTokens
+            ? `Custody executor exceeded its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease budget and was stopped before landing.`
+            : `Custody executor approached its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease ceiling and was stopped before an overrun.`,
+          stopReason: "The controller reserved cancellation headroom before the immutable token ceiling; reshape or resize the task before retrying.",
           changedPaths: [],
           checks: [{ id: "token-budget", status: "FAIL", detail: `Measured ${Number(telemetry.measuredTokens || 0).toLocaleString()} tokens against a ${lease.budget.maxTokens.toLocaleString()}-token ceiling.` }],
         }

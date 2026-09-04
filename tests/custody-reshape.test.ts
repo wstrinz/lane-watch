@@ -22,6 +22,7 @@ describe("custody contract reshaping", () => {
       "Verify frozen asymmetric manifest, provenance, and control count",
       "Replay frozen asymmetric deduplication and reconcile resource scope",
       "Backfill and reconcile epoch resource provenance",
+      "Bind missing epoch token measurements to their source runs",
     ];
 
     for (const task of tasks) {
