@@ -57,6 +57,65 @@ export function custodyReshapeChildren(item: any): Record<string, any>[] {
       "Stop on the first changed candidate count, predecessor-receipt mismatch, or resource-ceiling breach. Do not run SAT, generate candidates, measure slack/liftability, or open another repair generation.",
     ),
   ];
+  if (/verify frozen asymmetric manifest, provenance, and control count/i.test(item?.task || "")) return [
+    base(
+      item,
+      "Bind the frozen asymmetric manifest and provenance",
+      "Keep immutable source binding separate from the eleven-type inventory check so either boundary can settle inside one small lease.",
+      "small",
+      [
+        "Bind the check to one immutable successor commit and frozen named-pool manifest.",
+        "Verify provenance and CLEAN_MINIMAL orientation references for all eleven qualifying types.",
+        "Limit every accepted statement to the frozen named pools; make no inventory or repository-wide ceiling claim.",
+      ],
+      "results/inbox/asym-lab-manifest-provenance-binding-v1/**",
+      "Stop at the first source-binding, provenance, or orientation mismatch. Do not count types, replay generators, run SAT, modify producer artifacts, or exceed 20,000 tokens.",
+    ),
+    base(
+      item,
+      "Verify the frozen asymmetric type inventory and control count",
+      "Consume the source-bound manifest receipt and check only the finite inventory arithmetic and six-control correction.",
+      "small",
+      [
+        "Consume the exact predecessor manifest-and-provenance receipt without reopening its source search.",
+        "Verify the 8-trivial/6-C2 inventory over the frozen named pools.",
+        "Correct the control count to six and emit graph-effect NONE.",
+        "Make no repository-wide ceiling claim and change no producer artifact.",
+      ],
+      "results/inbox/asym-lab-inventory-control-count-v1/**",
+      "Stop if the predecessor receipt is absent or the frozen inventory differs. Do not replay generators, run SAT, inspect unrelated candidates, or exceed 20,000 tokens.",
+    ),
+  ];
+  if (/replay frozen asymmetric deduplication and reconcile resource scope/i.test(item?.task || "")) return [
+    base(
+      item,
+      "Replay the frozen role-preserving asymmetric deduplication core",
+      "Run only the exact finite replay; leave accounting and scope policy to a separate receipt-bound check.",
+      "medium",
+      [
+        "Consume the verified immutable manifest boundary from the predecessor custody receipt.",
+        "Independently reproduce the relevant role-preserving deduplication and 8-trivial/6-C2 automorphism split.",
+        "Record deterministic inputs, outputs, and candidate counts sufficient for a later accounting check.",
+        "Emit graph-effect NONE and change no mathematical claim or producer artifact.",
+      ],
+      "results/inbox/asym-lab-exact-replay-core-v1/**",
+      "Stop on the first changed candidate count or predecessor-receipt mismatch. Do not reconcile resource policy, run SAT, generate candidates, measure slack/liftability, or open another repair generation.",
+    ),
+    base(
+      item,
+      "Reconcile frozen asymmetric replay resource measurements",
+      "Check only the completed replay's token and timing scopes instead of repeating its mathematics.",
+      "small",
+      [
+        "Consume the exact replay-core receipt without rerunning its mathematical computation.",
+        "Reconcile token usage, process wall-time, observer wall-time, and peak-memory scopes.",
+        "Preserve unknown measurements as UNKNOWN rather than estimating or imputing zero.",
+        "Emit graph-effect NONE and change no mathematical claim or producer artifact.",
+      ],
+      "results/inbox/asym-lab-replay-resource-measurements-v1/**",
+      "Stop if the replay-core receipt is absent or ambiguous. Do not rerun the replay, run SAT, generate candidates, or exceed 20,000 tokens.",
+    ),
+  ];
   if (/epoch resource provenance/i.test(item?.task || "")) return [
     base(
       item,

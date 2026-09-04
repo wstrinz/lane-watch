@@ -210,7 +210,7 @@
             {@const failure = failureInfo(item)}
             {@const slotHolder = custodySlotHolder(item)}
             {@const reshapeChildren = custodyReshapeChildren(item)}
-            {@const needsReshape = reshapeChildren.length > 0 && custodyNeedsReshape(item, String(project?.loop?.error || ""))}
+            {@const needsReshape = custodyNeedsReshape(item, String(project?.loop?.error || ""))}
             <article class:blocking={item.blocksResearch} class:parked={item.status === "parked"}>
               <header>
                 <div><span>{item.urgency} · {item.capability} · {item.strategicTrack}</span><strong>{item.task}</strong></div>
@@ -241,7 +241,7 @@
                 <div class="custody-protocol-lab execution" class:attention={item.activeLease?.status === "awaiting_review"}>
                   <div>
                     <span>{item.activeLease?.status === "prepared" && needsReshape ? "CONTRACT RESHAPE REQUIRED" : item.activeLease?.status === "prepared" && slotHolder ? "QUEUED CUSTODY LEASE" : item.activeLease?.status === "awaiting_review" ? "RECEIPT LANDING GATE" : item.activeLease?.status === "running" || item.activeLease?.status === "finalizing" ? "ISOLATED STEWARD ACTIVE" : "CUSTODY ACTION RAIL"}</span>
-                    <strong>{!item.activeLease ? "1. Freeze the exact lease" : item.activeLease.status === "prepared" && needsReshape ? `Replace with ${reshapeChildren.length} bounded successor checks` : item.activeLease.status === "prepared" && slotHolder ? `Waiting for ${slotHolder.task}` : item.activeLease.status === "prepared" ? "2. Confirm this revision and contract" : item.activeLease.status === "confirmed" ? "3. Dispatch one bounded Terra steward" : item.activeLease.status === "running" ? "Steward working in detached custody" : item.activeLease.status === "finalizing" ? "Measuring paths, usage, and checks" : item.activeLease.status === "awaiting_review" ? "4. Review and land—or reject" : `Lease ${item.activeLease.status}`}</strong>
+                    <strong>{!item.activeLease ? "1. Freeze the exact lease" : item.activeLease.status === "prepared" && needsReshape ? reshapeChildren.length ? `Replace with ${reshapeChildren.length} bounded successor checks` : "Hold for a smaller successor contract" : item.activeLease.status === "prepared" && slotHolder ? `Waiting for ${slotHolder.task}` : item.activeLease.status === "prepared" ? "2. Confirm this revision and contract" : item.activeLease.status === "confirmed" ? "3. Dispatch one bounded Terra steward" : item.activeLease.status === "running" ? "Steward working in detached custody" : item.activeLease.status === "finalizing" ? "Measuring paths, usage, and checks" : item.activeLease.status === "awaiting_review" ? "4. Review and land—or reject" : `Lease ${item.activeLease.status}`}</strong>
                     <small>{item.activeLease?.status === "prepared" && needsReshape ? "Prior zero-effect attempts exceeded the lease. This supersedes the prepared retry without bypassing its dependency." : item.activeLease?.status === "prepared" && slotHolder ? "This immutable lease is preserved. Autopilot will continue it after the active receipt releases the single Terra slot." : item.activeLease?.receiptDigest || item.activeLease?.leaseDigest || "Preparing a lease changes no files and starts no worker."}</small>
                   </div>
                   {#if !item.activeLease}
@@ -249,7 +249,11 @@
                   {:else if item.activeLease.lease?.adapter?.executionMode === "disconnected" && item.activeLease.status === "prepared"}
                     <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.simulate")}>{working === `${item.activeLease.id}:lease.simulate` ? "Simulating…" : "Simulate zero-effect receipt"}</button>
                   {:else if item.activeLease.status === "prepared" && needsReshape}
-                    <button class="primary-button compact" disabled={Boolean(working)} onclick={() => reshape(item, reshapeChildren)}>{working === `${item.id}:reshape` ? "Splitting…" : `Split into ${reshapeChildren.length} bounded checks`}</button>
+                    {#if reshapeChildren.length}
+                      <button class="primary-button compact" disabled={Boolean(working)} onclick={() => reshape(item, reshapeChildren)}>{working === `${item.id}:reshape` ? "Splitting…" : `Split into ${reshapeChildren.length} bounded checks`}</button>
+                    {:else}
+                      <button class="outline-button compact" disabled>Contract reshape required</button>
+                    {/if}
                   {:else if item.activeLease.status === "prepared" && slotHolder}
                     <button class="outline-button compact" disabled>Queued · custody slot busy</button>
                   {:else if item.activeLease.status === "prepared"}
@@ -292,8 +296,10 @@
                     </div>
                   {:else if failure.kind === "wait-for-mac"}
                     <div class="custody-footer-actions"><button class="primary-button" disabled={Boolean(working)} onclick={() => transition(item, "park")}>Park until macOS is available</button></div>
-                  {:else}
+                  {:else if failure.kind === "retry"}
                     <div class="custody-footer-actions"><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "park")}>{item.blocksResearch ? "Remove dependency…" : "Park"}</button><button class="primary-button" disabled={Boolean(working) || !item.eligibleToRetry} onclick={() => transition(item, "promote", true)}>{working ? "Starting Terra…" : "Retry with Terra"}</button></div>
+                  {:else}
+                    <div class="custody-footer-actions">{#if ["running", "paused", "attention"].includes(project?.loop?.status || "")}<button class="outline-button compact" disabled={Boolean(working)} onclick={stopAtBoundary}>{working === "loop:stop" ? "Stopping…" : "Stop at this boundary"}</button>{/if}</div>
                   {/if}
                 {:else if item.status === "parked"}
                   <span>Outside the active service queue.</span><button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "restore")}>Restore to inbox</button>

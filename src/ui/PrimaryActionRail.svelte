@@ -61,7 +61,9 @@
   }
 
   function custodyFocusItem(value: any, blockers: any[]): any {
-    return activeCustodyItem(value) || blockers[0];
+    const loopError = String(value.loop?.error || "");
+    const namedBlocker = blockers.find((item: any) => item?.task && loopError.includes(item.task));
+    return activeCustodyItem(value) || namedBlocker || blockers[0];
   }
 
   function custodyBlockerFocus(value: any, item: any, count: number): RailFocus {
@@ -70,7 +72,8 @@
     const lease = item.activeLease;
     const loopError = String(value.loop?.error || "");
     const reshapeChildren = custodyReshapeChildren(item);
-    if (reshapeChildren.length && custodyNeedsReshape(item, loopError)) return {
+    const needsReshape = custodyNeedsReshape(item, loopError);
+    if (reshapeChildren.length && needsReshape) return {
       status: `CUSTODY CONTRACT RESHAPE${suffix}`,
       title: "This job is larger than one custody lease",
       detail: `The failed receipt landed no changes. Replace this oversized contract with ${reshapeChildren.length} bounded successors; the original dependency remains enforced and no steward starts until autopilot is resumed.`,
@@ -78,6 +81,12 @@
         { key: "custody.item.reshape", targetId: item.id, args: { children: reshapeChildren }, label: `Split into ${reshapeChildren.length} bounded checks`, style: "primary-button" },
         inspect,
       ],
+    };
+    if (needsReshape) return {
+      status: `CUSTODY CONTRACT STOP${suffix}`,
+      title: "This job cannot safely repeat unchanged",
+      detail: "The last zero-effect attempt crossed its fixed lease ceiling. Keep the dependency and inspect its acceptance contract; a smaller successor shape is required before another steward may run.",
+      actions: [inspect],
     };
     if (item.status === "proposed") return {
       status: `DEPENDENCY GATE${suffix}`,
@@ -90,6 +99,12 @@
     };
     if (["blocked", "failed"].includes(item.status)) {
       const protocolStop = /lease-byte provenance mismatch|frozen[- ]lease[- ]integrity|specified frozen lease|executor turn was interrupted|runtime interruption/i.test(`${item.receipt?.summary || ""} ${item.receipt?.stopReason || ""}`);
+      if (!protocolStop) return {
+        status: `CUSTODY REVIEW REQUIRED${suffix}`,
+        title: compact(item.task, 96),
+        detail: compact(`${item.receipt?.summary || item.reason} The receipt is not classified as a controller-owned interruption, so Lane Watch will not repeat it automatically.`),
+        actions: [inspect],
+      };
       return {
         status: `SAFE CUSTODY RETRY${suffix}`,
         title: protocolStop ? "Retry the unchanged contract with the corrected lease check" : `Retry ${compact(item.task, 72)}`,
