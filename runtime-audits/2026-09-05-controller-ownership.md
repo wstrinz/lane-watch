@@ -59,3 +59,41 @@ is used. The actual service boundary is unchanged. TypeScript passes.
 Both research and custody admission holds remain. Single campaign writer
 ownership does not bind a native research tree, cancel in-flight provider
 requests, enforce a deadline or settle the token-unit policy.
+
+## Live deployment and duplicate development controller
+
+Implementation df16241 exposed a pre-existing Bun development watcher which had
+claimed the same data directory. Read-only process inspection bound the exact
+chain: `bun run dev` PID 39608, watch supervisor 40316 (both started September 4
+at 16:09:44 UTC), and watch child 45188 (started September 5 at 11:06:31.305 UTC).
+The child held instance 10960d28-97d1-4bb7-b5f0-59898c5aac69 from
+11:06:32.492 UTC but had no network connections or listener. The normal
+watchdog's replacement starts were refused while that process remained alive.
+Thus source edits could previously enter campaign startup under the development
+watcher before the controlled deployment. Earlier unexplained startup exits are
+not retroactively assigned a cause by this observation.
+
+The read-only stop preflight found zero queued/running actions, zero active
+research or custody executions and no working coordinator. It bound every
+process's executable, command, parent and birth time. The first guard refused
+an extra child; inspection identified the exact console host 29236, which was
+allowed but not targeted. Only the three verified Bun processes were stopped.
+Watchdog 29924 was retained; no owner or campaign database row was edited.
+
+At 11:22:58.152 UTC the restored server is PID 25336, started
+11:22:14.276 UTC, controller instance a603004e-5eb2-49cb-a249-60ccf58b47e9.
+Its durable claim and health identity agree and record recovery from the exited
+PID 45188. All three indexed projects are idle. The read-only report is
+tmp/controller-ownership-deployment-check.json. Both launch holds remain.
+
+The development command now watches only the UI build, served by the existing
+app. It no longer defaults to starting a second controller against live state.
+Backend experiments are documented to use isolated data and a fixture manifest.
+
+The live desktop/mobile check at 11:28:08.686 UTC passes with the parked plan,
+all 19 CFG23 runs returned, unchanged policy/ledger/plan/schedule, and no page
+error, overflow or mutation. The installed Vite CLI completed the new
+development command's build/watch operation in 1,997 ms, writing only to the
+temporary verification output directory. Its owned process exited after the
+check; the live controller PID and nonce remained unchanged. Reports:
+tmp/controller-ownership-browser-check.json and tmp/ui-dev-watch-check.json.

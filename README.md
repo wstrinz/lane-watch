@@ -450,6 +450,18 @@ On iOS, add the page to the Home Screen before enabling alerts.
 
 ## Environment
 
+`bun run dev` watches and rebuilds the UI served by the existing Lane Watch
+server. It does not start another campaign controller. Refresh the existing
+page after the build. Use the normal supervised server for the live campaign;
+backend experiments need an isolated `OBSERVER_DATA_DIR`, fixture
+`OBSERVER_PROJECT_MANIFEST` and separate port.
+
+Campaign startup claims one local writer before opening or recovering its
+database. `/api/health` includes the process and controller instance identity.
+A possibly live owner blocks takeover; there is no time-based expiry or forced
+unlock. Stop only a verified obsolete controller, then let the normal watchdog
+recover. Worker termination and launch recovery remain separate checks.
+
 - `OBSERVER_PORT` — local port, default `4317`
 - `OBSERVER_HOST` — bind address, default and required deployment value `127.0.0.1`
 - `OBSERVER_ALLOWED_TAILSCALE_USERS` — comma-separated login allowlist

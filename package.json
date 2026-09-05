@@ -6,7 +6,7 @@
     "build:ui": "vite build",
     "build:flow": "bun run build:ui",
     "test:flow": "playwright test --config playwright.flow.config.ts",
-    "dev": "bun --watch src/server.ts",
+    "dev": "vite build --watch",
     "start": "bun src/server.ts",
     "test": "bun test --timeout 30000",
     "check": "bun run build:ui && bun run test && bunx tsc --noEmit && bunx svelte-check --tsconfig ./tsconfig.json"
