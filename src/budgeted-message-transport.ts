@@ -1,3 +1,4 @@
+import {freezeBoundedMessage} from './bounded-message-request';
 import {MessageStreamAccounting} from './message-stream-accounting';
 import {createHash} from 'node:crypto';
 import {OutputRequestBudget, type OutputUsage} from './output-request-budget';
@@ -20,20 +21,7 @@ export class BudgetedMessageTransport {
     this.headers = Object.freeze({...headers});
   }
   async send(leaseId: string, requestId: string, body: Record<string,unknown>): Promise<unknown> {
-    if (body.stream !== false || !Number.isSafeInteger(body.max_tokens) || Number(body.max_tokens)<=0)
-      throw Error('Only explicit bounded non-streaming Messages requests are supported');
-    if (typeof body.model!=='string'||!body.model||!Array.isArray(body.messages)||!body.messages.length)
-      throw Error('Missing Messages model or input');
-    // No server tools or other request families in this initial transport.
-    const allowed = new Set(['model','messages','max_tokens','stream','system','temperature','stop_sequences']);
-    if (Object.keys(body).some(key=>!allowed.has(key))) throw Error('Unsupported Messages request option');
-    const serialized=JSON.stringify(body);
-    if (Buffer.byteLength(serialized)>1024*1024) throw Error('Messages request exceeds bounded transport size');
-    const frozen=JSON.parse(serialized);
-    // Revalidate after serialization: caller objects may have getters/toJSON.
-    if (frozen.stream!==false || !Number.isSafeInteger(frozen.max_tokens) || frozen.max_tokens<=0
-      || typeof frozen.model!=='string' || !Array.isArray(frozen.messages) || !frozen.messages.length
-      || Object.keys(frozen).some(key=>!allowed.has(key))) throw Error('Serialized request changed contract');
+    const {serialized,value:frozen}=freezeBoundedMessage(body,false);
     const digest=createHash('sha256').update(serialized).digest('hex');
     this.budget.reserve(leaseId,requestId,digest,frozen.max_tokens);
     const remaining=Date.parse(this.budget.snapshot(leaseId).contract.deadlineAt)-Date.now();
@@ -76,21 +64,7 @@ export class BudgetedMessageTransport {
   async sendStream(leaseId:string,requestId:string,body:Record<string,unknown>,downstream?:AbortSignal):Promise<{
     response:Response; completion:Promise<{status:'settled'|'uncertain';reason:string}>
   }> {
-    const serialized=JSON.stringify(body);
-    if(Buffer.byteLength(serialized)>1024*1024)throw Error('Messages request exceeds bounded transport size');
-    const frozen=JSON.parse(serialized);
-    const allowed=new Set(['model','messages','max_tokens','stream','system','temperature','stop_sequences',
-      'tools','tool_choice','thinking','output_config','metadata','cache_control','service_tier','speed','context_management']);
-    if(frozen.stream!==true||!Number.isSafeInteger(frozen.max_tokens)||frozen.max_tokens<=0
-      ||typeof frozen.model!=='string'||!frozen.model||!Array.isArray(frozen.messages)||!frozen.messages.length
-      ||Object.keys(frozen).some(key=>!allowed.has(key)))throw Error('Unsupported bounded streaming request');
-    if(frozen.tools!==undefined&&(!Array.isArray(frozen.tools)||frozen.tools.some((tool:any)=>
-      !tool||typeof tool.name!=='string'||!tool.input_schema||tool.type!==undefined&&tool.type!=='custom')))
-      throw Error('Unverified server tool accounting');
-    if(frozen.context_management!==undefined&&(!frozen.context_management||Object.keys(frozen.context_management).some(key=>key!=='edits')
-      ||!Array.isArray(frozen.context_management.edits)||frozen.context_management.edits.some((edit:any)=>
-        !['clear_thinking_20251015','clear_tool_uses_20250919'].includes(edit?.type))))
-      throw Error('Unverified context-management generation accounting');
+    const {serialized,value:frozen}=freezeBoundedMessage(body,true);
     if(downstream?.aborted)throw Error('Downstream already cancelled');
     const digest=createHash('sha256').update(serialized).digest('hex');
     this.budget.reserve(leaseId,requestId,digest,frozen.max_tokens);

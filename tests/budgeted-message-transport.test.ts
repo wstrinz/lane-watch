@@ -52,3 +52,15 @@ test('unexpected multi-attempt usage never releases a plain request reservation'
  await expect(transport.send('test','multi',body(80))).rejects.toThrow('multi-attempt');
  expect(budget.snapshot('test').remainingOutputTokens).toBe(20);expect(budget.snapshot('test').holdReason).toContain('multi-attempt');
 });
+
+test('native auxiliary requests omit stream and share output accounting with the main request',async()=>{
+ let calls=0;
+ const {budget,transport}=fixture(async req=>{
+  calls++;const received=await req.json() as any;
+  expect(received.stream).toBeUndefined();expect(received.thinking).toEqual({type:'disabled'});
+  return reply(3);
+ });
+ const auxiliary={model:'local-fixture',messages:[{role:'user',content:'auxiliary fixture'}],max_tokens:10,thinking:{type:'disabled'},metadata:{user_id:'fixture'}};
+ await transport.send('test','aux-1',auxiliary);await transport.send('test','aux-2',auxiliary);
+ expect(calls).toBe(2);expect(budget.snapshot('test').reportedOutputTokens).toBe(6);expect(budget.snapshot('test').remainingOutputTokens).toBe(94);
+});

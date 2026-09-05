@@ -1,0 +1,357 @@
+{
+  "schema": "lane-watch-background-gateway-probes/v1",
+  "checkedAt": "2026-09-05T13:15:50.334Z",
+  "records": [
+    {
+      "at": "2026-09-05T13:01:26.107Z",
+      "fixture": "native-background-exec-environment",
+      "modelsInvoked": 0,
+      "nonce": "1c6d907b-996d-4a4d-a82a-5f8d6785efda",
+      "requestedSession": "2498fa74-5b31-4cad-8ac1-378630cea3ae",
+      "launcherPid": 47724,
+      "launcherExit": 1,
+      "jobId": null,
+      "metadata": null,
+      "state": null,
+      "sessionMatches": false,
+      "fixtureAlive": null,
+      "stderr": "warning: --exec ignores --session-id (only --name composes)\nCouldn't start the session — EPERM: operation not permitted, mkdir 'C:\\Users\\wstri\\.claude\\jobs\\b9cc1cb0'\n",
+      "launchOutput": "",
+      "scope": "Finite Node --exec fixture only. No research model or background agent. Does not establish inference subprocess routing or a runtime monitor handshake."
+    },
+    {
+      "at": "2026-09-05T13:02:32.569Z",
+      "fixture": "native-background-exec-environment",
+      "modelsInvoked": 0,
+      "nonce": "a8459a77-4d14-4ff3-8c16-86979367825c",
+      "requestedSession": null,
+      "launcherPid": 48344,
+      "launcherExit": 0,
+      "jobId": "7e11fdf4",
+      "metadata": {
+        "pid": 34984,
+        "parentPid": 26872,
+        "at": "2026-09-05T13:02:29.469Z",
+        "nonceMatches": true,
+        "gatewayMatches": false,
+        "modelsInvoked": 0
+      },
+      "state": {
+        "sessionId": "7e11fdf4-29c0-4902-8fb0-40e4d426bdde",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-environment-a8459a77-4d14-4ff3-8c16-86979367825c",
+        "createdAt": "2026-09-05T13:02:25.571Z",
+        "state": "done"
+      },
+      "jobSessionMatches": true,
+      "fixtureAlive": false,
+      "stderr": "Starting background service…\n",
+      "launchOutput": "backgrounded · 7e11fdf4 · Lane Watch finite environment inheritance fixture\n  claude agents             list sessions\n  claude attach 7e11fdf4    open in this terminal\n  claude logs 7e11fdf4      show recent output\n  claude stop 7e11fdf4      stop this session\n",
+      "scope": "Finite Node --exec fixture only. No research model or background agent. Does not establish inference subprocess routing or a runtime monitor handshake."
+    },
+    {
+      "at": "2026-09-05T13:06:47.042Z",
+      "fixture": "installed-native-background-to-local-stream-gateway",
+      "session": "e88fd9a2-6345-488a-9e8f-4231c92165c2",
+      "jobId": "c39113c4",
+      "failure": "Error: Background identity not bound before release",
+      "launch": {
+        "pid": 53480,
+        "exit": 0,
+        "stdout": "backgrounded · c39113c4 · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach c39113c4    open in this terminal\n  claude logs c39113c4      show recent output\n  claude stop c39113c4      stop this session\n",
+        "stderr": "warning: --bg manages the session id; ignoring --session-id (use --resume <id> to continue an existing session)\nStarting background service…\n"
+      },
+      "requestCount": 2,
+      "requestKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "sessionMatches": false,
+      "upstreamCalls": 0,
+      "beforeRelease": {
+        "sessionId": "c39113c4-a9ad-4723-bcf3-21b472e5cc5f",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-e88fd9a2-6345-488a-9e8f-4231c92165c2",
+        "createdAt": "2026-09-05T13:06:37.363Z",
+        "state": "working"
+      },
+      "after": {
+        "sessionId": "c39113c4-a9ad-4723-bcf3-21b472e5cc5f",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-e88fd9a2-6345-488a-9e8f-4231c92165c2",
+        "createdAt": "2026-09-05T13:06:37.363Z",
+        "state": "stopped"
+      },
+      "outcomes": [],
+      "errors": [],
+      "stop": {
+        "pid": 8792,
+        "exit": 0
+      },
+      "budget": {
+        "contract": {
+          "leaseId": "e88fd9a2-6345-488a-9e8f-4231c92165c2",
+          "launchDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:07:06.669Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 0,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 100000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Does not prove production subscription/profile, subagents, monitor supervision or process-tree deadline stopping."
+    },
+    {
+      "at": "2026-09-05T13:09:25.451Z",
+      "fixture": "installed-native-background-to-local-stream-gateway",
+      "preparedLeaseId": "1853e952-87f2-4aba-b437-964995a8f24b",
+      "boundSession": "107a8be8-04b6-4366-a75f-42153fe403d3",
+      "jobId": "107a8be8",
+      "failure": "Error: Background stream did not finish exactly once",
+      "launch": {
+        "pid": 8156,
+        "exit": 0,
+        "stdout": "backgrounded · 107a8be8 · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach 107a8be8    open in this terminal\n  claude logs 107a8be8      show recent output\n  claude stop 107a8be8      stop this session\n",
+        "stderr": "Starting background service…\n"
+      },
+      "requestCount": 2,
+      "requestKeys": [
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "system",
+        "thinking"
+      ],
+      "sessionMatches": true,
+      "upstreamCalls": 1,
+      "beforeRelease": {
+        "sessionId": "107a8be8-04b6-4366-a75f-42153fe403d3",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-1853e952-87f2-4aba-b437-964995a8f24b",
+        "createdAt": "2026-09-05T13:09:14.263Z",
+        "state": "working"
+      },
+      "after": {
+        "sessionId": "107a8be8-04b6-4366-a75f-42153fe403d3",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-1853e952-87f2-4aba-b437-964995a8f24b",
+        "createdAt": "2026-09-05T13:09:14.263Z",
+        "state": "stopped"
+      },
+      "outcomes": [
+        {
+          "status": "settled",
+          "reason": "Complete streamed usage verified"
+        }
+      ],
+      "errors": [
+        "Error: Unsupported bounded streaming request"
+      ],
+      "stop": {
+        "pid": 39504,
+        "exit": 0
+      },
+      "budget": {
+        "contract": {
+          "leaseId": "1853e952-87f2-4aba-b437-964995a8f24b",
+          "launchDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:09:43.954Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 7,
+        "reportedOutputTokens": 7,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 99993,
+        "separateReportedUsage": {
+          "inputTokens": 10,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 1,
+          "cacheCreationInputTokens": 1
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Does not prove production subscription/profile, subagents, monitor supervision or process-tree deadline stopping."
+    },
+    {
+      "at": "2026-09-05T13:12:44.231Z",
+      "fixture": "installed-native-background-to-local-stream-gateway",
+      "preparedLeaseId": "a32aac52-7a77-4c68-a442-5616673422d4",
+      "boundSession": "a4a22414-a654-43f1-a4fa-dabaa4d00217",
+      "jobId": "a4a22414",
+      "failure": "",
+      "launch": {
+        "pid": 38640,
+        "exit": 0,
+        "stdout": "backgrounded · a4a22414 · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach a4a22414    open in this terminal\n  claude logs a4a22414      show recent output\n  claude stop a4a22414      stop this session\n",
+        "stderr": "Starting background service…\n"
+      },
+      "requestCount": 3,
+      "requestShapes": [
+        {
+          "requestId": "request-1",
+          "keys": [
+            "context_management",
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "output_config",
+            "stream",
+            "system",
+            "thinking",
+            "tools"
+          ],
+          "stream": true,
+          "maxTokens": 32000
+        },
+        {
+          "requestId": "request-2",
+          "keys": [
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "system",
+            "thinking"
+          ],
+          "stream": false,
+          "maxTokens": 1024
+        },
+        {
+          "requestId": "request-3",
+          "keys": [
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "system",
+            "thinking"
+          ],
+          "stream": false,
+          "maxTokens": 1024
+        }
+      ],
+      "requestKeys": [
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "system",
+        "thinking"
+      ],
+      "sessionMatches": true,
+      "upstreamCalls": 3,
+      "beforeRelease": {
+        "sessionId": "a4a22414-a654-43f1-a4fa-dabaa4d00217",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-a32aac52-7a77-4c68-a442-5616673422d4",
+        "createdAt": "2026-09-05T13:12:32.465Z",
+        "state": "working"
+      },
+      "beforeCleanup": {
+        "sessionId": "a4a22414-a654-43f1-a4fa-dabaa4d00217",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-a32aac52-7a77-4c68-a442-5616673422d4",
+        "createdAt": "2026-09-05T13:12:32.465Z",
+        "state": "working"
+      },
+      "after": {
+        "sessionId": "a4a22414-a654-43f1-a4fa-dabaa4d00217",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-background-stream-a32aac52-7a77-4c68-a442-5616673422d4",
+        "createdAt": "2026-09-05T13:12:32.465Z",
+        "state": "stopped"
+      },
+      "outcomes": [
+        {
+          "requestId": "request-1",
+          "kind": "streaming",
+          "status": "settled",
+          "reason": "Complete streamed usage verified"
+        },
+        {
+          "requestId": "request-2",
+          "status": "settled",
+          "kind": "non-streaming"
+        },
+        {
+          "requestId": "request-3",
+          "status": "settled",
+          "kind": "non-streaming"
+        }
+      ],
+      "errors": [],
+      "stop": {
+        "pid": 40888,
+        "exit": 0
+      },
+      "budget": {
+        "contract": {
+          "leaseId": "a32aac52-7a77-4c68-a442-5616673422d4",
+          "launchDigest": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:13:02.019Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 21,
+        "reportedOutputTokens": 21,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 99979,
+        "separateReportedUsage": {
+          "inputTokens": 30,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 3,
+          "cacheCreationInputTokens": 3
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Does not prove production subscription/profile, subagents, monitor supervision or process-tree deadline stopping."
+    }
+  ],
+  "cleanup": [
+    {
+      "root": "tmp/native-environment-a8459a77-4d14-4ff3-8c16-86979367825c",
+      "supervisorPid": 13620,
+      "supervisor": "absent",
+      "workerIds": []
+    },
+    {
+      "root": "tmp/native-background-stream-e88fd9a2-6345-488a-9e8f-4231c92165c2",
+      "supervisorPid": 54280,
+      "supervisor": "absent",
+      "workerIds": []
+    },
+    {
+      "root": "tmp/native-background-stream-1853e952-87f2-4aba-b437-964995a8f24b",
+      "supervisorPid": 42712,
+      "supervisor": "absent",
+      "workerIds": []
+    },
+    {
+      "root": "tmp/native-background-stream-a32aac52-7a77-4c68-a442-5616673422d4",
+      "supervisorPid": 24304,
+      "supervisor": "absent",
+      "workerIds": []
+    }
+  ]
+}
