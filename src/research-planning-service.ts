@@ -1,3 +1,4 @@
+import { EVIDENCE_REVIEW_GUIDANCE } from "./evidence-review-guidance";
 import { Database } from "bun:sqlite";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
@@ -166,6 +167,7 @@ export class ResearchPlanningService {
         "Use the previous checked plan in the frozen bundle as the baseline. Return a corrected structured plan, not a commentary on the old one.",
       ] : []),
       "For each retained experiment, return exactly one quickChecks entry named experiment-validity:<requestId>, with PASS only when its justification is supported; use BLOCK otherwise. Explain in its detail its exact input domain and observable, why outcomes can differ on legal inputs, the control or proof supporting that claim, and how each possible outcome changes the decision. A constant statistic or impossible trigger cannot justify a discriminating assay. DROP such an assay; a theorem about constancy is a different result. Do not credit representation calibration as new candidate supply. Report unknown validity as a blocker before an expensive measurement.",
+      EVIDENCE_REVIEW_GUIDANCE,
       "Perform a quick but adversarial planning pass. Check dependency order, duplicate or obsolete work, whether each lane has an enforced launch contract, profile fit, evidence/stop conditions, resource proportionality, and signs of tunnel vision.",
       "Use the included shadow-mode strategy context. Return portfolioAssessment and classify every retained lane with a strategic track, work kind, expected measurable delta, evidence tier, parent/repair generation, and cost class. Infrastructure is charged to the strategic track it supports and does not count as a fourth research track.",
       "The charter is advisory in this pass, but do not hide violations: identify an imbalanced or outside-charter plan, estimate its maintenance share, and explain how the plan responds to every active drift signal. A maintenance or audit descendant beyond one automatic repair generation should normally be DROP or operator-held unless it fixes a demonstrated critical-path correctness defect.",

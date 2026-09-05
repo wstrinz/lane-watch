@@ -1,0 +1,13 @@
+{
+  "jobId": "2dc68d09",
+  "beforeState": "working",
+  "afterState": "stopped",
+  "parentPid": 47736,
+  "childPid": 24572,
+  "childTickBefore": 1788577125352,
+  "childTickAfter": 1788577126641,
+  "parentStillExists": false,
+  "childStillExists": false,
+  "modelsInvoked": 0,
+  "finiteProbeSeconds": 15
+}

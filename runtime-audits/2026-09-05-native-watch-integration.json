@@ -1,0 +1,15 @@
+{
+  "jobId": "62d41fbd",
+  "beforeState": "working",
+  "afterState": "stopped",
+  "watchResult": {
+    "status": "stopped",
+    "reason": "deadline",
+    "stopAttempts": 1,
+    "observedTokens": null
+  },
+  "parentStillExists": false,
+  "childStillExists": false,
+  "modelsInvoked": 0,
+  "finiteProbeSeconds": 15
+}

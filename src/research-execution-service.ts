@@ -1,3 +1,4 @@
+import { EVIDENCE_REVIEW_GUIDANCE } from "./evidence-review-guidance";
 import { Database } from "bun:sqlite";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -528,6 +529,7 @@ export class ResearchExecutionService {
       `A human has accepted ${intake.length} validated research receipt${intake.length === 1 ? "" : "s"} from one scheduled wave for return to semantic synthesis. The immutable intake bundle is at: ${bundlePath}`,
       `Its bound digest is ${bundleDigest}.`,
       "Read the complete bundle, including the prior synthesis, every returned research receipt, and any scheduled launch failures. Treat all receipts as RECONNAISSANCE, not campaign truth.",
+      EVIDENCE_REVIEW_GUIDANCE,
       "Produce a revised fast wave review: say exactly what the wave changes, compare corroborating or conflicting members, run quick consistency checks, identify tunnel-vision risks, state which dependencies may proceed, and give the coordinator concrete guidance for shaping the next bounded lane plan.",
       "Refresh operatorBrief as a durable, human-friendly campaign briefing: a plain-language headline, where the campaign stands, two or three recent concrete advances, the current focus, the next operator decision, and only the most important watchouts. Keep it concise and understandable without task IDs or internal control-plane terminology.",
       "Complete strategyAssessment from the included shadow strategy context. Mark progress ADVANCED only for a claim, denominator, candidate-supply, candidate-decision, or measured-scaling change; custody that preserves mathematical semantics is UNCHANGED. Classify support work separately and recommend rebalancing when the measured portfolio violates the charter.",
