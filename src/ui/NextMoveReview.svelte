@@ -37,6 +37,10 @@
     }catch(e){if(project?.id===projectId)error=e instanceof Error?e.message:String(e);}
     finally{busy=false;}
   }
+  export function openProposal(id:string){
+    if(busy)return;
+    open();selected=id;
+  }
   async function apply(mode:'context-only'|'stage-directions'){
     if(!project||!input||busy||!canMutate)return;
     const projectId=project.id,inputId=input.id;busy=true;error='';notice='';

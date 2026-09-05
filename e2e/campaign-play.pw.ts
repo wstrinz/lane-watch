@@ -18,6 +18,35 @@ for(const width of [1440,390])test(`campaign play is actionable without opening 
  await page.screenshot({path:`test-results/campaign-play-${width}.png`,fullPage:true});
 });
 
+test('autopilot routes to the ready proposal without leaking adviser connection errors',async({page})=>{
+ await page.setViewportSize({width:390,height:1000});
+ await page.route('**/api/events?**',route=>route.fulfill({status:200,contentType:'text/event-stream',body:': fixture\n\n'}));
+ await page.route('**/api/actions',()=>{throw Error('Navigation must not mutate campaign state');});
+ await page.route('**/api/control?**',async route=>{
+  const response=await route.fetch();const body=await response.json();
+  for(const p of body.projects||[])if(p.id==='cfg23'){
+   p.canStartLoop=false;p.loop={status:'stopped'};
+   p.externalInputs=[{id:'newer',title:'A later saved review',status:'applied'}, {id:'ready',title:'Review the symmetry checkpoint',status:'drafted',response:{summary:'A bounded proof review',decision:'READY_FOR_GATE',newDirections:[]}}];
+  }
+  await route.fulfill({response,json:body});
+ });
+ let disconnected=true;
+ await page.route('**/api/codex/conversation?*',route=>disconnected?route.abort():route.fulfill({json:{turns:[]}}));
+ await page.goto(url);await page.getByRole('button',{name:'Explore this move'}).click();
+ await expect(page.getByRole('alert')).toContainText('Could not refresh the adviser conversation');
+ await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:/Autopilot.*Set up/}).click();
+ const autopilot=page.getByRole('dialog',{name:'One decision-to-decision research loop.'});
+ await expect(autopilot.getByRole('alert')).toHaveCount(0);
+ await expect(autopilot.getByRole('status')).toHaveCount(0);
+ await page.getByRole('button',{name:'Review ready proposal'}).click();
+ await expect(page.getByRole('dialog',{name:'Shape the next moves.'}).getByRole('heading',{name:'Review the symmetry checkpoint'})).toBeVisible();
+ await page.keyboard.press('Escape');
+ disconnected=false;
+ await page.getByRole('button',{name:'Explore this move'}).click();
+ await expect(page.getByRole('dialog',{name:'Think through your next move.'}).getByRole('alert')).toHaveCount(0);
+});
+
 test('selected adviser and question reach the guarded action endpoint without research dispatch',async({page})=>{
  const requests:any[]=[];
  await page.route('**/api/actions',async route=>{
