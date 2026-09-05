@@ -40,7 +40,7 @@ test('truncated stream and stream error retain full allowance',async()=>{
  for(const suffix of ['',event('error',{error:{type:'overloaded_error'}})]){
   const {budget,transport}=fixture(()=>new Response(prefix+suffix,{headers:{'content-type':'text/event-stream'}}));
   const sent=await transport.sendStream('lease','uncertain',body);
-  await expect(sent.response.text()).rejects.toThrow();expect((await sent.completion).status).toBe('uncertain');
+  expect(await sent.response.text()).toContain('Gateway stream interrupted');expect((await sent.completion).status).toBe('uncertain');
   expect(budget.snapshot('lease').remainingOutputTokens).toBe(20);
  }
 });
@@ -54,13 +54,13 @@ test('local deadline terminates an unread stream and retains the original reserv
  const {budget,transport}=fixture(()=>new Response(new ReadableStream({start(c){c.enqueue(enc.encode(prefix));}}),{headers:{'content-type':'text/event-stream'}}),400);
  const sent=await transport.sendStream('lease','deadline',body);
  expect((await sent.completion).status).toBe('uncertain');expect(budget.snapshot('lease').remainingOutputTokens).toBe(20);
- await expect(sent.response.text()).rejects.toThrow();
+ expect(await sent.response.text()).toContain('Gateway stream interrupted');
 });
 test('stream overrun holds future admission; fallback requests never reach the server',async()=>{
  let calls=0;const {budget,transport}=fixture(()=>{calls++;return new Response(prefix+ending(81),{headers:{'content-type':'text/event-stream'}});});
  await expect(transport.sendStream('lease','fallback',{...body,fallbacks:'default'})).rejects.toThrow('Unsupported');expect(calls).toBe(0);
  await expect(transport.sendStream('lease','compaction',{...body,context_management:{edits:[{type:'compact_20260112'}]}})).rejects.toThrow('context-management');
- const sent=await transport.sendStream('lease','overrun',body);await expect(sent.response.text()).rejects.toThrow('exceeds');
+ const sent=await transport.sendStream('lease','overrun',body);expect(await sent.response.text()).toContain('Gateway stream interrupted');
  expect((await sent.completion).status).toBe('uncertain');expect(budget.snapshot('lease').holdReason).toContain('exceeds');
  await expect(transport.sendStream('lease','later',{...body,max_tokens:1})).rejects.toThrow('held');expect(calls).toBe(1);
 });

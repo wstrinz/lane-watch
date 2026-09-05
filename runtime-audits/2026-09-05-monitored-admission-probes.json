@@ -1,0 +1,523 @@
+{
+  "schema": "lane-watch-monitored-admission-probes/v1",
+  "checkedAt": "2026-09-05T14:08:39.881Z",
+  "records": [
+    {
+      "at": "2026-09-05T13:36:09.199Z",
+      "fixture": "installed-native-background-monitored-gateway",
+      "preparedLeaseId": "237ce1bb-9e14-403c-af10-c60e031def19",
+      "boundSession": "771b0dfd-6639-4443-ac79-a50f87d3b5af",
+      "jobId": "771b0dfd",
+      "failure": "",
+      "launch": {
+        "pid": 54696,
+        "exit": 0,
+        "stdout": "backgrounded · 771b0dfd · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach 771b0dfd    open in this terminal\n  claude logs 771b0dfd      show recent output\n  claude stop 771b0dfd      stop this session\n",
+        "stderr": "Starting background service…\n"
+      },
+      "requestCount": 3,
+      "requestShapes": [
+        {
+          "requestId": "request-1",
+          "keys": [
+            "context_management",
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "output_config",
+            "stream",
+            "system",
+            "thinking",
+            "tools"
+          ],
+          "stream": true,
+          "maxTokens": 32000
+        },
+        {
+          "requestId": "request-2",
+          "keys": [
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "system",
+            "thinking"
+          ],
+          "stream": false,
+          "maxTokens": 1024
+        },
+        {
+          "requestId": "request-3",
+          "keys": [
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "system",
+            "thinking"
+          ],
+          "stream": false,
+          "maxTokens": 1024
+        }
+      ],
+      "requestKeys": [
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "system",
+        "thinking"
+      ],
+      "sessionMatches": true,
+      "upstreamCalls": 3,
+      "beforeRelease": {
+        "sessionId": "771b0dfd-6639-4443-ac79-a50f87d3b5af",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-monitored-gateway-237ce1bb-9e14-403c-af10-c60e031def19",
+        "createdAt": "2026-09-05T13:35:54.850Z",
+        "state": "working"
+      },
+      "beforeCleanup": {
+        "sessionId": "771b0dfd-6639-4443-ac79-a50f87d3b5af",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-monitored-gateway-237ce1bb-9e14-403c-af10-c60e031def19",
+        "createdAt": "2026-09-05T13:35:54.850Z",
+        "state": "working"
+      },
+      "after": {
+        "sessionId": "771b0dfd-6639-4443-ac79-a50f87d3b5af",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-monitored-gateway-237ce1bb-9e14-403c-af10-c60e031def19",
+        "createdAt": "2026-09-05T13:35:54.850Z",
+        "state": "stopped"
+      },
+      "outcomes": [
+        {
+          "requestId": "request-1",
+          "kind": "streaming",
+          "status": "settled",
+          "reason": "Complete streamed usage verified"
+        },
+        {
+          "requestId": "request-2",
+          "status": "settled",
+          "kind": "non-streaming"
+        },
+        {
+          "requestId": "request-3",
+          "status": "settled",
+          "kind": "non-streaming"
+        }
+      ],
+      "errors": [],
+      "monitorReady": {
+        "schema": "lane-watch-output-monitor-ready/v1",
+        "readyNonce": "01d31d8f-1b6f-4f64-9d5b-4535f636aa23",
+        "jobDigest": "ccf9e3da681f0c2078fc55e519817bd7a6355f5d601b55d4411c81b06c3124d2",
+        "monitorNonce": "00857335-8905-4686-8a5c-42569157c020",
+        "pid": 39672,
+        "outputLeaseId": "237ce1bb-9e14-403c-af10-c60e031def19",
+        "deadlineAt": "2026-09-05T13:36:24.342Z"
+      },
+      "monitorResult": {
+        "pid": 39672,
+        "exit": 0,
+        "output": "{\"status\":\"terminal\",\"reason\":\"already-terminal\",\"stopAttempts\":0,\"observedTokens\":21}\n",
+        "stderr": ""
+      },
+      "nativeGate": {
+        "phase": "released",
+        "job": {
+          "jobId": "771b0dfd",
+          "sessionId": "771b0dfd-6639-4443-ac79-a50f87d3b5af",
+          "worktree": "c:/users/wstri/dev/math-research/infrastructure/agent-observer/tmp/native-monitored-gateway-237ce1bb-9e14-403c-af10-c60e031def19",
+          "createdAt": "2026-09-05T13:35:54.850Z"
+        },
+        "jobDigest": "ccf9e3da681f0c2078fc55e519817bd7a6355f5d601b55d4411c81b06c3124d2",
+        "monitor": {
+          "jobDigest": "ccf9e3da681f0c2078fc55e519817bd7a6355f5d601b55d4411c81b06c3124d2",
+          "monitorNonce": "00857335-8905-4686-8a5c-42569157c020",
+          "pid": 39672
+        }
+      },
+      "stop": {
+        "pid": 41396,
+        "exit": 0
+      },
+      "budget": {
+        "contract": {
+          "leaseId": "237ce1bb-9e14-403c-af10-c60e031def19",
+          "launchDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:36:24.342Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 21,
+        "reportedOutputTokens": 21,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 99979,
+        "separateReportedUsage": {
+          "inputTokens": 30,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 3,
+          "cacheCreationInputTokens": 3
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Durable returned-job gate and a real output monitor are used. Does not prove production subscription/profile, subagents, monitor crash/hang supervision or process-tree deadline stopping."
+    },
+    {
+      "at": "2026-09-05T13:38:33.519Z",
+      "fixture": "installed-native-background-deadline-gateway",
+      "preparedLeaseId": "065db410-c529-4d82-b7bf-b2d75133c58c",
+      "boundSession": "7720838e-ced6-439e-85a3-ed31180b2a1a",
+      "jobId": "7720838e",
+      "failure": "",
+      "launch": {
+        "pid": 36856,
+        "exit": 0,
+        "stdout": "backgrounded · 7720838e · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach 7720838e    open in this terminal\n  claude logs 7720838e      show recent output\n  claude stop 7720838e      stop this session\n",
+        "stderr": "Starting background service…\n"
+      },
+      "requestCount": 1,
+      "requestShapes": [
+        {
+          "requestId": "request-1",
+          "keys": [
+            "context_management",
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "output_config",
+            "stream",
+            "system",
+            "thinking",
+            "tools"
+          ],
+          "stream": true,
+          "maxTokens": 32000
+        }
+      ],
+      "requestKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "sessionMatches": true,
+      "upstreamCalls": 1,
+      "beforeRelease": {
+        "sessionId": "7720838e-ced6-439e-85a3-ed31180b2a1a",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-065db410-c529-4d82-b7bf-b2d75133c58c",
+        "createdAt": "2026-09-05T13:38:16.948Z",
+        "state": "working"
+      },
+      "beforeCleanup": {
+        "sessionId": "7720838e-ced6-439e-85a3-ed31180b2a1a",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-065db410-c529-4d82-b7bf-b2d75133c58c",
+        "createdAt": "2026-09-05T13:38:16.948Z",
+        "state": "stopped"
+      },
+      "after": {
+        "sessionId": "7720838e-ced6-439e-85a3-ed31180b2a1a",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-065db410-c529-4d82-b7bf-b2d75133c58c",
+        "createdAt": "2026-09-05T13:38:16.948Z",
+        "state": "stopped"
+      },
+      "outcomes": [
+        {
+          "requestId": "request-1",
+          "kind": "streaming",
+          "status": "uncertain",
+          "reason": "Local stream cancelled or deadline reached; reservation retained"
+        }
+      ],
+      "errors": [],
+      "monitorReady": {
+        "schema": "lane-watch-output-monitor-ready/v1",
+        "readyNonce": "f2b137d0-1219-4c4c-b07d-8d5011753296",
+        "jobDigest": "edf6f248d8ecadbfdc6b14c322a1fb1c150c127c79b1c5e894d52f0ba505119c",
+        "monitorNonce": "fa102286-a54c-4bb0-98ee-453e953e8258",
+        "pid": 45644,
+        "outputLeaseId": "065db410-c529-4d82-b7bf-b2d75133c58c",
+        "deadlineAt": "2026-09-05T13:38:31.527Z"
+      },
+      "monitorResult": {
+        "pid": 45644,
+        "exit": 0,
+        "output": "{\"status\":\"stopped\",\"reason\":\"deadline\",\"stopAttempts\":1,\"observedTokens\":0}\n",
+        "stderr": ""
+      },
+      "nativeGate": {
+        "phase": "released",
+        "job": {
+          "jobId": "7720838e",
+          "sessionId": "7720838e-ced6-439e-85a3-ed31180b2a1a",
+          "worktree": "c:/users/wstri/dev/math-research/infrastructure/agent-observer/tmp/native-deadline-gateway-065db410-c529-4d82-b7bf-b2d75133c58c",
+          "createdAt": "2026-09-05T13:38:16.948Z"
+        },
+        "jobDigest": "edf6f248d8ecadbfdc6b14c322a1fb1c150c127c79b1c5e894d52f0ba505119c",
+        "monitor": {
+          "jobDigest": "edf6f248d8ecadbfdc6b14c322a1fb1c150c127c79b1c5e894d52f0ba505119c",
+          "monitorNonce": "fa102286-a54c-4bb0-98ee-453e953e8258",
+          "pid": 45644
+        }
+      },
+      "stop": null,
+      "budget": {
+        "contract": {
+          "leaseId": "065db410-c529-4d82-b7bf-b2d75133c58c",
+          "launchDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:38:31.527Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 32000,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 1,
+        "remainingOutputTokens": 68000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Durable returned-job gate and a real output monitor are used. Does not prove production subscription/profile, subagents, monitor crash/hang supervision or process-tree deadline stopping."
+    },
+    {
+      "at": "2026-09-05T13:41:27.514Z",
+      "fixture": "installed-native-background-deadline-gateway",
+      "preparedLeaseId": "8b8332ad-89b6-4612-9a78-7551995eb01b",
+      "boundSession": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+      "jobId": "09bf84a7",
+      "failure": "Error: Owned monitor did not stop the stalled native job at its deadline",
+      "launch": {
+        "pid": 51372,
+        "exit": 0,
+        "stdout": "backgrounded · 09bf84a7 · Lane Watch local streaming background fixture\n  claude agents             list sessions\n  claude attach 09bf84a7    open in this terminal\n  claude logs 09bf84a7      show recent output\n  claude stop 09bf84a7      stop this session\n",
+        "stderr": "Starting background service…\n"
+      },
+      "requestCount": 2,
+      "requestShapes": [
+        {
+          "requestId": "request-1",
+          "keys": [
+            "context_management",
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "output_config",
+            "stream",
+            "system",
+            "thinking",
+            "tools"
+          ],
+          "stream": true,
+          "maxTokens": 32000
+        },
+        {
+          "requestId": "request-2",
+          "keys": [
+            "context_management",
+            "max_tokens",
+            "messages",
+            "metadata",
+            "model",
+            "output_config",
+            "stream",
+            "system",
+            "thinking",
+            "tools"
+          ],
+          "stream": false,
+          "maxTokens": 32000
+        }
+      ],
+      "requestKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "sessionMatches": true,
+      "upstreamCalls": 1,
+      "beforeRelease": {
+        "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-8b8332ad-89b6-4612-9a78-7551995eb01b",
+        "createdAt": "2026-09-05T13:41:12.823Z",
+        "state": "working"
+      },
+      "beforeCleanup": {
+        "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-8b8332ad-89b6-4612-9a78-7551995eb01b",
+        "createdAt": "2026-09-05T13:41:12.823Z",
+        "state": "failed"
+      },
+      "after": {
+        "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+        "cwd": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-deadline-gateway-8b8332ad-89b6-4612-9a78-7551995eb01b",
+        "createdAt": "2026-09-05T13:41:12.823Z",
+        "state": "failed"
+      },
+      "outcomes": [
+        {
+          "requestId": "request-1",
+          "kind": "streaming",
+          "status": "uncertain",
+          "reason": "Local stream cancelled or deadline reached; reservation retained"
+        }
+      ],
+      "errors": [
+        "Error: Output request deadline reached"
+      ],
+      "monitorReady": {
+        "schema": "lane-watch-output-monitor-ready/v1",
+        "readyNonce": "3b01512d-eab1-4809-b008-ee36492c3323",
+        "jobDigest": "a13c5c7f34c65b3e47e77b8c9fcf9227af5dca183660f8dd60014e258606e945",
+        "monitorNonce": "7cf4359f-c48e-48f1-bd5b-a562aae67502",
+        "pid": 54240,
+        "outputLeaseId": "8b8332ad-89b6-4612-9a78-7551995eb01b",
+        "deadlineAt": "2026-09-05T13:41:27.287Z"
+      },
+      "monitorResult": {
+        "pid": 54240,
+        "exit": 0,
+        "output": "{\"status\":\"terminal\",\"reason\":\"already-terminal\",\"stopAttempts\":0,\"observedTokens\":0}\n",
+        "stderr": ""
+      },
+      "nativeGate": {
+        "phase": "released",
+        "job": {
+          "jobId": "09bf84a7",
+          "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+          "worktree": "c:/users/wstri/dev/math-research/infrastructure/agent-observer/tmp/native-deadline-gateway-8b8332ad-89b6-4612-9a78-7551995eb01b",
+          "createdAt": "2026-09-05T13:41:12.823Z"
+        },
+        "jobDigest": "a13c5c7f34c65b3e47e77b8c9fcf9227af5dca183660f8dd60014e258606e945",
+        "monitor": {
+          "jobDigest": "a13c5c7f34c65b3e47e77b8c9fcf9227af5dca183660f8dd60014e258606e945",
+          "monitorNonce": "7cf4359f-c48e-48f1-bd5b-a562aae67502",
+          "pid": 54240
+        }
+      },
+      "stop": null,
+      "budget": {
+        "contract": {
+          "leaseId": "8b8332ad-89b6-4612-9a78-7551995eb01b",
+          "launchDigest": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T13:41:27.287Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 32000,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 1,
+        "remainingOutputTokens": 68000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Isolated native background --bare, no tools, dummy API key in explicit settings, local fake provider. Durable returned-job gate and a real output monitor are used. Does not prove production subscription/profile, subagents, monitor crash/hang supervision or process-tree deadline stopping."
+    }
+  ],
+  "cleanup": [
+    {
+      "root": "native-monitored-gateway-237ce1bb-9e14-403c-af10-c60e031def19",
+      "supervisorPid": 37544,
+      "supervisor": "absent",
+      "workers": []
+    },
+    {
+      "root": "native-deadline-gateway-065db410-c529-4d82-b7bf-b2d75133c58c",
+      "supervisorPid": 37776,
+      "supervisor": "absent",
+      "workers": []
+    },
+    {
+      "root": "native-deadline-gateway-8b8332ad-89b6-4612-9a78-7551995eb01b",
+      "supervisorPid": 44248,
+      "supervisor": "absent",
+      "workers": [
+        {
+          "jobId": "09bf84a7",
+          "pid": 34900,
+          "process": "absent",
+          "procStart": "134330892748844357"
+        }
+      ]
+    }
+  ],
+  "manualCleanup": {
+    "at": "2026-09-05T14:04:34.3204352Z",
+    "jobId": "09bf84a7",
+    "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+    "priorJobState": "failed",
+    "nativeStopExit": 143,
+    "nativeStopTimeoutMs": 5000,
+    "verified": [
+      {
+        "pid": 44248,
+        "parentPid": 51372,
+        "name": "claude.exe",
+        "startedAt": "2026-09-05T13:41:14.3521530Z"
+      },
+      {
+        "pid": 34900,
+        "parentPid": 44248,
+        "name": "claude.exe",
+        "startedAt": "2026-09-05T13:41:14.8844350Z"
+      },
+      {
+        "pid": 4340,
+        "parentPid": 34900,
+        "name": "conhost.exe",
+        "startedAt": "2026-09-05T13:41:15.2906700Z"
+      },
+      {
+        "pid": 34832,
+        "parentPid": 34900,
+        "name": "claude.exe",
+        "startedAt": "2026-09-05T13:41:15.3112170Z"
+      }
+    ],
+    "stopped": [
+      44248,
+      34832,
+      34900
+    ],
+    "remaining": [],
+    "scope": "Manual exact fixture cleanup after terminal job state and native stop failed to establish process exit. Not a verified automatic deadline controller."
+  },
+  "assessment": {
+    "normal": "Durable binding and actual monitor readiness exercised before three requests.",
+    "firstDeadline": "Monitor reported deadline stop; whole-probe result confounded by default idle timeout and unhandled stream rejection.",
+    "secondDeadline": "Gateway expired stream and refused retry. Job failed but physical worker/supervisor remained. Native stop timed out. Exact manually verified cleanup was required. Automatic process-tree deadline shutdown is not established."
+  }
+}

@@ -92,11 +92,17 @@ export class BudgetedMessageTransport {
       if(tokens>frozen.max_tokens){this.budget.hold(leaseId,'Stream output exceeds its reserved maximum');throw Error('Stream output exceeds its reserved maximum');}
     },reason=>this.budget.hold(leaseId,reason));
     let streamController:ReadableStreamDefaultController<Uint8Array>|undefined;
+    const interruptResponse=()=>{
+      // Emit a protocol error and close without message_stop. This keeps native
+      // clients informed without leaking an unhandled stream rejection through
+      // Bun's HTTP server. The separate completion remains uncertain.
+      try{streamController?.enqueue(new TextEncoder().encode('event: error\ndata: {"type":"error","error":{"type":"api_error","message":"Gateway stream interrupted; output reservation retained."}}\n\n'));streamController?.close();}catch{}
+    };
     const onAbort=()=>{
       if(finished)return;
       finish('uncertain','Local stream cancelled or deadline reached; reservation retained');
       void reader.cancel().catch(()=>{});
-      try{streamController?.error(Error('Streaming transport aborted'));}catch{}
+      interruptResponse();
     };
     abort.signal.addEventListener('abort',onAbort,{once:true});
     const stream=new ReadableStream<Uint8Array>({
@@ -116,7 +122,7 @@ export class BudgetedMessageTransport {
         }catch(error){
           finish('uncertain',error instanceof Error?error.message:'Stream accounting failed; reservation retained');
           abort.signal.removeEventListener('abort',onAbort);abort.abort();void reader.cancel().catch(()=>{});
-          try{controller.error(error);}catch{}
+          interruptResponse();
         }
       },
       cancel:()=>{finish('uncertain','Downstream cancelled; reservation retained');abort.signal.removeEventListener('abort',onAbort);abort.abort();return reader.cancel().catch(()=>{});}

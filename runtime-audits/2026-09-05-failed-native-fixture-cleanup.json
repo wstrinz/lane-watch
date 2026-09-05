@@ -1,0 +1,41 @@
+{
+  "at": "2026-09-05T14:04:34.3204352Z",
+  "jobId": "09bf84a7",
+  "sessionId": "09bf84a7-e599-47e1-9aae-c769032fb78e",
+  "priorJobState": "failed",
+  "nativeStopExit": 143,
+  "nativeStopTimeoutMs": 5000,
+  "verified": [
+    {
+      "pid": 44248,
+      "parentPid": 51372,
+      "name": "claude.exe",
+      "startedAt": "2026-09-05T13:41:14.3521530Z"
+    },
+    {
+      "pid": 34900,
+      "parentPid": 44248,
+      "name": "claude.exe",
+      "startedAt": "2026-09-05T13:41:14.8844350Z"
+    },
+    {
+      "pid": 4340,
+      "parentPid": 34900,
+      "name": "conhost.exe",
+      "startedAt": "2026-09-05T13:41:15.2906700Z"
+    },
+    {
+      "pid": 34832,
+      "parentPid": 34900,
+      "name": "claude.exe",
+      "startedAt": "2026-09-05T13:41:15.3112170Z"
+    }
+  ],
+  "stopped": [
+    44248,
+    34832,
+    34900
+  ],
+  "remaining": [],
+  "scope": "Manual exact fixture cleanup after terminal job state and native stop failed to establish process exit. Not a verified automatic deadline controller."
+}

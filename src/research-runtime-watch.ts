@@ -5,8 +5,9 @@ export interface ResearchWatchLease {
   startedAt: string;
   deadlineAt: string;
   tokenCap: number;
-  /** This counter is intentionally not described as billing or total parent/child API usage. */
-  tokenMetric: 'daemon-reported';
+  /** Daemon counters are not provider accounting. The output-token source is
+   * settled request-ledger output; unresolved reservations remain separately charged. */
+  tokenMetric: 'daemon-reported'|'output-tokens';
   pollMs: number;
   telemetryGraceMs: number;
 }
@@ -34,7 +35,7 @@ export function validateResearchWatchLease(lease: ResearchWatchLease): void {
   if (!/^[0-9a-f]{8}$/i.test(lease.jobId) || !lease.sessionId.startsWith(lease.jobId+'-') || !/^[0-9a-f-]{36}$/i.test(lease.sessionId)) throw Error('Invalid exact job/session binding');
   if (!/^(?:[a-z]:[\\/]|\/)/i.test(lease.worktree)) throw Error('Worktree must be absolute');
   if (!Number.isFinite(Date.parse(lease.startedAt)) || !Number.isFinite(Date.parse(lease.deadlineAt)) || Date.parse(lease.deadlineAt)<=Date.parse(lease.startedAt)) throw Error('Invalid runtime deadline');
-  if (!Number.isSafeInteger(lease.tokenCap) || lease.tokenCap<=0 || lease.tokenMetric!=='daemon-reported') throw Error('Invalid runtime token policy');
+  if (!Number.isSafeInteger(lease.tokenCap) || lease.tokenCap<=0 || !['daemon-reported','output-tokens'].includes(lease.tokenMetric)) throw Error('Invalid runtime token policy');
   if (!Number.isInteger(lease.pollMs) || lease.pollMs<25 || lease.pollMs>1000 || !Number.isInteger(lease.telemetryGraceMs) || lease.telemetryGraceMs<lease.pollMs || lease.telemetryGraceMs>30_000) throw Error('Invalid runtime polling policy');
 }
 export function observationMatchesLease(lease: ResearchWatchLease, observed: ResearchWatchObservation): boolean {

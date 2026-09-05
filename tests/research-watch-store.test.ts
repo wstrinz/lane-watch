@@ -82,3 +82,21 @@ test('durable stop and terminal events survive an external audit sink that hangs
   }finally{reader.close();}
  }finally{store.close();}
 });
+
+test('monitor readiness follows exact working-job verification and precedes watch execution',async()=>{
+ const store=new ResearchWatchStore(dbPath()),fixture=port(100);let ready=0;
+ try{
+  const result=await runDurableResearchWatch(lease,store,fixture.value,async claim=>{
+   ready++;expect(claim.lease).toEqual(lease);expect(fixture.stops).toEqual([]);
+  });
+  expect(ready).toBe(1);expect(result.status).toBe('stopped');
+ }finally{store.close();}
+});
+test('mismatched initial observation cannot issue a monitor-ready receipt',async()=>{
+ const store=new ResearchWatchStore(dbPath()),fixture=port();let ready=0;
+ const original=fixture.value.observe;fixture.value.observe=async id=>{const observed=await original(id);if(!observed)throw Error('Missing fixture observation');return {...observed,sessionId:'different-session'};};
+ try{
+  await expect(runDurableResearchWatch(lease,store,fixture.value,async()=>{ready++;})).rejects.toThrow('verified');
+  expect(ready).toBe(0);expect(fixture.stops).toEqual([]);
+ }finally{store.close();}
+});

@@ -6,6 +6,7 @@ import {watchResearchRuntime,observationMatchesLease,validateResearchWatchLease,
  * the lease and retain its event log. No signal is sent to guessed PIDs. */
 export function nativeClaudeWatchPort(lease: ResearchWatchLease, options: {claudeHome:string;executable:string;eventPath:string}): ResearchWatchPort {
   validateResearchWatchLease(lease);
+  if(lease.tokenMetric!=='daemon-reported')throw Error('Native daemon counters cannot be relabeled as output tokens');
   const observe:ResearchWatchPort['observe']=async jobId=>{
     if(jobId!==lease.jobId)throw Error('Watch cannot observe a different job');
     try{
@@ -17,7 +18,7 @@ export function nativeClaudeWatchPort(lease: ResearchWatchLease, options: {claud
   return {now:Date.now,monotonicNow:()=>performance.now(),observe,wait:ms=>Bun.sleep(ms),record:async e=>{await appendFile(options.eventPath,JSON.stringify(e)+'\n');},stop:async jobId=>{
     const observed=await observe(jobId);
     if(!observed||!observationMatchesLease(lease,observed))throw Error('Exact identity could not be revalidated immediately before stop');
-    const child=Bun.spawn([options.executable,'stop',jobId],{stdout:'ignore',stderr:'ignore',windowsHide:true});
+    const child=Bun.spawn([options.executable,'stop',jobId],{env:{...process.env,CLAUDE_CONFIG_DIR:options.claudeHome},stdout:'ignore',stderr:'ignore',windowsHide:true});
     const timeout=setTimeout(()=>child.kill(),10_000);
     try{const code=await child.exited;if(code!==0)throw Error('Native stop did not confirm success');}finally{clearTimeout(timeout);}
   }};
