@@ -67,6 +67,7 @@ export class CodexAppServerClient {
   private nextId = 1;
   private pending = new Map<string | number, PendingRequest>();
   private connecting: Promise<void> | null = null;
+  private stderrTails = new WeakMap<object, string>();
   private notificationListeners = new Set<(notification: CodexNotification) => void>();
   private serverRequestListeners = new Set<(request: CodexServerRequest) => void>();
   private errorListeners = new Set<(error: Error) => void>();
@@ -87,8 +88,10 @@ export class CodexAppServerClient {
   }
 
   async connect(): Promise<void> {
-    if (this.process) return;
+    // The child exists before initialize completes. Concurrent callers must
+    // await that handshake before sending any other protocol request.
     if (this.connecting) return this.connecting;
+    if (this.process) return;
     this.connecting = this.start();
     try {
       await this.connecting;
@@ -116,6 +119,7 @@ export class CodexAppServerClient {
       stdin: "pipe",
       stdout: "pipe",
       stderr: "pipe",
+      windowsHide: true,
       env: process.env,
     });
     this.process = child;
@@ -132,9 +136,10 @@ export class CodexAppServerClient {
       }, 20_000);
       this.notify("initialized", {});
     } catch (error) {
+      const diagnostic = this.stderrTails.get(child)?.trim();
       child.kill();
       if (this.process === child) this.process = null;
-      throw error;
+      throw new Error(`${error instanceof Error ? error.message : String(error)} (executable: ${executable}; child PID: ${child.pid})${diagnostic ? `; stderr: ${diagnostic}` : "; no stderr received"}`);
     }
   }
 
@@ -165,11 +170,21 @@ export class CodexAppServerClient {
   }
 
   private async readStderr(child: any): Promise<void> {
+    const reader = child.stderr.getReader();
+    const decoder = new TextDecoder();
     try {
-      const output = (await new Response(child.stderr).text()).trim();
-      if (output && this.process === child) this.emitError(new Error(`Codex App Server: ${output.slice(-2000)}`));
+      while (true) {
+        const {done, value} = await reader.read();
+        const chunk = done ? decoder.decode() : decoder.decode(value, {stream:true});
+        this.stderrTails.set(child, ((this.stderrTails.get(child) || "") + chunk).slice(-2000));
+        if (done) break;
+      }
+      const output = this.stderrTails.get(child)?.trim();
+      if (output && this.process === child) this.emitError(new Error(`Codex App Server: ${output}`));
     } catch {
-      // Exit handling rejects active requests; stderr is diagnostic only.
+      // Preserve the bounded diagnostic tail even if the stream fails.
+    } finally {
+      reader.releaseLock();
     }
   }
 

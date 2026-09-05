@@ -27,5 +27,5 @@ if(import.meta.main){
   if(!leasePath||!claudeHome||!executable||!eventPath)throw Error('Usage: bun src/native-claude-runtime-watch.ts LEASE_JSON CLAUDE_HOME CLAUDE_EXE EVENT_JSONL');
   const lease=JSON.parse(await readFile(leasePath,'utf8'));
   const result=await watchResearchRuntime(lease,nativeClaudeWatchPort(lease,{claudeHome,executable,eventPath}));
-  console.log(JSON.stringify(result));if(result.status==='attention')process.exitCode=2;
+  console.log(JSON.stringify(result));if(result.status==='attention'||result.auditWriteFailures?.length)process.exitCode=2;
 }

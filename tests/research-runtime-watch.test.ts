@@ -19,3 +19,29 @@ test('wall-clock rollback cannot extend the deadline',async()=>{const h=harness(
 test('natural completion after a stop request is not reported as confirmed cancellation',async()=>{const h=harness([observation({observedTokens:101}),observation({state:'done',observedTokens:101})],false);expect(await watchResearchRuntime(lease,h.port)).toMatchObject({status:'terminal',stopAttempts:1});});
 
 test('malformed observation fails ownership checks without throwing or stopping',async()=>{const h=harness([observation({worktree:undefined as any})]);expect(await watchResearchRuntime(lease,h.port)).toMatchObject({status:'attention',reason:'identity-mismatch'});expect(h.stops).toEqual([]);});
+
+
+test('audit sink failure requests a bounded stop and returns unconfirmed events',async()=>{
+ const h=harness([observation()]);h.port.record=async()=>{throw Error('disk unavailable');};
+ const result=await watchResearchRuntime(lease,h.port);
+ expect(result).toMatchObject({status:'stopped',reason:'audit-unavailable',stopAttempts:1});
+ expect(h.stops).toEqual([lease.jobId]);
+ expect(result.auditWriteFailures?.map(e=>e.type)).toEqual(['watch.started','watch.stop-requested','watch.terminal']);
+});
+test('failed stop-event persistence cannot prevent the exact stop or hide the threshold',async()=>{
+ const h=harness([observation({observedTokens:101})]);const record=h.port.record;
+ h.port.record=async e=>{if(e.type==='watch.stop-requested')throw Error('disk unavailable');await record(e);};
+ const result=await watchResearchRuntime(lease,h.port);
+ expect(result).toMatchObject({status:'stopped',reason:'token-threshold',stopAttempts:1});
+ expect(h.stops).toEqual([lease.jobId]);
+ expect(result.auditWriteFailures).toHaveLength(1);
+ expect(result.auditWriteFailures?.[0].reason).toBe('token-threshold');
+});
+test('audit failure does not bypass ownership or authorize a guessed stop',async()=>{
+ for(const value of [null,observation({worktree:'C:/unrelated'})]){
+  const h=harness([value]);h.port.record=async()=>{throw Error('disk unavailable');};
+  const result=await watchResearchRuntime(lease,h.port);
+  expect(result.status).toBe('attention');expect(h.stops).toEqual([]);
+  expect(result.auditWriteFailures?.length).toBeGreaterThan(0);
+ }
+});

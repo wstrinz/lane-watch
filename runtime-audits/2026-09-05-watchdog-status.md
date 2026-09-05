@@ -18,3 +18,19 @@ Production obligations remain:
 - Retain the existing exhausted-epoch resource gate. Repairing software does not create a new resource envelope.
 
 Native documentation supports model-free background shell jobs and targeted stop ([agent view](https://code.claude.com/docs/en/agent-view)). Hooks can stop an agent with continue:false, but PreToolUse timeout can allow the action to continue, so hooks alone are not a fail-closed external controller ([hooks reference](https://code.claude.com/docs/en/hooks)). The tests above, rather than documentation alone, establish the observed local stop behavior.
+
+## Audit-write failure follow-up
+
+A rejected audit write previously threw before the stop request, allowing a
+known owned job to continue. The kernel now records unconfirmed audit events
+in the returned result and requests a bounded stop when the sink fails. An
+identity mismatch or missing ownership still forbids a guessed stop. Native
+CLI exit status is nonzero when audit writes failed, even after a confirmed
+stop. Fourteen watcher/adapter tests now pass (46 assertions), including startup
+sink failure, failure at the stop event, and unavailable/mismatched ownership.
+
+These returned events are an in-memory recovery record, not a durable journal;
+a rejected append can also have partially persisted. A hung I/O operation,
+process crash or supervisor crash is not solved by this patch. Durable
+supervision, recovery, launch binding and aggregate/hard-token policy remain
+unverified, and production dispatch stays held.
