@@ -226,7 +226,7 @@ const server = Bun.serve({
         generatedAt: snapshot.generatedAt,
         lanes: (filterObserverForPrincipal(snapshot, principal) as ObserverSnapshot).counts.total,
         campaignControl: true,
-        runtime: await runtimeHealth.snapshot(),
+        runtime: { ...await runtimeHealth.snapshot(), controller: campaign.controllerIdentity() },
       });
     }
     if (url.pathname === "/api/me") {

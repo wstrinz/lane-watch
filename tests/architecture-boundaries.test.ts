@@ -286,7 +286,7 @@ describe("campaign composition boundaries", () => {
     const runtime = await readFile(join(root, "runtime-health-service.ts"), "utf8");
 
     expect(server).toContain("new RuntimeHealthService(DATA_ROOT)");
-    expect(server).toContain("runtime: await runtimeHealth.snapshot()");
+    expect(server).toContain("await runtimeHealth.snapshot()");
     expect(runtime).toContain('source: "watchdog-transcript"');
     expect(runtime).toContain("abnormalExitCount");
     expect(runtime).toContain("bunPanicCount");

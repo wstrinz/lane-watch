@@ -34,6 +34,7 @@ import { CampaignStateService, type CampaignTransitionContext } from "./campaign
 import { CampaignRecoveryService } from "./campaign-recovery-service";
 import { CampaignSchemaMigrationService } from "./campaign-schema-migration-service";
 import { CampaignStartupService, type CampaignProjectDefinition } from "./campaign-startup-service";
+import { CampaignControllerLease, type CampaignControllerIdentity } from "./campaign-controller-lease";
 import { CampaignActionRouter, type CampaignActionHandlerRegistry, type CampaignActionType } from "./campaign-action-router";
 import { LaneReconciliationService } from "./lane-reconciliation-service";
 import { ContextRegistryService } from "./context-registry-service";
@@ -884,6 +885,7 @@ export class CampaignControl {
   private latestObserver: ObserverSnapshot | null = null;
   private changeListener: (() => void) | null = null;
   private liveChangeListener: ((activity: Record<string, unknown>) => void) | null = null;
+  private stopped = false;
 
   private constructor(
     private readonly dataDir: string,
@@ -891,6 +893,7 @@ export class CampaignControl {
     private readonly codex: CodexAppServerClient,
     private readonly researchLauncher: ResearchLauncher,
     custodyRuntimePreflight: () => void,
+    private readonly controllerLease: CampaignControllerLease,
   ) {
     this.bundleRoot = join(dataDir, "synthesis-bundles");
     this.database = new Database(join(dataDir, "observer.sqlite"), { create: true });
@@ -1155,9 +1158,17 @@ export class CampaignControl {
     custodyRuntimePreflight: () => void = assertCustodyRuntime,
   ): Promise<CampaignControl> {
     await mkdir(dataDir, { recursive: true });
-    const control = new CampaignControl(dataDir, manifestPath, codex, researchLauncher, custodyRuntimePreflight);
-    await control.startup.initialize();
-    return control;
+    const lease = CampaignControllerLease.acquire(join(dataDir, "controller-owner.sqlite"));
+    let control: CampaignControl | undefined;
+    try {
+      control = new CampaignControl(dataDir, manifestPath, codex, researchLauncher, custodyRuntimePreflight, lease);
+      await control.startup.initialize();
+      return control;
+    } catch (error) {
+      if (control) control.stop();
+      else lease.release();
+      throw error;
+    }
   }
 
   onChange(listener: () => void): void {
@@ -1525,8 +1536,17 @@ export class CampaignControl {
   indexSnapshot(): Record<string, unknown> {
     return this.projectReader.indexSnapshot();
   }
+  controllerIdentity(): Readonly<CampaignControllerIdentity> {
+    return this.controllerLease.identity;
+  }
   stop(): void {
-    this.codex.stop();
-    this.database.close();
+    if (this.stopped) return;
+    this.stopped = true;
+    try {
+      this.codex.stop();
+    } finally {
+      this.database.close();
+      this.controllerLease.release();
+    }
   }
 }
