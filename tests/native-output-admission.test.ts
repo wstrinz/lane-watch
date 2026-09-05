@@ -3,6 +3,7 @@ import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {OutputRequestBudget} from '../src/output-request-budget';
+import {observeOwnedProcessExit} from '../src/owned-process-exit';
 const roots:string[]=[],stores:OutputRequestBudget[]=[];
 afterEach(()=>{for(const s of stores.splice(0))s.close();for(const root of roots.splice(0))rmSync(root,{recursive:true,force:true});});
 function fixture(){
@@ -12,6 +13,26 @@ function fixture(){
  const job={jobId:'abc12345',sessionId:'abc12345-0000-4000-8000-000000000001',worktree:root,createdAt:new Date(Date.now()-500).toISOString()};
  budget.bindNative(contract,preparation);return {root,path,budget,contract,preparation,job};
 }
+
+test('a signal-terminated owned monitor cannot keep native admission open',async()=>{
+ const {budget,contract,job}=fixture();
+ const child=Bun.spawn([process.execPath,'-e','setTimeout(()=>{},30000)'],{stdin:'ignore',stdout:'ignore',stderr:'ignore',windowsHide:true});
+ const owned=observeOwnedProcessExit(child);
+ try{
+  const jobDigest=budget.bindNativeJob(contract.leaseId,job);
+  budget.releaseNative(contract.leaseId,{jobDigest,monitorNonce:'owned-fixture',pid:child.pid},owned.isRunning);
+  budget.reserve(contract.leaseId,'before-signal','d'.repeat(64),80);
+  child.kill();await owned.settled;
+  expect(owned.hasExited()).toBe(true);expect(owned.isRunning()).toBe(false);
+  expect(()=>budget.reserve(contract.leaseId,'after-signal','d'.repeat(64),1)).toThrow('gate');
+  expect(budget.snapshot(contract.leaseId).remainingOutputTokens).toBe(20);
+ }finally{if(!owned.hasExited())child.kill();await owned.settled;}
+});
+
+test('rejected process exit observation closes admission without asserting physical exit',async()=>{
+ const owned=observeOwnedProcessExit({exited:Promise.reject(Error('unavailable')),exitCode:null,signalCode:null});
+ await owned.settled;expect(owned.isRunning()).toBe(false);expect(owned.hasExited()).toBe(false);
+});
 test('native allowance is born closed and binding does not release or replace the cap',()=>{
  const {budget,contract,preparation,job}=fixture();
  expect(()=>budget.reserve(contract.leaseId,'early','b'.repeat(64),1)).toThrow('gate');

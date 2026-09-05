@@ -14,7 +14,7 @@ afterEach(()=>{for(const dir of dirs.splice(0)){const absolute=resolve(dir);if(!
 function port(tokens=1){
  let stopped=false,now=Date.parse(lease.startedAt);const stops:string[]=[];
  const observation=():ResearchWatchObservation=>({jobId:lease.jobId,sessionId:lease.sessionId,worktree:lease.worktree,createdAt:lease.startedAt,state:stopped?'stopped':'working',observedTokens:tokens});
- const value:ResearchWatchPort={now:()=>now,monotonicNow:()=>now,observe:async()=>observation(),stop:async id=>{stops.push(id);stopped=true;},wait:async ms=>{now+=ms;},record:async()=>{}};
+ const value:ResearchWatchPort={now:()=>now,monotonicNow:()=>now,observe:async()=>observation(),verifyExit:async()=>stopped,stop:async id=>{stops.push(id);stopped=true;},wait:async ms=>{now+=ms;},record:async()=>{}};
  return {stops,value};
 }
 

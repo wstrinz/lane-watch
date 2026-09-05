@@ -8,7 +8,7 @@ const never=()=>new Promise<never>(()=>{});
 function harness(){
   let now=Date.parse(lease.startedAt),stopped=false;const stops:string[]=[];
   const observation=():ResearchWatchObservation=>({jobId:lease.jobId,sessionId:lease.sessionId,worktree:lease.worktree,createdAt:lease.startedAt,state:stopped?'stopped':'working',observedTokens:1});
-  const port:ResearchWatchPort={now:()=>now,monotonicNow:()=>now,observe:async()=>observation(),stop:async id=>{stops.push(id);stopped=true;},record:async()=>{},wait:async ms=>{now+=ms;}};
+  const port:ResearchWatchPort={now:()=>now,monotonicNow:()=>now,observe:async()=>observation(),verifyExit:async()=>stopped,stop:async id=>{stops.push(id);stopped=true;},record:async()=>{},wait:async ms=>{now+=ms;}};
   return {port,stops,observation};
 }
 
@@ -40,6 +40,15 @@ test('a late observation is discarded and cannot reopen a timed-out reader',asyn
   await expect(bounded.observe(lease.jobId)).rejects.toThrow('timed out');
   resolveLate(h.observation());await Promise.resolve();
   await expect(bounded.observe(lease.jobId)).rejects.toThrow('timed out');
+});
+
+test('hanging physical exit verification is bounded and cannot confirm a terminal record',async()=>{
+ const h=harness();let calls=0;
+ h.port.observe=async()=>({...h.observation(),state:'failed'});
+ h.port.verifyExit=()=>{calls++;return never();};
+ const result=await watchResearchRuntime(lease,boundedResearchWatchPort(h.port,limits));
+ expect(result).toMatchObject({status:'attention',reason:'stop-unconfirmed:physical-exit-unconfirmed',stopAttempts:2});
+ expect(calls).toBe(1);
 });
 test('a rejected observation can be retried; a timed-out poll wait exits for external recovery',async()=>{
   const h=harness();let calls=0;h.port.observe=async()=>{if(++calls===1)throw Error('transient read');return h.observation();};

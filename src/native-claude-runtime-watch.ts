@@ -4,6 +4,9 @@ import {watchResearchRuntime,observationMatchesLease,validateResearchWatchLease,
 
 /** Native adapter for a previously bound job, not a launcher. Callers must own
  * the lease and retain its event log. No signal is sent to guessed PIDs. */
+// This adapter cannot yet verify the complete native process tree's exit.
+// In the absence of verifyExit the kernel must retain an attention outcome,
+// even when native state is terminal or the stop command succeeds.
 export function nativeClaudeWatchPort(lease: ResearchWatchLease, options: {claudeHome:string;executable:string;eventPath:string}): ResearchWatchPort {
   validateResearchWatchLease(lease);
   if(lease.tokenMetric!=='daemon-reported')throw Error('Native daemon counters cannot be relabeled as output tokens');

@@ -21,6 +21,10 @@ export interface ResearchWatchPort {
   monotonicNow(): number;
   observe(jobId: string): Promise<ResearchWatchObservation | null>;
   stop(jobId: string): Promise<void>;
+  /** Independent physical exit evidence for the complete owned execution scope.
+   * Job records, a successful stop reply and absent telemetry are insufficient.
+   * Missing, false or rejected verification must retain an unconfirmed outcome. */
+  verifyExit?(jobId: string): Promise<boolean>;
   wait(ms: number): Promise<void>;
   record(event: ResearchWatchEvent): Promise<void>;
   checkpoint?(state:{observedTokens:number|null;at:string;state:string}): Promise<void>;
@@ -63,7 +67,7 @@ export async function watchResearchRuntime(lease: ResearchWatchLease, port: Rese
     status,reason:why,stopAttempts,observedTokens:tokens,
     ...(auditWriteFailures.length ? {auditWriteFailures:[...auditWriteFailures]} : {}),
   });
-  await event('watch.started','Exact job bound; daemon-reported token threshold and deadline monitored.');
+  await event('watch.started',`Exact job bound; ${lease.tokenMetric} threshold and deadline monitored; physical exit requires independent verification.`);
   for (;;) {
     let now=watchNow();
     let observed: ResearchWatchObservation|null=null;
@@ -96,16 +100,22 @@ export async function watchResearchRuntime(lease: ResearchWatchLease, port: Rese
     }
     now=watchNow();
     if (TERMINAL.has(observed.state.toLowerCase())) {
-      await event('watch.terminal',reason||'Worker was already terminal.');
-      return finish(stopAttempts&&['stopped','cancelled','canceled'].includes(observed.state.toLowerCase())?'stopped':'terminal',reason||'already-terminal');
+      let exited=false;
+      try {exited=(await port.verifyExit?.(lease.jobId))===true;} catch { /* Unavailable exit evidence is not success. */ }
+      if(exited){
+        await event('watch.terminal',reason||'Owned execution exit independently verified.');
+        return finish(stopAttempts&&['stopped','cancelled','canceled'].includes(observed.state.toLowerCase())?'stopped':'terminal',reason||'already-terminal');
+      }
+      reason ||= 'physical-exit-unconfirmed';
     }
+    now=watchNow();
     if (!valid) unknownSince ??=now; else unknownSince=null;
     if(now>=Date.parse(lease.deadlineAt))reason ||= 'deadline';
     if(tokens!==null&&tokens>=lease.tokenCap)reason ||= 'token-threshold';
     if(unknownSince!==null&&now-unknownSince>=lease.telemetryGraceMs)reason ||= 'usage-unavailable';
     if(reason) {
       if(stopAttempts && now-stopRequestedAt<2000){await port.wait(lease.pollMs);continue;}
-      if(stopAttempts>=2){await event('watch.attention','Stop was requested twice but terminal state remains unconfirmed.');return finish('attention','stop-unconfirmed:'+reason);}
+      if(stopAttempts>=2){await event('watch.attention','Stop was requested twice but job completion and physical execution exit remain unconfirmed.');return finish('attention','stop-unconfirmed:'+reason);}
       stopAttempts++;stopRequestedAt=now;
       await event('watch.stop-requested',reason);
       try {await port.stop(lease.jobId);} catch {await event('watch.stop-error','Stop failed; re-observe this same job before another bounded stop attempt.');}

@@ -2,7 +2,11 @@ import {mkdirSync,writeFileSync,readFileSync,existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {OutputRequestBudget} from '../src/output-request-budget';
+import {observeOwnedProcessExit} from '../src/owned-process-exit';
 import {BudgetedMessageTransport} from '../src/budgeted-message-transport';
+// Historical probes remain preserved, but their cleanup trusted native job status.
+// Do not rerun until complete native process-tree ownership and cleanup are wired.
+throw Error('Native background probe held: verified process-tree cleanup is required');
 const session=randomUUID(),root=resolve('tmp','native-deadline-gateway-'+session),config=join(root,'config');mkdirSync(config,{recursive:true});
 const startedAt=Date.now(),budget=new OutputRequestBudget(join(root,'budget.sqlite'));
 budget.bindNative({leaseId:session,launchDigest:'e'.repeat(64),outputTokenCap:100000,deadlineAt:new Date(startedAt+15000).toISOString()},{worktree:root,preparedAt:new Date(startedAt).toISOString()});
@@ -59,13 +63,14 @@ try{
   watchDatabase:join(root,'watch.sqlite'),claudeHome:config,executable,eventPath:join(root,'monitor-events.jsonl'),readyPath,readyNonce,
   lease:{jobId,sessionId:boundSession,worktree:root,startedAt:beforeRelease.createdAt,deadlineAt:original.deadlineAt,tokenCap:original.outputTokenCap,tokenMetric:'output-tokens',pollMs:100,telemetryGraceMs:1000}}));
  monitor=Bun.spawn([process.execPath,resolve('src/native-output-watch.ts'),envelopePath],{cwd:root,stdin:'ignore',stdout:'pipe',stderr:'pipe',windowsHide:true});
+ const monitorExit=observeOwnedProcessExit(monitor);
  monitorOutput=new Response(monitor.stdout).text();monitorError=new Response(monitor.stderr).text();
  const readyUntil=Date.now()+3000;
- do{if(monitor.exitCode!==null)throw Error('Owned output monitor exited before readiness');try{monitorReady=JSON.parse(readFileSync(readyPath,'utf8'));}catch{}if(monitorReady)break;await Bun.sleep(25);}while(Date.now()<readyUntil);
+ do{if(!monitorExit.isRunning())throw Error('Owned output monitor exited before readiness');try{monitorReady=JSON.parse(readFileSync(readyPath,'utf8'));}catch{}if(monitorReady)break;await Bun.sleep(25);}while(Date.now()<readyUntil);
  if(!monitorReady||monitorReady.readyNonce!==readyNonce||monitorReady.pid!==monitor.pid||monitorReady.outputLeaseId!==session
   ||monitorReady.jobDigest!==jobDigest||monitorReady.deadlineAt!==original.deadlineAt)throw Error('Monitor readiness does not bind the prepared native lease');
- const ownedMonitor=monitor;
- budget.releaseNative(session,{jobDigest,monitorNonce:monitorReady.monitorNonce,pid:monitor.pid},()=>ownedMonitor.exitCode===null);
+ const ownedMonitor=monitorExit;
+ budget.releaseNative(session,{jobDigest,monitorNonce:monitorReady.monitorNonce,pid:monitor.pid},ownedMonitor.isRunning);
  released=true;release();
  const until=startedAt+22000;do{state=readState();if(terminal(state))break;await Bun.sleep(100);}while(Date.now()<until);
  beforeCleanup=state;

@@ -38,6 +38,7 @@ export function boundedResearchWatchPort(base:ResearchWatchPort,limits:ResearchW
     ...base,
     observe:bounded('observation',limits.observationMs,id=>base.observe(id)),
     stop:bounded('stop',limits.stopMs,id=>base.stop(id)),
+    ...(base.verifyExit?{verifyExit:bounded('exit verification',limits.observationMs,id=>base.verifyExit!(id))}:{}),
     record:bounded('audit write',limits.auditMs,event=>base.record(event)),
     wait:bounded('poll wait',limits.waitMs,ms=>base.wait(ms)),
     ...(base.checkpoint?{checkpoint:bounded('checkpoint',limits.checkpointMs,state=>base.checkpoint!(state))}:{}),
