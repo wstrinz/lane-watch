@@ -237,3 +237,10 @@ The automation tool paused the overnight heartbeat; its saved PAUSED status was 
 
 
 Final live browser verification at 2026-09-05T12:27:54.005Z: the collapsed queue opens the final hash-verified handoff directly, with paused check-ins displayed. Desktop/mobile views have no overflow or page errors; the prose layout removes the narrow mobile table. Escape returns focus to the shortcut. No mutation requests or campaign phase/run/ledger changes occurred. The initial fixture locator incorrectly searched inside the collapsed details for the sibling shortcut; correcting that test locator yielded the passing actual UI check. Record: packets/queue/2026-09-05-final-handoff-ui-check.json.
+
+
+## 2026-09-05T12:40:17.390Z output request admission implementation
+
+App 1fa0d362c825bb7e9a9181bb23ee2874a5be3017 adds durable request reservations and a candidate bounded non-streaming Messages transport. Final tests: nine pass, 49 assertions, 1.009 seconds; TypeScript clean. Real loopback HTTP checks prove reservation before network entry, overlapping allowance refusal, retained uncertainty after a truncated reply/reopen, no automatic retry/redirect and durable admission hold after observed provider overrun. No live model or worker ran.
+
+The frozen runtime brief is now campaign f063d9cacd9271f0a11255908db1af9a06865834, SHA-256 3b4dfcb13da1bbc723252ba4db0d26c894d88ae142dfec1e10c42d6f9138f590. Q2 remains incomplete; native streaming and capability-preserving gateway integration is the next concrete boundary, followed by exact launch/monitor release, ownership and deadline supervision. This candidate transport does not replace the native multi-agent profile or custody adapter. Both production launch holds and the exhausted epoch remain. The paused heartbeat and completed handoff are unchanged. Live PID 54756 remained idle with all three indexed projects at 12:36:31.397 UTC.
