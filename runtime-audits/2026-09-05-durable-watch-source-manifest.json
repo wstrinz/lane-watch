@@ -1,0 +1,48 @@
+{
+  "schema": "lane-watch-durable-watch-source-audit/v1",
+  "capturedAt": "2026-09-05T06:17:06.594Z",
+  "files": [
+    {
+      "path": "src/research-runtime-watch.ts",
+      "sha256": "1fe779b472d0322f8516186634524b463bef13627c5d1e3604a1d25b50bd0821",
+      "bytes": 7382,
+      "lfNormalizedSha256": "1fe779b472d0322f8516186634524b463bef13627c5d1e3604a1d25b50bd0821"
+    },
+    {
+      "path": "src/native-claude-runtime-watch.ts",
+      "sha256": "c931dffe6b58d3d2885211a00e04bc9f0cdb9eebeab0643c09923da39001863b",
+      "bytes": 2361,
+      "lfNormalizedSha256": "c931dffe6b58d3d2885211a00e04bc9f0cdb9eebeab0643c09923da39001863b"
+    },
+    {
+      "path": "src/research-watch-store.ts",
+      "sha256": "c568ea32ad3a59f550d66be418c54d9b50064946eaa902ac8d0247aab6685a88",
+      "bytes": 7692,
+      "lfNormalizedSha256": "c568ea32ad3a59f550d66be418c54d9b50064946eaa902ac8d0247aab6685a88"
+    },
+    {
+      "path": "src/durable-research-watch.ts",
+      "sha256": "6c23301eaa2e99626e274d6c1688ac485a254c0580f760a28553048bfd4375bb",
+      "bytes": 1709,
+      "lfNormalizedSha256": "6c23301eaa2e99626e274d6c1688ac485a254c0580f760a28553048bfd4375bb"
+    },
+    {
+      "path": "scripts/probe-durable-research-watch.ts",
+      "sha256": "7b2d7bc74372c1469096bcdbae7c6e2ebdabf1605155574aabf5b96d4b00ee0f",
+      "bytes": 6773,
+      "lfNormalizedSha256": "7b2d7bc74372c1469096bcdbae7c6e2ebdabf1605155574aabf5b96d4b00ee0f"
+    },
+    {
+      "path": "tests/fixtures/runtime-stop-probe.cjs",
+      "sha256": "de0715a857c700f2724a12145b02bd0436cee3d365d165b31b802400f6e9aaf2",
+      "bytes": 746,
+      "lfNormalizedSha256": "de0715a857c700f2724a12145b02bd0436cee3d365d165b31b802400f6e9aaf2"
+    }
+  ],
+  "report": {
+    "path": "runtime-audits/2026-09-05-durable-watch-crash-probe.json",
+    "sha256": "40ef3f333a3f0a2372fc462e37df9b3e55fe746b86612e237bf668e8c67a3109"
+  },
+  "scope": "Exact sources used by the successful finite native crash-recovery probe. LF-normalized hashes also bind Git text blobs across Windows checkout conventions. No production launch admission is claimed.",
+  "modelsInvoked": 0
+}

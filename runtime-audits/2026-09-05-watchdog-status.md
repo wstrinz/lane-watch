@@ -34,3 +34,14 @@ a rejected append can also have partially persisted. A hung I/O operation,
 process crash or supervisor crash is not solved by this patch. Durable
 supervision, recovery, launch binding and aggregate/hard-token policy remain
 unverified, and production dispatch stays held.
+
+## Durable monitor recovery follow-up
+
+Q2 now has a separate SQLite bound-job registry and dedicated monitor runner. Frozen identity/deadline/token fields cannot be rebound; concurrent claims conservatively refuse a potentially live owner; recovery preserves the observed token high-water mark and stops an exactly revalidated job instead of granting more runtime. Attention/terminal records do not automatically retry. This is a component of enforcement, not a launch controller.
+
+Twenty-one focused watcher/store/adapter tests pass (70 assertions), and TypeScript is clean. A finite native model-free crash probe killed only its own first monitor (PID 12224), confirmed it absent, then recovered job ceca4df5 / session ceca4df5-fc0d-43a8-8855-80a1a17d182d. Generation advanced 1 to 2 with unchanged bounds; the job changed working to stopped and fixture parent 50224 / child 39680 were absent. Total 4,551 ms from job creation, before its 15-second self-exit. No model was invoked. The report and exact raw/Git-normalized source hashes are in runtime-audits/2026-09-05-durable-watch-{crash-probe,source-manifest}.json in the app repo. An earlier helper parser failure created a finite fixture (2f4b3dac) that self-exited and was confirmed done; it is not runtime-enforcement evidence.
+
+Next: bound hanging asynchronous I/O and develop actual launch/monitor supervision. Synchronous process hangs, automatic recovery supervision, an atomic schedule-to-launch handshake, aggregate token semantics/hard overshoot bounds and WSL ownership remain unverified. The production launch hold and exhausted epoch remain unchanged. Lane Watch continues to show Q2 active and the reviewed research portfolio blocked; no new research worker or claim promotion.
+
+
+The registry uses WAL/FULL synchronization and immutable lease fields in a separate database. An owner nonce and generation reject stale writers. An uncertain or reused owner PID conservatively blocks recovery; no monitor is killed by a guessed PID. This is neither a tamper-proof security boundary nor supervision of a live-but-hung owner. Replay the finite probe with bun scripts/probe-durable-research-watch.ts in the normal native runtime context. Preserve the original report before any changed-source replay.

@@ -22,6 +22,7 @@ export interface ResearchWatchPort {
   stop(jobId: string): Promise<void>;
   wait(ms: number): Promise<void>;
   record(event: ResearchWatchEvent): Promise<void>;
+  checkpoint?(state:{observedTokens:number|null;at:string;state:string}): Promise<void>;
 }
 export type ResearchWatchResult = { status: 'terminal'|'stopped'|'attention'; reason: string; stopAttempts: number; observedTokens: number | null; auditWriteFailures?: ResearchWatchEvent[] };
 const TERMINAL = new Set(['done','stopped','failed','error','crashed','cancelled','canceled','complete','completed']);
@@ -40,12 +41,13 @@ export function observationMatchesLease(lease: ResearchWatchLease, observed: Res
  * not a hard token ceiling: in-flight generation/telemetry/stop latency can overshoot.
  * This kernel does not grant launch authority and is not yet the production adapter.
  */
-export async function watchResearchRuntime(lease: ResearchWatchLease, port: ResearchWatchPort): Promise<ResearchWatchResult> {
+export async function watchResearchRuntime(lease: ResearchWatchLease, port: ResearchWatchPort, recovery?:{observedTokens:number|null;recovered:boolean}): Promise<ResearchWatchResult> {
   validateResearchWatchLease(lease);
+  if(recovery && (typeof recovery.recovered!=='boolean'||(recovery.observedTokens!==null&&(!Number.isSafeInteger(recovery.observedTokens)||recovery.observedTokens<0))))throw Error('Invalid recovery checkpoint');
   const initialWall=port.now(), initialMonotonic=port.monotonicNow();
   // A wall-clock correction may shorten the lease, but cannot extend its remaining duration.
   const watchNow=()=>Math.max(port.now(),initialWall+port.monotonicNow()-initialMonotonic);
-  let unknownSince: number|null=null, tokens: number|null=null, stopAttempts=0, stopRequestedAt=0, reason='';
+  let unknownSince: number|null=null, tokens: number|null=recovery?.observedTokens??null, stopAttempts=0, stopRequestedAt=0, reason=recovery?.recovered?'supervisor-recovery':'';
   const auditWriteFailures: ResearchWatchEvent[] = [];
   // A rejected audit write must not prevent stopping an exactly owned job.
   // Returned events have unconfirmed persistence; they are not a durable journal.
@@ -79,6 +81,13 @@ export async function watchResearchRuntime(lease: ResearchWatchLease, port: Rese
     if(valid) {
       if(tokens!==null&&measured<tokens){reason ||= 'counter-regressed';}
       tokens=Math.max(tokens??0,measured);
+    }
+    if(port.checkpoint){
+      try {await port.checkpoint({observedTokens:tokens,at:new Date(port.now()).toISOString(),state:observed.state});}
+      catch {
+        reason ||= 'checkpoint-unavailable';
+        auditWriteFailures.push({type:'watch.checkpoint',at:new Date(port.now()).toISOString(),jobId:lease.jobId,reason:'checkpoint-unavailable',observedTokens:tokens});
+      }
     }
     if (TERMINAL.has(observed.state.toLowerCase())) {
       await event('watch.terminal',reason||'Worker was already terminal.');

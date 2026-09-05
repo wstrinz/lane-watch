@@ -1,0 +1,29 @@
+{
+  "modelsInvoked": 0,
+  "fixtureSelfExitSeconds": 15,
+  "jobId": "ceca4df5",
+  "sessionId": "ceca4df5-fc0d-43a8-8855-80a1a17d182d",
+  "firstMonitorPid": 12224,
+  "firstMonitorExitCode": 143,
+  "beforeState": "working",
+  "afterState": "stopped",
+  "watchResult": {
+    "status": "stopped",
+    "reason": "supervisor-recovery",
+    "stopAttempts": 1,
+    "observedTokens": null
+  },
+  "beforeRecoveryGeneration": 1,
+  "afterRecoveryGeneration": 2,
+  "originalBoundsUnchanged": true,
+  "persistedPhase": "terminal",
+  "parentPid": 50224,
+  "childPid": 39680,
+  "parentStillExists": false,
+  "childStillExists": false,
+  "millisecondsSinceJobCreated": 4551,
+  "observedTokensBeforeRecovery": null,
+  "observedTokensAfterRecovery": null,
+  "probeDirectory": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\durable-watch-probe-21a4ef2b-6f84-4cc9-b45b-1ac57b7127fa",
+  "status": "SUPPORTED"
+}
