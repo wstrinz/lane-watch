@@ -11,6 +11,7 @@ test('a held publication plan explains the real blocker without an obsolete gate
   await route.fulfill({response,json:body});
  });
  await page.goto('http://127.0.0.1:4317/projects/cfg23');
+ await page.getByText('Research paused · view setup requirements',{exact:true}).click();
  await expect(page.getByRole('heading',{name:'Reviews planned — execution setup needed'})).toBeVisible();
  await expect(page.getByRole('region',{name:'Campaign play'}).getByText('Runtime admission is held and the research envelope is exhausted.',{exact:true})).toBeVisible();
  await page.getByRole('region',{name:'Campaign play'}).getByText('Read the held review plan',{exact:true}).click();
