@@ -25,13 +25,20 @@ is not an independent review. Advice does not approve evidence or launch researc
 
 Research autopilot still uses the existing checked loop and resource gates.
 Selecting a queue move supplies adviser context; it does not select or authorize
-a research dispatch contract. Turning advice into a reviewed successor contract
-and smoother decision-to-decision progress remain the next integration steps.
+a research dispatch contract. Completed replies offer “Shape next moves”: an
+editable operator direction plus the copied reply and task/turn/message IDs
+become an immutable redirect input through the existing action queue. Its
+coordinator proposal appears in “Review proposed moves” on the home screen.
+The operator can keep it as context or stage all proposed questions for checked
+plan review. Staging may reopen the current plan; launch approval remains separate.
+The copied reply is commentary, not a verified research receipt.
 
 `tests/campaign-adviser.test.ts` checks the server turn boundary;
 `e2e/campaign-play.pw.ts` covers desktop/mobile navigation, verified result
 reading, and a mocked adviser request. The browser test does not spend model
 tokens or launch research.
+`e2e/next-move-review.pw.ts` covers both proposal decisions, unfinished replies,
+mobile layout, and preservation of operator input after a failed submission.
 
 ## Data model
 
