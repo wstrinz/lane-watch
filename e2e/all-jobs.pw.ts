@@ -17,7 +17,7 @@ test("the root page restores a visible all-jobs lane overview", async ({ page })
   await expect(page.getByLabel("Filter by project")).toHaveValue("");
   await expect(page.getByLabel("Filter by project").locator("option")).toContainText(["All projects", "arr15", "cfg23", "math-stuff"]);
   await expect(page.locator(".lane-card").first()).toBeVisible();
-  await expect(page.locator('script[src="/ui.js?v=106"]')).toHaveCount(1);
+  await expect(page.locator('script[src^="/ui.js?v="]')).toHaveCount(1);
 
   const scopes = await page.evaluate(async () => {
     const [root, cfg23, arr15] = await Promise.all([

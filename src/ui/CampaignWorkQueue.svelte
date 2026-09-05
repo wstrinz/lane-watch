@@ -1,12 +1,14 @@
 <script lang="ts">
  import { campaignState } from './campaign-state';
- import { onDestroy } from 'svelte';
+ import { onDestroy,onMount } from 'svelte';
  import type { QueueResultDocument } from '../queue-result-reader';
  import ResultDocument from './ResultDocument.svelte';
  let expanded=false;
  let dialog:HTMLDialogElement;
  let reading:QueueResultDocument|null=null,readingTitle='',readError='',loading=false,source=false,openedProject='';
  let request:AbortController|null=null;
+ // Keep the modal visible even when its queue lives in a collapsed library.
+ function portal(node:HTMLDialogElement){document.body.appendChild(node);return{destroy(){node.remove();}};}
  function closeResult(){request?.abort();request=null;reading=null;openedProject='';}
  async function openResult(itemId:string,result:any){
   request?.abort();const pending=new AbortController();request=pending;
@@ -22,12 +24,13 @@
   finally{if(request===pending)loading=false;}
  }
  onDestroy(()=>request?.abort());
+ onMount(()=>{const handle=(event:Event)=>{const d=(event as CustomEvent).detail;if(d?.projectId!==project?.id)return;const item=queue?.items?.find((i:any)=>i.id===d.itemId);const result=item?.results?.find((r:any)=>r.id===d.resultId);if(result)void openResult(item.id,result);};window.addEventListener('lane-watch:read-result',handle);return()=>window.removeEventListener('lane-watch:read-result',handle);});
  $: project=$campaignState.control?.projects?.find(p=>p.id===$campaignState.selectedProject);
  $: queue=project?.workQueue;
  $: remaining=queue?.items?.filter((i:any)=>i.status!=='done')||[];
  $: preview=remaining.filter((i:any)=>i.status==='active'||i.status==='ready').slice(0,3);
- $: handoff=queue?.items?.find((i:any)=>i.kind==='handoff'&&i.status==='done'&&i.results?.length);
- $: checkIns=queue?.heartbeat?.status==='paused'?'Overnight check-ins paused':queue?.heartbeat?.status==='active'?queue.cadenceMinutes+' min check-ins scheduled':queue?.cadenceMinutes+' min heartbeat plan';
+ $: handoff=queue?.items?.filter((i:any)=>i.kind==='handoff'&&i.status==='done'&&i.results?.length).at(-1);
+ $: checkIns=queue?.heartbeat?.status==='paused'?'Scheduled check-ins paused':queue?.heartbeat?.status==='active'?queue.cadenceMinutes+' min check-ins scheduled':queue?.cadenceMinutes+' min heartbeat plan';
  const order:Record<string,number>={active:0,ready:1,held:2,done:3};
  $: ordered=[...(queue?.items||[])].sort((a:any,b:any)=>order[a.status]-order[b.status]);
  $: if(openedProject&&project?.id!==openedProject)dialog?.close();
@@ -44,7 +47,7 @@
  {#if !expanded && handoff}<div class="queue-results queue-handoff"><button onclick={()=>openResult(handoff.id,handoff.results[0])}>Read {handoff.results[0].title}</button></div>
  {:else if !expanded && preview.length}<p class="queue-preview">Up next: {preview.map((i:any)=>i.title).join(' · ')}</p>{/if}
 {/if}
-<dialog class="queue-result-dialog" bind:this={dialog} onclose={closeResult} aria-labelledby="queue-result-title">
+<dialog use:portal class="queue-result-dialog" bind:this={dialog} onclose={closeResult} aria-labelledby="queue-result-title">
  <header><div><small>SAVED CAMPAIGN RESULT</small><h2 id="queue-result-title">{readingTitle}</h2></div><button aria-label="Close result" onclick={()=>dialog.close()}>Close</button></header>
  <div class="result-body" aria-busy={loading}>
   {#if loading}<p role="status">Reading the recorded result…</p>{:else if readError}<p role="alert">{readError}</p>{:else if reading}

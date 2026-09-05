@@ -185,12 +185,16 @@ export class CoordinatorSessionService {
   }
 
   async sendMessage(projectId: string, args: Record<string, any>): Promise<Record<string, unknown>> {
+    const advice=args.advice===true;
+    const adviserModels=['gpt-5.6-sol','gpt-5.6-terra','gpt-6-astra'];
+    if(advice&&!adviserModels.includes(args.model))throw new Error('Choose a supported campaign adviser model');
     const message = typeof args.message === "string" ? args.message.trim() : "";
     if (!message) throw new Error("A message is required");
     if (message.length > 12_000) throw new Error("Coordinator messages are limited to 12,000 characters");
     let coordinator = this.get(projectId);
     if (!coordinator) throw new Error("Attach a Sol coordinator before sending a message");
     const active = ["working", "active", "running"].includes(coordinator.status.toLowerCase()) && Boolean(coordinator.last_turn_id);
+    if(advice&&active)throw new Error('The campaign adviser is already working. Wait for its reply or interrupt it in coordinator controls.');
     const stamp = this.port.now();
     if (active) {
       await this.codex.steerTurn(coordinator.thread_id, coordinator.last_turn_id, message);
@@ -205,11 +209,11 @@ export class CoordinatorSessionService {
     coordinator = await this.writable(projectId);
     const turn = await this.codex.startTurn({
       threadId: coordinator.thread_id,
-      input: [{ type: "text", text: message }],
+      input: [{ type: "text", text: advice ? `You are providing campaign advice in a read-only consultation. Do not edit files, dispatch workers, run research computations, publish, or send external messages. Explain recommendations and evidence limits; the operator will choose subsequent actions.\n\n${message}` : message }],
       cwd: coordinator.thread_cwd || this.port.workspaceRoot(),
-      model: coordinator.model || undefined,
+      model: advice ? args.model : coordinator.model || undefined,
       effort: coordinator.effort || "high",
-      approvalPolicy: "on-request",
+      approvalPolicy: advice ? "never" : "on-request",
       sandboxPolicy: { type: "readOnly" },
     });
     if (!turn.id) throw new Error("Codex App Server did not return a turn id");
@@ -217,6 +221,7 @@ export class CoordinatorSessionService {
       .run({ $turn: turn.id, $now: stamp, $project: projectId });
     this.port.recordEvent(projectId, "coordinator", coordinator.thread_id, "coordinator.turn.started", {
       turnId: turn.id,
+      ...(advice?{purpose:'advice',model:args.model,role:String(args.role||'Propose').slice(0,40)}:{}),
       messageDigest: `sha256:${sha256Text(message)}`,
     });
     return { threadId: coordinator.thread_id, turnId: turn.id, mode: "started" };

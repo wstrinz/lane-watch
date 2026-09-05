@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ObserverDashboard from "./ObserverDashboard.svelte";
+  import CampaignPlay from './CampaignPlay.svelte';
   import CampaignWorkQueue from "./CampaignWorkQueue.svelte";
   import ResearchLaunchAttempts from './ResearchLaunchAttempts.svelte';
   import PrimaryActionRail from "./PrimaryActionRail.svelte";
@@ -15,7 +16,6 @@
   import HeaderAutopilot from "./HeaderAutopilot.svelte";
   import CampaignProcessTracker from "./CampaignProcessTracker.svelte";
   import OperatorGate from "./OperatorGate.svelte";
-  import ActiveLaneStrip from "./ActiveLaneStrip.svelte";
   import StrategyOverview from "./StrategyOverview.svelte";
   import ProgramCompass from "./ProgramCompass.svelte";
   import ResourceEconomy from "./ResourceEconomy.svelte";
@@ -52,10 +52,9 @@
       <ObserverDashboard />
     </section>
   {:else}
-    <CampaignProcessTracker />
-    <PrimaryActionRail />
-    <ActiveLaneStrip />
-    <OperatorGate />
+    <CampaignPlay />
+    <details id="campaign-library" class="campaign-library">
+    <summary>Campaign library <span>Evidence, history, controls & settings</span></summary>
     <CampaignWorkQueue />
 
     <section class="workspace-switchboard" aria-label="Campaign detail drawers">
@@ -71,6 +70,9 @@
     <details id="process-history" class="workspace-group">
       <summary><span><small>PROCESS MAP & HISTORY</small><strong>History and automation</strong></span><b>Open drawer</b></summary>
       <div class="workspace-group-body">
+      <CampaignProcessTracker />
+      <PrimaryActionRail />
+      <OperatorGate />
     <details class="autopilot-ledger">
       <summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary>
       <HeaderAutopilot />
@@ -108,5 +110,7 @@
       </div>
     </details>
     </section>
+    </details>
   {/if}
 </main>
+<style>.campaign-library{border-top:1px solid #36513d;margin-top:12px}.campaign-library>summary{cursor:pointer;padding:24px 8px;font-size:17px;color:#d8e8d4}.campaign-library>summary span{font-size:12px;color:#93ab9b;margin-left:20px}@media(max-width:600px){.campaign-library>summary span{display:block;margin:8px 0 0}}</style>
