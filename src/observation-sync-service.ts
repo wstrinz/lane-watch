@@ -7,6 +7,8 @@ import { WaveCommandService } from "./wave-commands";
 import { WaveRepository } from "./wave-repository";
 import { WaveScheduleRepository } from "./wave-schedule-repository";
 import type { LaneSnapshot } from "./types";
+import { matchResearchRunLane } from './research-run-identity';
+export { matchResearchRunLane } from './research-run-identity';
 
 interface ResearchRunRow {
   run_id: string;
@@ -27,15 +29,6 @@ interface ResearchRunRow {
   measured_wall_seconds: number;
   measurement_source: string;
   measurement_at: string;
-}
-
-export function matchResearchRunLane(
-  run: Pick<ResearchRunRow, "status" | "task_id" | "lane_id" | "job_id">,
-  lanes: LaneSnapshot[],
-): LaneSnapshot | undefined {
-  if (run.job_id) return lanes.find((candidate) => candidate.jobId === run.job_id);
-  if (run.status === "launching") return undefined;
-  return lanes.find((candidate) => candidate.task === run.task_id || candidate.id === run.lane_id);
 }
 
 export function deriveReceiptBoundMeasurement(input: {
@@ -424,7 +417,8 @@ export class ObservationSyncService {
       SELECT COUNT(*) AS count FROM campaign_research_runs
       WHERE project_id = $project AND status IN ('launching', 'running', 'blocked')
     `).get({ $project: projectId }) as { count: number } | null;
-    const phase = active?.count ? "RESEARCH_RUNNING" : "RESEARCH_INTAKE";
+    const uncertainLaunch=this.database.query("SELECT 1 FROM campaign_research_launch_attempts WHERE project_id=? AND status='uncertain' LIMIT 1").get(projectId);
+    const phase = uncertainLaunch?'BLOCKED':active?.count ? "RESEARCH_RUNNING" : "RESEARCH_INTAKE";
     if (!active?.count) {
       const wave = this.waves.latest(projectId);
       const schedule = wave ? this.schedules.latest(projectId, wave.wave_id) : null;

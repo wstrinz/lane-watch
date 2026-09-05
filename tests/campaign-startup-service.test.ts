@@ -37,6 +37,7 @@ function harness(options: { custodyFailure?: Error } = {}) {
     registerProject: (project) => { projects.push(project); order.push(`register:${project.id}`); },
     ensureStrategyFoundation: (projectId) => { order.push(`foundation:${projectId}`); },
     recoverInterruptedActions: () => { order.push("recover-actions"); return 2; },
+    recoverResearchLaunches: () => { order.push('recover-research'); return 1; },
     recoverCustodyExecutions: async () => {
       order.push("recover-custody");
       if (options.custodyFailure) throw options.custodyFailure;
@@ -50,13 +51,13 @@ describe("CampaignStartupService", () => {
   test("loads foundations and recovery in order while keeping execution behind observation", async () => {
     const item = harness();
 
-    expect(item.service.snapshot()).toEqual({ phase: "constructed", projectCount: 0, interruptedActionCount: 0 });
+    expect(item.service.snapshot()).toEqual({ phase: "constructed", projectCount: 0, interruptedActionCount: 0, interruptedResearchLaunchCount:0 });
     expect(await item.service.initialize()).toEqual({
-      phase: "awaiting-first-observation", projectCount: 2, interruptedActionCount: 2,
+      phase: "awaiting-first-observation", projectCount: 2, interruptedActionCount: 2, interruptedResearchLaunchCount:1,
     });
     expect(item.order).toEqual([
       "register:alpha", "foundation:alpha", "register:beta", "foundation:beta",
-      "recover-actions", "recover-custody",
+      "recover-actions", 'recover-research', "recover-custody",
     ]);
     expect(item.resumes()).toBe(0);
     expect(item.projects).toEqual([
@@ -89,7 +90,7 @@ describe("CampaignStartupService", () => {
 
     expect(() => item.service.observationSettled()).toThrow("while constructed");
     await expect(item.service.initialize()).rejects.toThrow("custody app-server unavailable");
-    expect(item.service.snapshot()).toEqual({ phase: "failed", projectCount: 2, interruptedActionCount: 2 });
+    expect(item.service.snapshot()).toEqual({ phase: "failed", projectCount: 2, interruptedActionCount: 2, interruptedResearchLaunchCount:1 });
     expect(() => item.service.observationSettled()).toThrow("while failed");
     expect(item.resumes()).toBe(0);
     item.database.close();

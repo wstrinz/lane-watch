@@ -12,7 +12,7 @@ export interface CampaignSchemaMigrationResult {
   appliedVersions: number[];
 }
 
-export const LATEST_CAMPAIGN_SCHEMA_VERSION = 5;
+export const LATEST_CAMPAIGN_SCHEMA_VERSION = 6;
 
 function tableExists(database: Database, table: string): boolean {
   const row = database.query("SELECT 1 AS present FROM sqlite_master WHERE type = 'table' AND name = $table")
@@ -253,6 +253,18 @@ const MIGRATIONS: SchemaMigration[] = [
   { version: 3, name: "receipt-bound-resource-measurements", up: addReceiptBoundResourceMeasurements },
   { version: 4, name: "strategy-review-request-provenance", up: addStrategyReviewRequestProvenance },
   { version: 5, name: "redirect-application-scope", up: database => ensureColumn(database, "campaign_redirect_inputs", "application_mode", "TEXT NOT NULL DEFAULT ''") },
+  { version: 6, name: 'durable-research-launch-intent', up: database => {
+    database.run(`CREATE TABLE campaign_research_launch_attempts (
+      attempt_id TEXT PRIMARY KEY, project_id TEXT NOT NULL, schedule_id TEXT NOT NULL, request_id TEXT NOT NULL, run_id TEXT NOT NULL,
+      launch_spec_json TEXT NOT NULL, spec_digest TEXT NOT NULL, created_at TEXT NOT NULL, deadline_at TEXT NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('prepared','entered','returned','uncertain','aborted')),
+      receipt_json TEXT NOT NULL DEFAULT '{}', error TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL,
+      UNIQUE(schedule_id,request_id))`);
+    database.run('CREATE INDEX campaign_research_launch_attempts_run ON campaign_research_launch_attempts(run_id,created_at DESC)');
+    database.run(`CREATE TRIGGER immutable_research_launch_intent
+      BEFORE UPDATE OF attempt_id,project_id,schedule_id,request_id,run_id,launch_spec_json,spec_digest,created_at,deadline_at ON campaign_research_launch_attempts
+      BEGIN SELECT RAISE(ABORT,'Research launch identity and frozen limits are immutable'); END`);
+  } },
 ];
 
 /** Owns the campaign schema and upgrades every pending version in one transaction. */

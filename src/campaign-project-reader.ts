@@ -1,4 +1,5 @@
 import { parseCampaignWorkQueue } from "./campaign-work-queue";
+import { matchResearchRunLane } from './research-run-identity';
 import { TERMINAL_DAEMONS, laneFailure, planWaveProjectionRepair, projectWaveAggregate, waveAccounting, waveLaneAccounted } from "./wave";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
 import type { LaneSnapshot, ObserverSnapshot } from "./types";
@@ -225,7 +226,11 @@ export class CampaignProjectReader {
           spec: nextDispatchSpec,
         },
         researchRuns: researchRuns.map((run) => {
-          const liveLane = lanes.find((lane) => lane.task === run.task_id || lane.id === run.lane_id || lane.jobId === run.job_id);
+          const liveLane = matchResearchRunLane(run,lanes);
+          const attempt=this.port.queryOne<any>(`SELECT attempt_id,status,spec_digest,created_at,deadline_at,error,receipt_json,
+            json_extract(launch_spec_json,'$.tokenBudget') AS token_budget FROM campaign_research_launch_attempts
+            WHERE run_id=$run ORDER BY rowid DESC LIMIT 1`,{$run:run.run_id});
+          const launchReceipt=parseJson<any>(attempt?.receipt_json||'{}',{});
           const request = researchRequests.find((candidate) => candidate.request_id === run.request_id);
           const plannedLane = (Array.isArray(researchPlanResponse.lanes) ? researchPlanResponse.lanes : []).find((lane: any) => lane?.requestId === run.request_id);
           const scheduledMember = (Array.isArray(researchSchedule?.members) ? researchSchedule.members : []).find((member: any) => member?.runId === run.run_id || member?.requestId === run.request_id);
@@ -241,6 +246,9 @@ export class CampaignProjectReader {
             strategy: frozenScheduleStrategy || plannedLane?.strategy || inferredStrategy,
             status: run.status, profile: run.profile, host: run.host, model: run.model, effort: run.effort, fanout: run.fanout,
             packetPath: run.packet_path, baseRef: run.base_ref, laneId: run.lane_id, jobId: run.job_id, worktree: run.worktree,
+            launchAttempt:attempt?{id:attempt.attempt_id,status:attempt.status,specDigest:attempt.spec_digest,createdAt:attempt.created_at,
+              deadlineAt:attempt.deadline_at,tokenBudget:attempt.token_budget,enforcement:'unverified-reservation',error:attempt.error,
+              receipt:evidenceMode==='full'?launchReceipt:{jobId:launchReceipt.jobId,laneId:launchReceipt.laneId,worktree:launchReceipt.worktree}}:null,
             evidencePath: run.evidence_path, evidenceSha256: run.evidence_sha256,
             measuredTokens: run.measured_tokens ?? null, measuredWallSeconds: Number(run.measured_wall_seconds || 0),
             measurementSource: run.measurement_source || "", measurementAt: run.measurement_at || "",

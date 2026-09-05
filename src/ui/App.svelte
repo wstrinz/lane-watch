@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import ObserverDashboard from "./ObserverDashboard.svelte";
   import CampaignWorkQueue from "./CampaignWorkQueue.svelte";
+  import ResearchLaunchAttempts from './ResearchLaunchAttempts.svelte';
   import PrimaryActionRail from "./PrimaryActionRail.svelte";
   import PacketInbox from "./PacketInbox.svelte";
   import CampaignInterpretation from "./CampaignInterpretation.svelte";
@@ -81,6 +82,7 @@
     <details id="evidence-workspace" class="workspace-group">
       <summary><span><small>WAVE & EVIDENCE</small><strong>Results, receipts, and workers</strong></span><b>Open workspace</b></summary>
       <div class="workspace-group-body">
+        <ResearchLaunchAttempts />
         <WaveAccounting />
         <CustodyService />
         <section id="observer-lanes" class="observer-surface" aria-label="Observed agent lanes">

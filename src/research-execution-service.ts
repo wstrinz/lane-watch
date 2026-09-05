@@ -7,6 +7,7 @@ import type { AutopilotStartReadiness } from "./autopilot-readiness";
 import type { CampaignCoordinationInterface } from "./campaign-coordination-interface-service";
 import { buildWaveSchedule, waveScheduleDigest, type ScheduledLaunchSpec, type WaveScheduleCandidate, type WaveScheduleProposal } from "./wave-schedule";
 import { WaveScheduleRepository, type WaveScheduleMemberRow, type WaveScheduleRow } from "./wave-schedule-repository";
+import { ResearchLaunchJournal, type ResearchLaunchContext } from './research-launch-journal';
 
 export interface ResearchLaunchSpec {
   taskId: string;
@@ -36,7 +37,7 @@ export interface ResearchLaunchResult {
   output: string;
 }
 
-export type ResearchLauncher = ((projectRoot: string, spec: ResearchLaunchSpec) => Promise<ResearchLaunchResult>) & { preflight?: (projectRoot: string, spec: ResearchLaunchSpec) => void };
+export type ResearchLauncher = ((projectRoot: string, spec: ResearchLaunchSpec, context: Readonly<ResearchLaunchContext>) => Promise<ResearchLaunchResult>) & { preflight?: (projectRoot: string, spec: ResearchLaunchSpec) => void };
 
 interface ResearchRequestRow {
   request_id: string;
@@ -114,6 +115,7 @@ function parseJson<T>(value: string, fallback: T): T {
 
 /** Owns the checked-plan -> reserved schedule -> bounded execution -> semantic intake boundary. */
 export class ResearchExecutionService {
+  private readonly launches: ResearchLaunchJournal;
   constructor(
     private readonly database: Database,
     private readonly schedules: WaveScheduleRepository,
@@ -121,7 +123,56 @@ export class ResearchExecutionService {
     private readonly bundleRoot: string,
     private readonly launcher: ResearchLauncher,
     private readonly port: ResearchExecutionPort,
-  ) {}
+  ) { this.launches = new ResearchLaunchJournal(database); }
+
+  /** Reconcile the durable invocation boundary before queued actions may resume.
+   * An entered adapter may have launched work: startup neither infers a terminal
+   * worker nor issues a stop or duplicate launch without its exact identity. */
+  recoverInterruptedLaunches(): number {
+    const interrupted=this.launches.interrupted();
+    const projects=new Set<string>();
+    const schedules=new Set<string>();
+    this.database.transaction(()=>{
+      for(const attempt of interrupted){
+        const stamp=this.port.now(),message=attempt.status==='prepared'
+          ? 'Controller restarted before this launch entered the adapter; the unused attempt was closed.'
+          : 'Controller restarted before the launch receipt was recorded. Worker state is unverified; retain this attempt and inspect its exact launch identity before retrying.';
+        this.settleUnansweredLaunch(attempt.attempt_id,message,stamp);
+        projects.add(attempt.project_id);
+        schedules.add(attempt.schedule_id);
+        this.port.recordEvent(attempt.project_id,'research_run',attempt.run_id,'research.launch.recovered',{
+          attemptId:attempt.attempt_id,scheduleId:attempt.schedule_id,priorStatus:attempt.status,
+          outcome:attempt.status==='prepared'?'not-entered':'unverified',deadlineAt:attempt.deadline_at,
+          restartedWorker:false,stoppedWorker:false,
+        });
+      }
+      for(const scheduleId of schedules){
+        const states=this.database.query('SELECT status FROM campaign_research_launch_attempts WHERE schedule_id=?').all(scheduleId) as Array<{status:string}>;
+        const uncertain=states.some(row=>row.status==='uncertain'),members=this.schedules.members(scheduleId);
+        const active=members.some(row=>['launching','running','blocked'].includes(row.status));
+        const failed=members.some(row=>row.status==='failed');
+        this.schedules.transitionSchedule(scheduleId,uncertain||active&&failed?'attention':active?'running':members.every(row=>row.status==='failed')?'failed':'landed',this.port.now());
+      }
+      for(const projectId of projects){
+        const uncertain=this.database.query("SELECT 1 FROM campaign_research_launch_attempts WHERE project_id=? AND status='uncertain' LIMIT 1").get(projectId);
+        const active=this.database.query("SELECT 1 FROM campaign_research_runs WHERE project_id=? AND status IN ('launching','running','blocked') LIMIT 1").get(projectId);
+        this.port.touchProject(projectId,uncertain?'BLOCKED':active?'RESEARCH_RUNNING':'RESEARCH_READY');
+      }
+    })();
+    return interrupted.length;
+  }
+
+  private settleUnansweredLaunch(attemptId:string,message:string,stamp:string):boolean {
+    const attempt=this.launches.get(attemptId),outcome=this.launches.hold(attemptId,message,stamp);
+    const uncertain=outcome==='uncertain';
+    this.database.query("UPDATE campaign_research_runs SET status=?,error=?,updated_at=?,completed_at=? WHERE run_id=?")
+      .run(uncertain?'launching':'failed',message.slice(0,4000),stamp,uncertain?'':stamp,attempt.run_id);
+    this.database.query('UPDATE campaign_research_requests SET status=?,updated_at=? WHERE request_id=?')
+      .run(uncertain?'dispatching':'approved_for_dispatch',stamp,attempt.request_id);
+    this.schedules.transitionMember(attempt.schedule_id,attempt.request_id,uncertain?'launching':'failed',attempt.run_id,message.slice(0,4000),stamp);
+    this.schedules.transitionSchedule(attempt.schedule_id,uncertain?'attention':'failed',stamp);
+    return uncertain;
+  }
 
   nextDispatchTarget(projectId: string): string {
     const project = this.port.project(projectId);
@@ -344,7 +395,7 @@ export class ResearchExecutionService {
     for (const member of scheduleMembers) this.launcher.preflight?.(this.port.projectRoot(projectId), parseJson<ResearchLaunchSpec>(member.launch_spec_json, {} as ResearchLaunchSpec));
     const stamp = this.port.now();
     const staged = this.database.transaction(() => {
-      const stagedRuns: Array<{ member: WaveScheduleMemberRow; spec: ResearchLaunchSpec; runId: string }> = [];
+      const stagedRuns: Array<{ member: WaveScheduleMemberRow; spec: ResearchLaunchSpec; runId: string; context: ResearchLaunchContext }> = [];
       for (const member of scheduleMembers) {
         if (member.status !== "reserved") throw new Error(`Scheduled member ${member.task_id} cannot dispatch from ${member.status}`);
         const request = this.database.query(`
@@ -353,6 +404,7 @@ export class ResearchExecutionService {
         if (!request || request.status !== "approved_for_dispatch") throw new Error(`Scheduled request ${member.request_id} is no longer approved for dispatch`);
         const spec = parseJson<ResearchLaunchSpec | null>(member.launch_spec_json, null);
         if (!spec || spec.taskId !== member.task_id || !spec.baseRef || !spec.packetPath) throw new Error(`Scheduled member ${member.task_id} has an invalid frozen launch contract`);
+        if(spec.tokenBudget!==member.token_cap)throw new Error('Frozen launch budget differs from its reserved schedule member');
         const priorRun = this.database.query("SELECT * FROM campaign_research_runs WHERE request_id = $request")
           .get({ $request: member.request_id }) as ResearchRunRow | null;
         if (priorRun && priorRun.status !== "failed") throw new Error(`Scheduled request ${member.request_id} already has a ${priorRun.status} run`);
@@ -389,30 +441,31 @@ export class ResearchExecutionService {
         this.database.query("UPDATE campaign_research_requests SET status = 'dispatching', updated_at = $now WHERE request_id = $request")
           .run({ $now: stamp, $request: member.request_id });
         this.schedules.transitionMember(scheduleId, member.request_id, "launching", runId, "", stamp);
-        stagedRuns.push({ member, spec, runId });
+        const context=this.launches.prepare({projectId,scheduleId,requestId:member.request_id,runId,spec,at:stamp});
+        stagedRuns.push({ member, spec, runId, context });
       }
       this.schedules.transitionSchedule(scheduleId, "dispatching", stamp);
       this.port.touchProject(projectId, "RESEARCH_RUNNING");
+      this.port.recordEvent(projectId, "wave-schedule", scheduleId, "research.schedule.dispatch-started", {
+        waveId: wave.wave_id,scheduleDigest:schedule.schedule_digest,memberCount:stagedRuns.length,
+        taskIds:stagedRuns.map(item=>item.spec.taskId),actor,
+      });
+      for(const item of stagedRuns)this.port.recordEvent(projectId,'research_run',item.runId,'research.dispatch.started',{
+        scheduleId,requestId:item.member.request_id,taskId:item.spec.taskId,profile:item.spec.profile,actor,attemptId:item.context.attemptId,
+      });
       return stagedRuns;
     })();
-    this.port.recordEvent(projectId, "wave-schedule", scheduleId, "research.schedule.dispatch-started", {
-      waveId: wave.wave_id,
-      scheduleDigest: schedule.schedule_digest,
-      memberCount: staged.length,
-      taskIds: staged.map((item) => item.spec.taskId),
-      actor,
-    });
-    for (const item of staged) {
-      this.port.recordEvent(projectId, "research_run", item.runId, "research.dispatch.started", {
-        scheduleId, requestId: item.member.request_id, taskId: item.spec.taskId, profile: item.spec.profile, actor,
-      });
-    }
     this.port.notifyChanged();
 
     const results = await Promise.all(staged.map(async (item) => {
+      let received:ResearchLaunchResult|undefined;
       try {
-        const result = await this.launcher(this.port.projectRoot(projectId), item.spec);
+        this.launches.enter(item.context.attemptId,this.port.now());
+        const result = await this.launcher(this.port.projectRoot(projectId), item.spec, item.context);
+        received=result;
         const launchedAt = this.port.now();
+        const attached=this.database.transaction(()=>{
+        if(!this.launches.returned(item.context.attemptId,result,launchedAt))return false;
         this.database.query(`
           UPDATE campaign_research_runs SET status = 'running', lane_id = $lane, job_id = $job, worktree = $worktree, updated_at = $now
           WHERE run_id = $run
@@ -423,27 +476,32 @@ export class ResearchExecutionService {
         this.port.recordEvent(projectId, "research_run", item.runId, "research.dispatch.launched", {
           scheduleId, requestId: item.member.request_id, taskId: item.spec.taskId, profile: item.spec.profile,
           laneId: result.laneId, jobId: result.jobId, actor,
+          attemptId:item.context.attemptId,
         });
+        return true;
+        })();
+        if(!attached)throw Error('A late launch receipt was retained for reconciliation; it does not reopen the held attempt');
         return { ok: true as const, runId: item.runId, requestId: item.member.request_id, taskId: item.spec.taskId, laneId: result.laneId, jobId: result.jobId };
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         const failedAt = this.port.now();
-        this.database.query("UPDATE campaign_research_runs SET status = 'failed', error = $error, updated_at = $now, completed_at = $now WHERE run_id = $run")
-          .run({ $error: message.slice(0, 4000), $now: failedAt, $run: item.runId });
-        this.database.query("UPDATE campaign_research_requests SET status = 'approved_for_dispatch', updated_at = $now WHERE request_id = $request")
-          .run({ $now: failedAt, $request: item.member.request_id });
-        this.schedules.transitionMember(scheduleId, item.member.request_id, "failed", item.runId, message.slice(0, 4000), failedAt);
-        this.port.recordEvent(projectId, "research_run", item.runId, "research.dispatch.failed", {
-          scheduleId, requestId: item.member.request_id, taskId: item.spec.taskId, actor, error: message,
-        });
-        return { ok: false as const, runId: item.runId, requestId: item.member.request_id, taskId: item.spec.taskId, error: message };
+        const uncertain=this.database.transaction(()=>{
+          const held=this.settleUnansweredLaunch(item.context.attemptId,message,failedAt);
+          if(held&&received)this.launches.retainUnverifiedReceipt(item.context.attemptId,received,failedAt);
+          this.port.recordEvent(projectId, "research_run", item.runId, held?'research.dispatch.unverified':'research.dispatch.failed', {
+            scheduleId, requestId: item.member.request_id, taskId: item.spec.taskId, actor, error: message,attemptId:item.context.attemptId,
+          });
+          return held;
+        })();
+        return { ok: false as const, uncertain, runId: item.runId, requestId: item.member.request_id, taskId: item.spec.taskId, error: message };
       }
     }));
     const launched = results.filter((result) => result.ok);
     const failed = results.filter((result) => !result.ok);
+    const uncertain = failed.some(result=>result.uncertain);
     const finishedAt = this.port.now();
-    this.schedules.transitionSchedule(scheduleId, launched.length ? failed.length ? "attention" : "running" : "failed", finishedAt);
-    this.port.touchProject(projectId, launched.length ? "RESEARCH_RUNNING" : "RESEARCH_READY");
+    this.schedules.transitionSchedule(scheduleId, uncertain?'attention':launched.length ? failed.length ? "attention" : "running" : "failed", finishedAt);
+    this.port.touchProject(projectId, uncertain?'BLOCKED':launched.length ? "RESEARCH_RUNNING" : "RESEARCH_READY");
     this.port.recordEvent(projectId, "wave-schedule", scheduleId, "research.schedule.dispatched", {
       waveId: wave.wave_id,
       scheduleDigest: schedule.schedule_digest,
@@ -451,13 +509,13 @@ export class ResearchExecutionService {
       failed: failed.map((result) => ({ requestId: result.requestId, taskId: result.taskId, runId: result.runId, error: result.error })),
       actor,
     });
-    if (!launched.length) throw new Error(`Every scheduled launch failed: ${failed.map((result) => `${result.taskId}: ${result.error}`).join("; ")}`);
+    if (!launched.length) throw new Error(`${uncertain?'Launch outcome is unverified; retry is held':'Every scheduled launch failed'}: ${failed.map((result) => `${result.taskId}: ${result.error}`).join("; ")}`);
     return {
       scheduleId,
       scheduleDigest: schedule.schedule_digest,
       waveId: wave.wave_id,
       status: failed.length ? "attention" : "running",
-      phase: "RESEARCH_RUNNING",
+      phase: uncertain?'BLOCKED':"RESEARCH_RUNNING",
       launched,
       failed,
     };

@@ -26,6 +26,10 @@ export function pausedResearchFocus(project:any):GuideFocus|null {
   };
 }
 export function executionFocus(project: any): GuideFocus | null {
+  const uncertain=(project.researchRuns||[]).find((run:any)=>run.launchAttempt?.status==='uncertain');
+  if(uncertain)return {status:'LAUNCH NEEDS VERIFICATION',title:'Verify the last launch before retrying',
+    detail:'The launcher did not return a confirmed outcome. Work may have started. Its frozen attempt and any later receipt are retained; check the exact job before retrying. '+String(uncertain.error||''),
+    actions:[{key:'reveal',label:'Inspect launch and evidence',target:'#research-launch-attempts',style:'primary-button'}]};
   const run = latestResearchRun(project);
   const inspect: GuideAction = { key: "reveal", label: "View result and evidence", target: "#evidence-workspace", style: "outline-button" };
   if (receiptNeedsAttention(run)) return {

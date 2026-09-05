@@ -895,6 +895,7 @@ export class CampaignControl {
     this.bundleRoot = join(dataDir, "synthesis-bundles");
     this.database = new Database(join(dataDir, "observer.sqlite"), { create: true });
     this.database.run("PRAGMA journal_mode = WAL");
+    this.database.run("PRAGMA synchronous = FULL");
     new CampaignSchemaMigrationService(this.database, now).migrate();
     this.campaignState = new CampaignStateService(this.database, {
       activeExecutionCount: (projectId) => {
@@ -1067,6 +1068,7 @@ export class CampaignControl {
       registerProject: (project) => { this.projects.set(project.id, project); },
       ensureStrategyFoundation: (projectId) => this.strategyCommands.ensureFoundation(projectId),
       recoverInterruptedActions: () => this.actionQueue.recoverInterrupted(),
+      recoverResearchLaunches: () => this.researchExecution.recoverInterruptedLaunches(),
       recoverCustodyExecutions: () => this.custodyCommands.recoverExecutions(),
       resumeActions: () => this.actionQueue.resume(),
     }, now);

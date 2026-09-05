@@ -14,6 +14,7 @@ export type CampaignStartupPhase =
   | "constructed"
   | "loading-projects"
   | "recovering-actions"
+  | "recovering-research"
   | "recovering-custody"
   | "awaiting-first-observation"
   | "ready"
@@ -23,12 +24,14 @@ export interface CampaignStartupReport {
   phase: CampaignStartupPhase;
   projectCount: number;
   interruptedActionCount: number;
+  interruptedResearchLaunchCount: number;
 }
 
 interface CampaignStartupPort {
   registerProject(project: CampaignProjectDefinition): void;
   ensureStrategyFoundation(projectId: string): void;
   recoverInterruptedActions(): number;
+  recoverResearchLaunches(): number;
   recoverCustodyExecutions(): Promise<void>;
   resumeActions(): void;
 }
@@ -39,6 +42,7 @@ export class CampaignStartupService {
   private initialization: Promise<CampaignStartupReport> | null = null;
   private projectCount = 0;
   private interruptedActionCount = 0;
+  private interruptedResearchLaunchCount = 0;
 
   constructor(
     private readonly database: Database,
@@ -70,6 +74,7 @@ export class CampaignStartupService {
       phase: this.phase,
       projectCount: this.projectCount,
       interruptedActionCount: this.interruptedActionCount,
+      interruptedResearchLaunchCount: this.interruptedResearchLaunchCount,
     };
   }
 
@@ -79,6 +84,8 @@ export class CampaignStartupService {
       this.projectCount = await this.loadProjects();
       this.phase = "recovering-actions";
       this.interruptedActionCount = this.port.recoverInterruptedActions();
+      this.phase = 'recovering-research';
+      this.interruptedResearchLaunchCount = this.port.recoverResearchLaunches();
       this.phase = "recovering-custody";
       await this.port.recoverCustodyExecutions();
       this.phase = "awaiting-first-observation";
