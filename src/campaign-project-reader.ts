@@ -146,6 +146,7 @@ export class CampaignProjectReader {
           inputDigest: input.input_digest, status: input.status, threadId: input.thread_id, turnId: input.turn_id,
           bundlePath: input.bundle_path, response: parseJson(input.response_json, {}), error: input.error, actor: input.created_by,
           createdAt: input.created_at, updatedAt: input.updated_at, appliedAt: input.applied_at,
+          applicationMode: input.application_mode || (input.status === "applied" ? "stage-directions" : ""),
         })),
         workflowHistory: orderedEvents.map((event) => ({
           id: event.event_id, aggregateType: event.aggregate_type, aggregateId: event.aggregate_id, type: event.event_type,

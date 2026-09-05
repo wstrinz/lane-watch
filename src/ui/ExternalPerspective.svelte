@@ -51,15 +51,15 @@
     } finally { working = ""; }
   }
 
-  async function apply(inputId: string): Promise<void> {
+  async function apply(inputId: string, mode: "context-only" | "stage-directions"): Promise<void> {
     if (!project || working) return;
     working = "apply";
     feedbackKind = "pending";
-    feedback = "Applying the advisory redirect to future planning context…";
+    feedback = mode === "context-only" ? "Keeping the review as campaign context…" : "Staging the proposed questions for plan review…";
     try {
-      await settleCampaignAction({ projectId: project.id, type: "campaign.redirect.apply", targetId: inputId, scope: "external-perspective" });
+      await settleCampaignAction({ projectId: project.id, type: "campaign.redirect.apply", targetId: inputId, args: { mode }, scope: "external-perspective" });
       feedbackKind = "success";
-      feedback = "The redirect is now part of future synthesis and planning context. No worker was launched.";
+      feedback = mode === "context-only" ? "Kept as campaign context. No research requests were added; the current plan is unchanged." : "Questions are staged for plan review. No worker was launched.";
     } catch (error) {
       feedbackKind = "error";
       feedback = error instanceof Error ? error.message : String(error);
@@ -92,7 +92,8 @@
         <p>{response.summary || (latest.status === "drafting" ? "Sol is comparing this input against the current evidence, plan, and campaign assumptions." : compact(latest.content, 360))}</p>
         {#if response.perspectiveShift}<div class="redirect-shift"><span>Proposed shift</span><strong>{response.perspectiveShift}</strong></div>{/if}
         {#if directions.length}<details><summary>Inspect {directions.length} proposed direction{directions.length === 1 ? "" : "s"}</summary><div class="redirect-direction-list">{#each directions as direction}<div><span>{direction.profile || "sonnet-worker"}</span><strong>{direction.question || "Direction"}</strong><p>{direction.rationale || ""}</p></div>{/each}</div></details>{/if}
-        {#if latest.status === "drafted"}<div class="redirect-gate"><small>Applying changes future synthesis and planning context and stages any new questions as proposals. It does not launch a worker.</small><button class="primary-button" disabled={Boolean(working)} onclick={() => apply(latest.id)}>{working === "apply" ? "Applying…" : "Use this redirect"}</button></div>{/if}
+        {#if latest.status === "drafted"}<div class="redirect-gate"><small>Keep the review as context, or stage its questions for a separate plan review.</small><button class="primary-button" disabled={Boolean(working)} onclick={() => apply(latest.id, "context-only")}>{working === "apply" ? "Applying…" : "Keep as campaign context"}</button>{#if response.decision === "READY_FOR_GATE" && directions.length}<button class="outline-button" disabled={Boolean(working)} onclick={() => apply(latest.id, "stage-directions")}>Stage {directions.length} proposed question{directions.length === 1 ? "" : "s"}</button>{/if}</div>{/if}
+        {#if latest.status === "applied" && latest.applicationMode === "context-only"}<p>Kept as campaign context. Its proposed questions were not staged.</p>{/if}
       </article>
     {/if}
     {#if inputs.length > 1}<details class="redirect-history"><summary>Earlier external inputs <strong>{inputs.length - 1}</strong></summary>{#each inputs.slice(1) as input}<div><span>{input.status}</span><strong>{input.title}</strong><small>{relativeTime(input.updatedAt)}</small></div>{/each}</details>{/if}

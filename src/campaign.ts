@@ -1402,7 +1402,7 @@ export class CampaignControl {
       "loop.halt-after-step": (action) => this.autopilot.haltAfterStep(action.project_id, action.created_by),
       "loop.stop": (action) => this.autopilot.stop(action.project_id, action.created_by),
       "campaign.redirect.submit": (action, args) => this.waveSemantics.submitRedirect(action.project_id, args, action.created_by),
-      "campaign.redirect.apply": (action) => this.waveSemantics.applyRedirect(action.project_id, action.target_id, action.created_by),
+      "campaign.redirect.apply": (action, args) => this.waveSemantics.applyRedirect(action.project_id, action.target_id, action.created_by, args),
       "campaign.recovery.prepare": (action) => this.campaignRecovery.prepare(action.project_id, action.created_by),
       "campaign.recovery.apply": (action, args) => this.campaignRecovery.apply(action.project_id, args, action.created_by),
       "strategy.review.reconcile": (action) => this.strategyCommands.reconcileReview(action.project_id, action.target_id, action.created_by),

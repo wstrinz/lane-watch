@@ -82,7 +82,7 @@ export class WaveSemanticService {
 
   redirectContext(projectId: string): Array<Record<string, unknown>> {
     const rows = this.database.query(`
-      SELECT input_id, title, source_url, input_digest, status, bundle_path, response_json, applied_at
+      SELECT input_id, title, source_url, input_digest, status, bundle_path, response_json, applied_at, application_mode
       FROM campaign_redirect_inputs
       WHERE project_id = $project AND status = 'applied'
       ORDER BY created_at DESC LIMIT 8
@@ -94,6 +94,8 @@ export class WaveSemanticService {
       inputDigest: row.input_digest,
       bundlePath: row.bundle_path,
       response: parseJson(row.response_json, {}),
+      applicationMode: row.application_mode || "stage-directions",
+      applicationScope: row.application_mode === "context-only" ? "Retained as advisory context; no research questions were staged and no strategy or claim was activated." : "Applied through the research-question staging gate; separate launch and strategy gates still apply.",
       appliedAt: row.applied_at,
     }));
   }
@@ -225,7 +227,10 @@ export class WaveSemanticService {
     }
   }
 
-  async applyRedirect(projectId: string, inputId: string, actor: string): Promise<Record<string, unknown>> {
+  async applyRedirect(projectId: string, inputId: string, actor: string, args: Record<string, any> = {}): Promise<Record<string, unknown>> {
+    const applicationMode = args.mode ?? "stage-directions";
+    if (!["context-only", "stage-directions"].includes(applicationMode)) throw new Error("Choose context-only or stage-directions for this redirect");
+    const stageDirections = applicationMode === "stage-directions";
     const input = this.database.query("SELECT * FROM campaign_redirect_inputs WHERE input_id = $id AND project_id = $project")
       .get({ $id: inputId, $project: projectId }) as CampaignRedirectRow | null;
     if (!input || input.status !== "drafted") throw new Error("Select a completed Sol redirect proposal to apply");
@@ -234,14 +239,14 @@ export class WaveSemanticService {
     const project = this.port.project(projectId);
     const wave = this.waves.latest(projectId);
     const stamp = this.port.now();
-    const replanReady = project.current_phase === "RESEARCH_READY" && response.decision === "READY_FOR_GATE";
+    const replanReady = stageDirections && project.current_phase === "RESEARCH_READY" && response.decision === "READY_FOR_GATE";
     if (replanReady) {
       const reserved = this.database.query("SELECT COUNT(*) AS count FROM campaign_wave_schedules WHERE project_id = $project AND status IN ('confirmed', 'dispatching', 'running')").get({ $project: projectId }) as { count: number };
       const active = this.database.query("SELECT COUNT(*) AS count FROM campaign_research_runs WHERE project_id = $project AND status IN ('launching', 'running', 'blocked', 'awaiting_evidence', 'evidence_ready')").get({ $project: projectId }) as { count: number };
       if (reserved.count || active.count) throw new Error("Settle the confirmed schedule and active research before applying a redirect to the launch gate");
     }
     let inserted = 0;
-    if (wave && response.decision === "READY_FOR_GATE") {
+    if (stageDirections && wave && response.decision === "READY_FOR_GATE") {
       const existing = this.database.query("SELECT question FROM campaign_research_requests WHERE project_id = $project AND wave_id = $wave")
         .all({ $project: projectId, $wave: wave.wave_id }) as Array<{ question: string }>;
       const normalized = new Set(existing.map((item) => item.question.trim().replace(/\s+/g, " ").toLowerCase()));
@@ -257,8 +262,8 @@ export class WaveSemanticService {
         inserted += 1;
       }
     }
-    this.database.query("UPDATE campaign_redirect_inputs SET status = 'applied', updated_at = $now, applied_at = $now WHERE input_id = $id")
-      .run({ $id: input.input_id, $now: stamp });
+    this.database.query("UPDATE campaign_redirect_inputs SET status = 'applied', application_mode = $mode, updated_at = $now, applied_at = $now WHERE input_id = $id")
+      .run({ $id: input.input_id, $mode: applicationMode, $now: stamp });
     const canOpenReview = (inserted > 0 || replanReady) && ["DECISION_REQUIRED", "NEXT_WAVE_READY", "PLANNING", "RESEARCH_READY"].includes(project.current_phase);
     if (wave && replanReady) {
       this.database.query("UPDATE campaign_research_requests SET status = 'proposed', updated_at = $now WHERE project_id = $project AND wave_id = $wave AND status IN ('approved_for_dispatch', 'planned_followup')").run({ $project: projectId, $wave: wave.wave_id, $now: stamp });
@@ -273,8 +278,8 @@ export class WaveSemanticService {
       VALUES ($id, $project, $wave, 'external_redirect', $note, $actor, $now)
     `).run({ $id: decisionId, $project: projectId, $wave: wave?.wave_id || "", $note: response.summary.slice(0, 4_000), $actor: actor, $now: stamp });
     this.port.touchProject(projectId, phase);
-    this.port.recordEvent(projectId, "redirect", input.input_id, "campaign.redirect.applied", { actor, decision: response.decision, insertedResearchRequests: inserted, phase });
-    return { inputId: input.input_id, decision: response.decision, insertedResearchRequests: inserted, phase };
+    this.port.recordEvent(projectId, "redirect", input.input_id, "campaign.redirect.applied", { actor, decision: response.decision, applicationMode, insertedResearchRequests: inserted, phase });
+    return { inputId: input.input_id, decision: response.decision, applicationMode, insertedResearchRequests: inserted, phase };
   }
 
   async requestTriage(projectId: string): Promise<Record<string, unknown>> {

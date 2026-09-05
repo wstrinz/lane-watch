@@ -280,7 +280,7 @@ export class StrategyCommandService {
       ? this.database.query("SELECT response_json FROM campaign_research_plans WHERE wave_id = $wave").get({ $wave: wave.wave_id }) as { response_json: string } | null
       : null;
     const redirects = this.database.query(`
-      SELECT title, content, response_json, status, created_at FROM campaign_redirect_inputs
+      SELECT title, content, response_json, status, created_at, application_mode FROM campaign_redirect_inputs
       WHERE project_id = $project ORDER BY created_at DESC LIMIT 4
     `).all({ $project: projectId }) as Array<Record<string, any>>;
     const bundleBody = {
@@ -306,6 +306,7 @@ export class StrategyCommandService {
         content: redirect.content,
         response: parseJson(redirect.response_json, {}),
         status: redirect.status,
+        applicationMode: redirect.application_mode || (redirect.status === "applied" ? "stage-directions" : "unapplied"),
         createdAt: redirect.created_at,
       })),
       generatedAt: stamp,

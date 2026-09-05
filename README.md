@@ -494,7 +494,15 @@ each retained experiment. Its justification covers the legal domain, possible
 outcomes, controls, and decision consequences. The controller enforces review
 completion; it does not decide mathematical validity automatically.
 
-An operator-applied redirect can reopen an idle RESEARCH_READY launch gate,
+Redirect intake offers two distinct choices. Keeping a review as campaign
+context records `mode: context-only`, preserves its complete response for later
+review, and adds no research requests or phase/schedule changes. Staging the
+directions records `mode: stage-directions` and uses the existing planning
+gate; this remains the legacy API default when mode is omitted. Schema migration
+5 preserves the application mode, and future planning/strategy context carries
+it explicitly. Neither mode activates strategy, resources, claims or workers.
+
+An operator-applied redirect that stages directions can reopen an idle RESEARCH_READY launch gate,
 superseding the old plan and unconfirmed schedules. Confirmed schedules and
 unsettled research prevent this transition. The strategy workspace can reconcile
 an exact recorded review turn after a lost completion notification, without

@@ -19,8 +19,8 @@ describe("CampaignSchemaMigrationService", () => {
     const database = new Database(":memory:");
     const service = new CampaignSchemaMigrationService(database, () => "2026-08-30T14:00:00.000Z");
 
-    expect(service.migrate()).toEqual({ fromVersion: 0, toVersion: 4, appliedVersions: [1, 2, 3, 4] });
-    expect(LATEST_CAMPAIGN_SCHEMA_VERSION).toBe(4);
+    expect(service.migrate()).toEqual({ fromVersion: 0, toVersion: 5, appliedVersions: [1, 2, 3, 4, 5] });
+    expect(LATEST_CAMPAIGN_SCHEMA_VERSION).toBe(5);
     expect(columnNames(database, "campaign_projects")).toContain("dispatch_profile");
     expect(columnNames(database, "campaign_recovery_reports")).toContain("report_digest");
     expect(database.query("SELECT version, name, applied_at FROM campaign_schema_migrations ORDER BY version").all()).toEqual([
@@ -28,6 +28,7 @@ describe("CampaignSchemaMigrationService", () => {
       { version: 2, name: "digest-bound-recovery", applied_at: "2026-08-30T14:00:00.000Z" },
       { version: 3, name: "receipt-bound-resource-measurements", applied_at: "2026-08-30T14:00:00.000Z" },
       { version: 4, name: "strategy-review-request-provenance", applied_at: "2026-08-30T14:00:00.000Z" },
+      { version: 5, name: "redirect-application-scope", applied_at: "2026-08-30T14:00:00.000Z" },
     ]);
     expect(columnNames(database, "campaign_research_runs")).toEqual(expect.arrayContaining([
       "measured_tokens", "measured_wall_seconds", "measurement_source", "measurement_at",
@@ -35,7 +36,8 @@ describe("CampaignSchemaMigrationService", () => {
     expect(columnNames(database, "campaign_strategy_reviews")).toEqual(expect.arrayContaining([
       "review_kind", "request_source", "request_reference", "resource_cap",
     ]));
-    expect(service.migrate()).toEqual({ fromVersion: 4, toVersion: 4, appliedVersions: [] });
+    expect(columnNames(database, "campaign_redirect_inputs")).toContain("application_mode");
+    expect(service.migrate()).toEqual({ fromVersion: 5, toVersion: 5, appliedVersions: [] });
   });
 
   test("upgrades representative unversioned legacy shapes without losing provenance", () => {
