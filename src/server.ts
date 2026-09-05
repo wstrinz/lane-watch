@@ -278,6 +278,16 @@ const server = Bun.serve({
       const run = campaignReads.researchRun(projectId, runId);
       return run ? json(run) : json({ error: "Research run not found" }, 404);
     }
+    if (url.pathname === "/api/queue-result" && request.method === "GET") {
+      const projectId = url.searchParams.get('project') ?? '';
+      if (!canReadProject(principal, projectId)) return json({ error: 'forbidden' }, 403);
+      try {
+        const result = await campaignReads.queueResult(projectId, url.searchParams.get('item') ?? '', url.searchParams.get('result') ?? '');
+        return result ? json(result) : json({ error: 'Queue result not found' }, 404);
+      } catch (error) {
+        return json({ error: error instanceof Error ? error.message : 'Could not read queue result' }, 409);
+      }
+    }
     if (url.pathname === "/api/workflow-history" && request.method === "GET") {
       const projectId = url.searchParams.get("project") ?? "";
       if (!canReadProject(principal, projectId)) return json({ error: "forbidden" }, 403);

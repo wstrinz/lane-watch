@@ -1,5 +1,7 @@
 import type { CampaignControl } from "./campaign";
 import { CampaignReadRepository } from "./campaign-read-repository";
+import { readQueueResult } from "./queue-result-reader";
+import type { CampaignWorkQueue } from "./campaign-work-queue";
 import { projectCampaignProjection, type CampaignControlProjection, type WorkflowHistoryPage } from "./projections";
 
 export class CampaignReadService {
@@ -34,6 +36,12 @@ export class CampaignReadService {
     const run = (Array.isArray(project?.researchRuns) ? project.researchRuns : []).find((candidate: Record<string, any>) => candidate.id === runId);
     const evidence = this.repository.researchEvidence(projectId, runId);
     return run && evidence ? { ...run, evidence } : null;
+  }
+
+  async queueResult(projectId: string, itemId: string, resultId: string) {
+    const project = (this.control.snapshot({ projectId, historyLimit: 1, evidenceMode: 'summary' }) as Record<string, any>).projects?.[0];
+    if(!project)return null;
+    return readQueueResult(this.control.projectRoot(projectId), project.workQueue as CampaignWorkQueue | null, itemId, resultId);
   }
 
   workflowHistory(projectId: string, cursor = "", limit = 100): WorkflowHistoryPage | null {
