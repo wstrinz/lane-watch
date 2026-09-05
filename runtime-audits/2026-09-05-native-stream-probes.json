@@ -1,0 +1,348 @@
+{
+  "schema": "lane-watch-native-stream-probes/v1",
+  "records": [
+    {
+      "at": "2026-09-05T12:51:12.656Z",
+      "fixture": "installed-native-foreground-to-local-stream-gateway",
+      "session": "375725d4-cd3d-4491-86d4-e0a7ec55ce71",
+      "executable": "C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+      "childPid": 30712,
+      "exitCode": null,
+      "failure": "No native request within 8 seconds",
+      "requestCount": 0,
+      "observedKeys": [],
+      "headerNames": [],
+      "sessionMatches": false,
+      "requestMax": null,
+      "upstreamCalls": 0,
+      "transportOutcomes": [],
+      "gatewayErrors": [],
+      "outputMatched": false,
+      "stdoutBytes": 0,
+      "stderrBytes": 212,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "budget": {
+        "contract": {
+          "leaseId": "375725d4-cd3d-4491-86d4-e0a7ec55ce71",
+          "launchDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T12:51:19.572Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 0,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 100000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Foreground --bare, no tools, dummy key, isolated configuration and local fake provider only. Does not verify background daemon, real provider, child ownership or runtime deadline shutdown."
+    },
+    {
+      "at": "2026-09-05T12:51:50.447Z",
+      "fixture": "installed-native-foreground-to-local-stream-gateway",
+      "session": "faa452c7-3c05-46ba-a09e-c4bb703da00a",
+      "executable": "C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+      "childPid": 10824,
+      "exitCode": 1,
+      "failure": "Native CLI exited before request: 1",
+      "requestCount": 0,
+      "observedKeys": [],
+      "headerNames": [],
+      "sessionMatches": false,
+      "requestMax": null,
+      "upstreamCalls": 0,
+      "transportOutcomes": [],
+      "gatewayErrors": [],
+      "outputMatched": false,
+      "stdoutBytes": 0,
+      "stderrBytes": 212,
+      "stderrDiagnostic": "Error: Invalid MCP configuration:\nMCP config file not found: C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\native-stream-gateway-4b7dc95f-ccee-4f77-b4db-2e66be60d2f4\\Return fixture-complete.\n",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "budget": {
+        "contract": {
+          "leaseId": "faa452c7-3c05-46ba-a09e-c4bb703da00a",
+          "launchDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T12:52:04.952Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 0,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 100000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Foreground --bare, no tools, dummy key, isolated configuration and local fake provider only. Does not verify background daemon, real provider, child ownership or runtime deadline shutdown."
+    },
+    {
+      "at": "2026-09-05T12:52:15.114Z",
+      "fixture": "installed-native-foreground-to-local-stream-gateway",
+      "session": "b8deacf2-e308-44af-9eaa-8d36529ebcea",
+      "executable": "C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+      "childPid": 30212,
+      "exitCode": 1,
+      "failure": "",
+      "requestCount": 1,
+      "observedKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "headerNames": [
+        "accept",
+        "accept-encoding",
+        "anthropic-beta",
+        "anthropic-dangerous-direct-browser-access",
+        "anthropic-version",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "user-agent",
+        "x-api-key",
+        "x-app",
+        "x-claude-code-session-id",
+        "x-stainless-arch",
+        "x-stainless-lang",
+        "x-stainless-os",
+        "x-stainless-package-version",
+        "x-stainless-retry-count",
+        "x-stainless-runtime",
+        "x-stainless-runtime-version",
+        "x-stainless-timeout"
+      ],
+      "sessionMatches": true,
+      "requestMax": 32000,
+      "upstreamCalls": 0,
+      "transportOutcomes": [],
+      "gatewayErrors": [
+        "Unsupported bounded streaming request"
+      ],
+      "outputMatched": false,
+      "stdoutBytes": 1163,
+      "stderrBytes": 0,
+      "stderrDiagnostic": "",
+      "stdoutSha256": "8cc33ece9bb9b60187df4217e913ae1007c21a7a76d736018be98e59a7f3ca9f",
+      "budget": {
+        "contract": {
+          "leaseId": "b8deacf2-e308-44af-9eaa-8d36529ebcea",
+          "launchDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T12:52:27.454Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 0,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 100000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Foreground --bare, no tools, dummy key, isolated configuration and local fake provider only. Does not verify background daemon, real provider, child ownership or runtime deadline shutdown."
+    },
+    {
+      "at": "2026-09-05T12:52:53.448Z",
+      "fixture": "installed-native-foreground-to-local-stream-gateway",
+      "session": "9e56dbd2-af8c-4fef-b6cd-06ae62e4ec72",
+      "executable": "C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+      "childPid": 48232,
+      "exitCode": 1,
+      "failure": "",
+      "requestCount": 1,
+      "observedKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "contextManagementEditTypes": [
+        "clear_thinking_20251015"
+      ],
+      "headerNames": [
+        "accept",
+        "accept-encoding",
+        "anthropic-beta",
+        "anthropic-dangerous-direct-browser-access",
+        "anthropic-version",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "user-agent",
+        "x-api-key",
+        "x-app",
+        "x-claude-code-session-id",
+        "x-stainless-arch",
+        "x-stainless-lang",
+        "x-stainless-os",
+        "x-stainless-package-version",
+        "x-stainless-retry-count",
+        "x-stainless-runtime",
+        "x-stainless-runtime-version",
+        "x-stainless-timeout"
+      ],
+      "sessionMatches": true,
+      "requestMax": 32000,
+      "upstreamCalls": 0,
+      "transportOutcomes": [],
+      "gatewayErrors": [
+        "Unsupported bounded streaming request"
+      ],
+      "outputMatched": false,
+      "stdoutBytes": 1163,
+      "stderrBytes": 0,
+      "stderrDiagnostic": "",
+      "stdoutSha256": "f57b4f31ee82af777c34951f87263755a630da16d6fffb350ae5469bcdab16e0",
+      "budget": {
+        "contract": {
+          "leaseId": "9e56dbd2-af8c-4fef-b6cd-06ae62e4ec72",
+          "launchDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T12:53:05.710Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 0,
+        "reportedOutputTokens": 0,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 100000,
+        "separateReportedUsage": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        }
+      },
+      "scope": "Foreground --bare, no tools, dummy key, isolated configuration and local fake provider only. Does not verify background daemon, real provider, child ownership or runtime deadline shutdown."
+    },
+    {
+      "at": "2026-09-05T12:53:19.633Z",
+      "fixture": "installed-native-foreground-to-local-stream-gateway",
+      "session": "10b77c10-826a-4cd2-9180-32b66fd400f9",
+      "executable": "C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+      "childPid": 37932,
+      "exitCode": 0,
+      "failure": "",
+      "requestCount": 1,
+      "observedKeys": [
+        "context_management",
+        "max_tokens",
+        "messages",
+        "metadata",
+        "model",
+        "output_config",
+        "stream",
+        "system",
+        "thinking",
+        "tools"
+      ],
+      "contextManagementEditTypes": [
+        "clear_thinking_20251015"
+      ],
+      "headerNames": [
+        "accept",
+        "accept-encoding",
+        "anthropic-beta",
+        "anthropic-dangerous-direct-browser-access",
+        "anthropic-version",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "user-agent",
+        "x-api-key",
+        "x-app",
+        "x-claude-code-session-id",
+        "x-stainless-arch",
+        "x-stainless-lang",
+        "x-stainless-os",
+        "x-stainless-package-version",
+        "x-stainless-retry-count",
+        "x-stainless-runtime",
+        "x-stainless-runtime-version",
+        "x-stainless-timeout"
+      ],
+      "sessionMatches": true,
+      "requestMax": 32000,
+      "upstreamCalls": 1,
+      "transportOutcomes": [
+        {
+          "status": "settled",
+          "reason": "Complete streamed usage verified"
+        }
+      ],
+      "gatewayErrors": [],
+      "outputMatched": true,
+      "stdoutBytes": 1500,
+      "stderrBytes": 0,
+      "stderrDiagnostic": "",
+      "stdoutSha256": "1e98e026565c4d16c9edbc719d3e970eaa5f6047c91520e4283d3ab7515a96c8",
+      "budget": {
+        "contract": {
+          "leaseId": "10b77c10-826a-4cd2-9180-32b66fd400f9",
+          "launchDigest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "outputTokenCap": 100000,
+          "deadlineAt": "2026-09-05T12:53:32.923Z"
+        },
+        "holdReason": null,
+        "chargedOutputTokens": 7,
+        "reportedOutputTokens": 7,
+        "unresolvedRequests": 0,
+        "remainingOutputTokens": 99993,
+        "separateReportedUsage": {
+          "inputTokens": 10,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "missingUsageReports": {
+          "inputTokens": 0,
+          "cacheReadInputTokens": 1,
+          "cacheCreationInputTokens": 1
+        }
+      },
+      "scope": "Foreground --bare, no tools, dummy key, isolated configuration and local fake provider only. Does not verify background daemon, real provider, child ownership or runtime deadline shutdown."
+    }
+  ]
+}

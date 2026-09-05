@@ -46,3 +46,9 @@ test('provider overrun holds later transport; unsupported streaming does not ent
  await expect(transport.send('test','next',body(1))).rejects.toThrow('held');
  expect(calls).toBe(1);expect(budget.snapshot('test').unresolvedRequests).toBe(1);
 });
+
+test('unexpected multi-attempt usage never releases a plain request reservation',async()=>{
+ const {budget,transport}=fixture(()=>Response.json({type:'message',id:'multi',role:'assistant',stop_reason:'end_turn',content:[],usage:{output_tokens:1,iterations:[{output_tokens:75}]}}));
+ await expect(transport.send('test','multi',body(80))).rejects.toThrow('multi-attempt');
+ expect(budget.snapshot('test').remainingOutputTokens).toBe(20);expect(budget.snapshot('test').holdReason).toContain('multi-attempt');
+});

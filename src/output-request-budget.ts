@@ -101,6 +101,13 @@ export class OutputRequestBudget {
       this.db.query('INSERT INTO output_budget_requests VALUES(?,?,?,?,NULL)').run(leaseId, requestId, requestDigest, maxOutputTokens);
     }).immediate();
   }
+  hold(leaseId: string, reason: string): void {
+    if (!reason || reason.length>500) throw Error('Invalid output budget hold');
+    this.db.transaction(() => {
+      this.contract(leaseId);
+      this.db.query('INSERT INTO output_budget_holds VALUES(?,?) ON CONFLICT(lease_id) DO NOTHING').run(leaseId,reason);
+    }).immediate();
+  }
   private validateUsage(usage: OutputUsage, reserved: number): void {
     integer(usage.outputTokens);
     if (usage.outputTokens > reserved) throw Error('Provider output exceeds its reserved maximum');
