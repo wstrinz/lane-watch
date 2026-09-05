@@ -16,7 +16,7 @@ export function executionFocus(project: any): GuideFocus | null {
   };
   if (run?.status === "evidence_ready" && ["RESEARCH_READY", "RESEARCH_INTAKE"].includes(project.phase)) return {
     status: "RESULT READY", title: "Review the finished research",
-    detail: String(run.evidenceSummary?.verdict || run.evidence?.terminal_state || run.evidence?.verdict || run.evidenceSummary?.status || run.evidence?.status || "Receipt validated") + ". " + (project.researchPlan?.response?.lanes?.find((lane: any) => lane.taskId === run.taskId)?.question || run.taskId) + ". Continue to a synthesis of this result; no new research is launched.",
+    detail: String(run.evidenceSummary?.verdict || run.evidence?.terminal_state || run.evidence?.verdict || run.evidenceSummary?.status || run.evidence?.status || "Receipt validated") + ". " + (project.researchPlan?.response?.lanes?.find((lane: any) => lane.taskId === run.taskId)?.question || run.taskId).replace(/[.!?]+$/, "") + ". Continue to a synthesis of this result; no new research is launched.",
     actions: [{ key: "research.evidence.return", targetId: run.id, label: "Continue to result review", style: "primary-button" }, inspect],
   };
   if (project.phase !== "RESEARCH_READY") return null;
