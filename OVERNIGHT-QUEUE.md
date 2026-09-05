@@ -227,3 +227,13 @@ The updated runtime brief is available in Lane Watch at campaign 4e80f36a748b196
 The read-only handoff audit checked all seven existing queue documents and 48 frozen blobs (780,806 bytes) in 15.736 seconds. It confirms recorded receipt bindings, unchanged research scope and idle live state; it does not repeat mathematical proofs or complete runtime enforcement. The report and bounded reader are committed with the handoff draft at campaign 77301bcb6f8573bfba1acf8eb0fdb2d194fe9d6c. Q8 is now active and its draft opens from the queue with SHA-256 e641b5c466aba88ff951066800a819e8ffc422ceacbf34e7a86df273d16a3d8c. The final runtime check, queue settlement and actual heartbeat pause remain pending.
 
 The queue now carries an optional recorded heartbeat status and check time, with no scheduling or launch authority. Nine queue/reader tests pass (41 assertions), TypeScript and Svelte are clean, and active/paused browser fixtures pass desktop/mobile with no errors, overflow or mutations. The actual saved heartbeat was rechecked ACTIVE every 50 minutes before recording it. No automation state has changed in this checkpoint.
+
+
+## 2026-09-05T12:26:19.057Z final morning handoff and selected budget unit
+
+The user selected output tokens for the next enforced research budget, with input/cache reported separately. This is recorded in the frozen runtime brief and final handoff at campaign 174525fba5f2ac47bd27847ca6e792943c870de7; existing receipts, caps, exhausted epoch and both launch holds remain unchanged. Q8 is complete. Q2 is held for continuation after the overnight window with actual adapter enforcement still unfinished; Q6 and Q7 remain held. No missing-user budget-unit blocker remains.
+
+The automation tool paused the overnight heartbeat; its saved PAUSED status was verified before the queue record changed. The 50-minute cadence remains preserved. At 12:23:57.106 UTC, all three indexed projects were idle, live PID 54756 started 11:56:49.662 UTC. The original 48-blob handoff audit remains the source-binding check, not a mathematical reproof. The collapsed queue now offers the completed handoff directly.
+
+
+Final live browser verification at 2026-09-05T12:27:54.005Z: the collapsed queue opens the final hash-verified handoff directly, with paused check-ins displayed. Desktop/mobile views have no overflow or page errors; the prose layout removes the narrow mobile table. Escape returns focus to the shortcut. No mutation requests or campaign phase/run/ledger changes occurred. The initial fixture locator incorrectly searched inside the collapsed details for the sibling shortcut; correcting that test locator yielded the passing actual UI check. Record: packets/queue/2026-09-05-final-handoff-ui-check.json.
