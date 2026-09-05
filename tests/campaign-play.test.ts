@@ -1,5 +1,11 @@
 import {expect,test} from 'bun:test';
-import {campaignMoves,campaignActivity,adviserPrompt} from '../src/ui/campaign-play';
+import {campaignMoves,campaignActivity,adviserPrompt,structuredAdvice} from '../src/ui/campaign-play';
+test('structured planning replies are recognized without treating arbitrary JSON as a plan',()=>{
+ expect(structuredAdvice('{"summary":"Reviews held","decision":"BLOCKED"}')?.summary).toBe('Reviews held');
+ expect(structuredAdvice('```json\n{"summary":"Ready","newDirections":[]}\n```')?.summary).toBe('Ready');
+ expect(structuredAdvice('{"summary":"A mathematical variable"}')).toBeNull();
+ expect(structuredAdvice('An ordinary reply')).toBeNull();
+});
 test('moves honor dependencies and keep useful research ahead of infrastructure',()=>{
  const p:any={workQueue:{items:[{id:'runtime',kind:'tooling',status:'active',dependsOn:[]},{id:'review',kind:'campaign',status:'ready',dependsOn:['proof']},{id:'solve',kind:'campaign',status:'held',dependsOn:[]},{id:'missing',kind:'campaign',status:'ready',dependsOn:['nope']},{id:'proof',status:'done'}]}};
  expect(campaignMoves(p).map((x:any)=>x.id)).toEqual(['review','runtime']);

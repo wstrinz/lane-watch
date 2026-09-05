@@ -26,7 +26,12 @@
  {:else if held}
  <p>The planning pass is complete. The reviews have not started.</p>
  <ul>{#each blockers as blocker}<li>{blocker.detail}</li>{/each}</ul>
- <p>The next work is execution setup: verify the runtime limit enforcement, then authorize a fresh research budget and recheck the launch contracts. Repeating planning or opening the old operator gate will not clear these holds.</p>
+ <ol>
+  <li><strong>Implementation work — needed now.</strong> Finish and verify the worker’s token limits and deadline stop. This requires a code change; no approval button on this page performs it.</li>
+  <li><strong>Your decision — after verification.</strong> Choose the next output-token budget and cutoff time.</li>
+  <li><strong>Then resume research.</strong> Recheck the saved contracts and approve the bounded review run.</li>
+ </ol>
+ <p>Your two review questions are saved. You do not need to ask another adviser or prepare another plan to preserve them.</p>
  <details><summary>Read the held review plan</summary><p>{plan.response?.summary}</p>{#each plan.response?.lanes||[] as lane}<h4>{lane.question}</h4><p>{lane.evidenceExpected}</p><p>{lane.stopCondition}</p>{/each}</details>
  {:else if checked}<p>{plan.response?.summary||plan.response?.operatorGuidance||'Inspect the checked plan and its requirements before deciding what to run.'}</p><button onclick={oninspect}>Inspect checked plan →</button>
  {:else}
