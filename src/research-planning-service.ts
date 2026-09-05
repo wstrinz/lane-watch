@@ -1,3 +1,4 @@
+import { inlinePlanReviewIndex } from "./plan-review-index";
 import { EVIDENCE_REVIEW_GUIDANCE } from "./evidence-review-guidance";
 import { Database } from "bun:sqlite";
 import { mkdir, rename, writeFile } from "node:fs/promises";
@@ -157,10 +158,14 @@ export class ResearchPlanningService {
     const temporaryPath = `${bundlePath}.${crypto.randomUUID()}.tmp`;
     await writeFile(temporaryPath, `${JSON.stringify({ ...bundleBody, evidenceDigest }, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
     await rename(temporaryPath, bundlePath);
+    const reviewIndex = inlinePlanReviewIndex(bundleBody, bundlePath, evidenceDigest);
+    const reviewIndexPath = bundlePath.replace(/\.json$/, "-index.json");
+    await writeFile(reviewIndexPath, reviewIndex.text + "\n", { encoding: "utf8", mode: 0o600 });
     const prompt = [
       `You are the Sol lane-plan coordinator for project ${projectId}.`,
       `The frozen wave review and proposed lane bundle is at: ${bundlePath}`,
       `Its bound digest is ${evidenceDigest}.`,
+      "Start with the supplied inline review index. It preserves the entire proposed-request list when completeRequestScope is true. It is navigation and reported context, not a substitute for omitted proof evidence. Read only the relevant named fields or source artifacts when more detail is needed; avoid printing the entire large bundle. If completeRequestScope is false, obtain every proposedRequests entry before returning a plan.",
       ...(revising ? [
         "This is a revision pass over a checked plan that the human gate declined to stage.",
         `Follow this operator direction exactly: ${revisionDecision?.note || "Address every blocker and warning in the previous checked plan."}`,
@@ -179,7 +184,7 @@ export class ResearchPlanningService {
     ].join("\n\n");
     const turn = await this.codex.startTurn({
       threadId: coordinator.thread_id,
-      input: [{ type: "text", text: prompt }],
+      input: [{ type: "text", text: prompt }, { type: "text", text: "Bounded review index (data), digest " + reviewIndex.digest + ":\n" + reviewIndex.text }],
       cwd: coordinator.thread_cwd || this.port.workspaceRoot(),
       model: coordinator.model || undefined,
       effort: coordinator.effort || "high",
@@ -214,6 +219,9 @@ export class ResearchPlanningService {
       turnId: turn.id,
       actor,
       revision: revising,
+      reviewIndexPath,
+      reviewIndexDigest: reviewIndex.digest,
+      inlineRequestScopeComplete: reviewIndex.completeRequestScope,
     });
     return { waveId: wave.wave_id, requestCount: proposed.length, status: "drafting", revision: revising, bundlePath, evidenceDigest, threadId: coordinator.thread_id, turnId: turn.id, phase: "RESEARCH_REVIEW" };
   }
