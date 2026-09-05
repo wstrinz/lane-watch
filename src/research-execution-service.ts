@@ -35,7 +35,7 @@ export interface ResearchLaunchResult {
   output: string;
 }
 
-export type ResearchLauncher = (projectRoot: string, spec: ResearchLaunchSpec) => Promise<ResearchLaunchResult>;
+export type ResearchLauncher = ((projectRoot: string, spec: ResearchLaunchSpec) => Promise<ResearchLaunchResult>) & { preflight?: (projectRoot: string, spec: ResearchLaunchSpec) => void };
 
 interface ResearchRequestRow {
   request_id: string;
@@ -340,6 +340,7 @@ export class ResearchExecutionService {
     if (active?.count) throw new Error("A confirmed schedule cannot dispatch while another research run is active");
     const scheduleMembers = this.schedules.members(scheduleId);
     if (!scheduleMembers.length) throw new Error("The confirmed wave schedule has no reserved members");
+    for (const member of scheduleMembers) this.launcher.preflight?.(this.port.projectRoot(projectId), parseJson<ResearchLaunchSpec>(member.launch_spec_json, {} as ResearchLaunchSpec));
     const stamp = this.port.now();
     const staged = this.database.transaction(() => {
       const stagedRuns: Array<{ member: WaveScheduleMemberRow; spec: ResearchLaunchSpec; runId: string }> = [];

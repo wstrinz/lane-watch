@@ -525,3 +525,7 @@ shows this limitation. No larger budget, retry, or new research is authorized
 by receipt recovery; fix and verify worker-runtime enforcement before further
 local research. Custody and semantic authority remain separate from execution
 status; an inconclusive result does not change the accepted denominator.
+
+The production local research adapter now refuses dispatch during runtime preflight, before run/request/schedule mutation, while token/time enforcement remains unverified. This is containment, not a runtime cap. Result review remains available.
+
+Campaigns can publish a bounded receive-only work queue at `packets/queue/campaign-queue.json` (`lane-watch-work-queue/v1`). The existing context registry hashes it and the campaign guide renders its status and dependencies in one expandable section. Queue records never authorize dispatch. The overnight execution ledger is `OVERNIGHT-QUEUE.md`.

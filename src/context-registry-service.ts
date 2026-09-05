@@ -37,6 +37,7 @@ export class ContextRegistryService {
   async refresh(projectId: string, lanes: LaneSnapshot[]): Promise<void> {
     const root = resolve(this.port.projectRoot(projectId));
     const candidates = new Map<string, ContextCandidate>([
+      ["work-queue", { role: "work-queue", path: join(root, "packets", "queue", "campaign-queue.json") }],
       ["campaign", { role: "campaign-manifest", path: join(root, "campaign.json") }],
       ["charter", { role: "charter", path: join(root, "CHARTER.md") }],
       ["checkpoint", { role: "checkpoint", path: join(root, "CHECKPOINT.md") }],

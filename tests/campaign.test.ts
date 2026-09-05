@@ -1,3 +1,5 @@
+import { assertLocalResearchRuntime } from "../src/local-research-runtime-policy";
+import type { ResearchLauncher } from "../src/research-execution-service";
 import { afterEach, describe, expect, test } from "bun:test";
 import { Database } from "bun:sqlite";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -1622,14 +1624,15 @@ test("an operator-confirmed schedule launches a dependency-safe multi-member wav
   let maxInFlight = 0;
   const launched: string[] = [];
   const codex = new FakeCodex();
-  const control = await CampaignControl.create(dataDir, join(hub, "projects.json"), codex as any, async (_root, spec) => {
+  const launcher: ResearchLauncher = async (_root, spec) => {
     launched.push(spec.taskId);
     inFlight += 1;
     maxInFlight = Math.max(maxInFlight, inFlight);
     await Bun.sleep(25);
     inFlight -= 1;
     return { laneId: `demo:windows:${spec.taskId}`, jobId: spec.taskId.endsWith("v2") ? "11111111" : "22222222", worktree: join(root, spec.taskId), output: "launched" };
-  });
+  };
+  const control = await CampaignControl.create(dataDir, join(hub, "projects.json"), codex as any, launcher);
   await control.observe(observer([]));
   const database = new Database(join(dataDir, "observer.sqlite"));
   const stamp = "2026-08-28T13:00:00.000Z";
@@ -1681,6 +1684,16 @@ test("an operator-confirmed schedule launches a dependency-safe multi-member wav
   project = (control.snapshot() as any).projects[0];
   expect(project.researchSchedule).toMatchObject({ status: "confirmed", authority: "operator-confirmed-reservation" });
   expect(launched).toEqual([]);
+  launcher.preflight = assertLocalResearchRuntime;
+  await control.enqueueAction({projectId:'demo',type:'research.schedule.dispatch',targetId:project.researchSchedule.id,idempotencyKey:'refuse-unenforced-runtime',expectedVersion:project.version,args:{scheduleDigest:project.researchSchedule.digest}},'operator');
+  expect(await waitForAction(control,'demo','research.schedule.dispatch')).toMatchObject({status:'failed',error:expect.stringContaining('does not yet enforce')});
+  project=(control.snapshot() as any).projects[0];
+  expect(project.phase).toBe('RESEARCH_READY');
+  expect(project.researchSchedule.status).toBe('confirmed');
+  expect(project.researchRuns).toHaveLength(0);
+  expect(launched).toEqual([]);
+  delete launcher.preflight;
+
   await control.enqueueAction({
     projectId: "demo", type: "research.schedule.dispatch", targetId: project.researchSchedule.id,
     idempotencyKey: "dispatch-parallel-wave", expectedVersion: project.version,

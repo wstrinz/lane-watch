@@ -1,3 +1,4 @@
+import { parseCampaignWorkQueue } from "./campaign-work-queue";
 import { TERMINAL_DAEMONS, laneFailure, planWaveProjectionRepair, projectWaveAggregate, waveAccounting, waveLaneAccounted } from "./wave";
 import type { CampaignDomainReader } from "./campaign-domain-reader";
 import type { LaneSnapshot, ObserverSnapshot } from "./types";
@@ -124,6 +125,7 @@ export class CampaignProjectReader {
       return {
         id: definition.id,
         role: definition.role,
+        workQueue: parseCampaignWorkQueue(contexts.find(source => source.role === "work-queue")?.content),
         root: definition.root,
         phase: row.current_phase,
         controlState,

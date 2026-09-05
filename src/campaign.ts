@@ -1,3 +1,4 @@
+import { assertLocalResearchRuntime } from "./local-research-runtime-policy";
 import { Database } from "bun:sqlite";
 import { mkdir, rename } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -772,6 +773,7 @@ export function researchDependencySatisfied(spec: ResearchLaunchSpec, runs: Rese
 }
 
 async function launchLocalResearch(projectRoot: string, spec: ResearchLaunchSpec): Promise<ResearchLaunchResult> {
+  assertLocalResearchRuntime();
   const launcher = join(projectRoot, "tools", "local_agent_coord.ps1");
   const child = Bun.spawn([
     "powershell.exe",
@@ -1146,7 +1148,7 @@ export class CampaignControl {
     dataDir: string,
     manifestPath: string,
     codex = new CodexAppServerClient(),
-    researchLauncher: ResearchLauncher = launchLocalResearch,
+    researchLauncher: ResearchLauncher = Object.assign(launchLocalResearch, { preflight: assertLocalResearchRuntime }),
   ): Promise<CampaignControl> {
     await mkdir(dataDir, { recursive: true });
     const control = new CampaignControl(dataDir, manifestPath, codex, researchLauncher);

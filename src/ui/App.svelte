@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import ObserverDashboard from "./ObserverDashboard.svelte";
+  import CampaignWorkQueue from "./CampaignWorkQueue.svelte";
   import PrimaryActionRail from "./PrimaryActionRail.svelte";
   import PacketInbox from "./PacketInbox.svelte";
   import CampaignInterpretation from "./CampaignInterpretation.svelte";
@@ -54,6 +55,7 @@
     <PrimaryActionRail />
     <ActiveLaneStrip />
     <OperatorGate />
+    <CampaignWorkQueue />
 
     <section class="workspace-switchboard" aria-label="Campaign detail drawers">
     <header><div><p class="eyebrow">CAMPAIGN DETAIL</p><h2>Explore the campaign</h2></div><span>Evidence, direction, and background</span></header>
