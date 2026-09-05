@@ -50,8 +50,9 @@ test('an unknown application mode cannot mark a review applied or insert questio
 test('version-four redirect rows upgrade without rewriting their response or historical status',()=>{
  const {db,response}=fixture();try{
   db.run('ALTER TABLE campaign_redirect_inputs DROP COLUMN application_mode');
-  db.run('DELETE FROM campaign_schema_migrations WHERE version=5');
-  expect(new CampaignSchemaMigrationService(db).migrate()).toEqual({fromVersion:4,toVersion:5,appliedVersions:[5]});
+  db.run('DROP TABLE campaign_research_launch_attempts');
+  db.run('DELETE FROM campaign_schema_migrations WHERE version>=5');
+  expect(new CampaignSchemaMigrationService(db).migrate()).toEqual({fromVersion:4,toVersion:6,appliedVersions:[5,6]});
   expect(db.query('SELECT status,application_mode,response_json FROM campaign_redirect_inputs').get()).toEqual({status:'drafted',application_mode:'',response_json:JSON.stringify(response)});
  }finally{db.close();}
 });

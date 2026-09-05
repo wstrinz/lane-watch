@@ -80,3 +80,20 @@ These gaps must be addressed on the adapter actually used. The historical
 776,641 counter's one-job numerical match does not define a general token unit
 or a supported maximum in-flight allowance. No policy, cap, epoch, receipt or
 mathematical claim changes with this engineering slice.
+
+## Deployment checkpoint
+
+Implementation 18e2b83 is deployed as PID 40284, started
+2026-09-05T10:46:49.122Z under retained watchdog 29924. All three projects were
+checked idle before stopping only the previous server, PID 27216. One first
+replacement exited with code 1; its cause is absent from the watchdog
+transcript. The following start is healthy. Read-only inspection confirms
+migration 6 and zero attempt rows; no legacy attempt was fabricated.
+
+The live browser check at 10:52:10.622 UTC shows all 19 CFG23 runs returned to
+Sol, unchanged phase/plan/schedule/resource policy/ledger, both launch holds,
+and no fixture row, overflow, page error or mutation. The normal desktop guide
+was visually inspected. Report: tmp/launch-recovery-deployment-check.json.
+An additional 25 redirect/architecture checks pass with 179 assertions. The
+redirect upgrade fixture now reconstructs version 4 before applying 5 and 6,
+preserving its historical response/status assertions.
