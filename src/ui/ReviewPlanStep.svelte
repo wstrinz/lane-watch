@@ -8,6 +8,8 @@
  $: plan=project?.researchPlan;
  $: thinking=plan?.status==='drafting';
  $: checked=plan?.status==='drafted';
+ $: held=checked&&plan?.response?.decision==='BLOCKED';
+ $: blockers=(plan?.response?.quickChecks||[]).filter((check:any)=>check.status==='BLOCK');
  $: occupied=['working','active','running'].includes(project?.coordinator?.status);
  $: eligible=Boolean(project?.coordinationInterface?.capabilities?.plan)&&['BLOCKED','RESEARCH_REVIEW'].includes(project?.phase)&&requests.length>0;
  async function prepare(){
@@ -19,8 +21,13 @@
 </script>
 <section aria-label="Next planning step">
  <small>YOUR NEXT STEP</small>
- <h3>{thinking?'Your review plan is being prepared':checked?'Your review plan is ready':'Prepare the review plan'}</h3>
+ <h3>{thinking?'Your review plan is being prepared':held?'Reviews planned — execution setup needed':checked?'Your review plan is ready':'Prepare the review plan'}</h3>
  {#if thinking}<p>The coordinator is checking scope, dependencies, outputs and stop conditions. The result will appear here.</p>
+ {:else if held}
+ <p>The planning pass is complete. The reviews have not started.</p>
+ <ul>{#each blockers as blocker}<li>{blocker.detail}</li>{/each}</ul>
+ <p>The next work is execution setup: verify the runtime limit enforcement, then authorize a fresh research budget and recheck the launch contracts. Repeating planning or opening the old operator gate will not clear these holds.</p>
+ <details><summary>Read the held review plan</summary><p>{plan.response?.summary}</p>{#each plan.response?.lanes||[] as lane}<h4>{lane.question}</h4><p>{lane.evidenceExpected}</p><p>{lane.stopCondition}</p>{/each}</details>
  {:else if checked}<p>{plan.response?.summary||plan.response?.operatorGuidance||'Inspect the checked plan and its requirements before deciding what to run.'}</p><button onclick={oninspect}>Inspect checked plan →</button>
  {:else}
  <p>You’ve selected {requests.length} question{requests.length===1?'':'s'}. Next, have the coordinator turn them into a plan you can assess.</p>
