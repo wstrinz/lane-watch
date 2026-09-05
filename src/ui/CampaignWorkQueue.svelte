@@ -5,13 +5,15 @@
  $: queue=project?.workQueue;
  $: remaining=queue?.items?.filter((i:any)=>i.status!=='done')||[];
  $: preview=remaining.filter((i:any)=>i.status==='active'||i.status==='ready').slice(0,3);
+ const order:Record<string,number>={active:0,ready:1,held:2,done:3};
+ $: ordered=[...(queue?.items||[])].sort((a:any,b:any)=>order[a.status]-order[b.status]);
 </script>
 {#if queue}
- <details class="campaign-work-queue" bind:open={expanded}>
+ <details id="campaign-work-queue" class="campaign-work-queue" ontoggle={(event)=>expanded=event.currentTarget.open}>
   <summary><span><strong>{queue.title}</strong><small>{queue.error || remaining.length+' items remaining · '+queue.cadenceMinutes+' min heartbeat plan'}</small></span><span>{expanded?'Close queue':'View queue'}</span></summary>
   {#if !queue.error}
    <p class="queue-context">Planned coordination until {new Date(queue.cutoffAt).toLocaleString()}. Queue status is recorded by the coordinator; launch and evidence decisions use the campaign controls above.</p>
-   <ol>{#each queue.items as item (item.id)}<li class:done={item.status==='done'}><span class="queue-status">{item.status}</span><div><strong>{item.title}</strong><p>{item.detail}</p>{#if item.dependsOn.length}<small>Depends on {item.dependsOn.join(', ')}</small>{/if}</div><small>{item.kind}</small></li>{/each}</ol>
+   <ol>{#each ordered as item (item.id)}<li class:done={item.status==='done'}><span class="queue-status">{item.status}</span><div><strong>{item.title}</strong><p>{item.detail}</p>{#if item.dependsOn.length}<small>Depends on {item.dependsOn.join(', ')}</small>{/if}</div><small>{item.kind}</small></li>{/each}</ol>
    <small class="queue-updated">Updated {new Date(queue.updatedAt).toLocaleString()} · planning context</small>
   {/if}
  </details>

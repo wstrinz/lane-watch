@@ -1,7 +1,7 @@
 <script lang="ts">
   import { campaignState, refreshAll, selectProject } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
-  import { executionFocus } from "./campaign-guidance";
+  import { executionFocus, pausedResearchFocus } from "./campaign-guidance";
   import { custodyHasBudgetUpgrade } from "../custody";
   import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
@@ -365,6 +365,8 @@
     }
     if (value.phase === "REVISING") return { status: "REVISION READY", title: "Rerun the corrected plan check", detail: "Your revision direction is recorded and no lanes were staged.", actions: [{ key: "research.review.start", label: "Run corrected plan check", style: "primary-button" }] };
     if (value.canAdoptWave) return { status: "BOOTSTRAP", title: "Adopt the current bounded lanes", detail: "Capture the current active lane set as an explicit wave before applying accounting and synthesis mechanics.", actions: [{ key: "wave.adopt", label: "Adopt active lanes", style: "primary-button" }] };
+    const paused = pausedResearchFocus(value);
+    if (paused) return paused;
     return { status: value.phase || "PLANNING", title: "Planning the next bounded move", detail: value.role || "No active wave is ready for synthesis yet.", actions: [] };
   }
 
@@ -552,7 +554,7 @@
         <div>
           <p><b>What this state means.</b> {focus.status === "RESULT READY" ? "The finished run has a validated receipt. Result review will summarize what it establishes and what remains unresolved." : focus.status === "RESULT NEEDS CHECKING" ? "The worker has stopped, but its receipt still needs validation before result review." : project.phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : project.phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it."}</p>
           <p><b>Mathematical connection.</b> {compact(project.researchSchedule?.members?.[0]?.expectedDelta || project.researchPlan?.response?.lanes?.[0]?.evidenceExpected || direction || project.role, 420)}</p>
-          <p><b>What your click changes.</b> {focus.actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : focus.actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated."}</p>
+          <p><b>What your click changes.</b> {["reveal", "inspect", "scroll"].includes(focus.actions[0]?.key || "") ? "It opens the relevant context on this page. Campaign state and worker execution stay unchanged." : focus.actions[0]?.key === "research.failure.requeue" ? "It preserves the failed attempt, restores the same checked question to scheduling, and prepares a new confirmation gate. It does not claim a result or dispatch by itself." : focus.actions[0]?.key === "research.schedule.confirm" ? "It authorizes only this frozen task list and budget. It does not yet accept evidence or change campaign truth." : "Only the named workflow boundary changes; worker output, mathematical truth, Git integration, and publication remain separately gated."}</p>
         </div>
       </details>
     </div>
@@ -561,7 +563,7 @@
         <button class={item.style || "outline-button"} disabled={Boolean(working)} onclick={() => act(item)}>{working === item.key ? "Working…" : item.label}</button>
       {/each}
     </div>
-    {#if ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(project.phase)}
+    {#if ["DECISION_REQUIRED", "RESEARCH_REVIEW"].includes(project.phase) || focus.status === "RESEARCH PAUSED"}
       <details class="rail-inspector">
         <summary><span>Inspect the decision packet</span><strong>{project.phase === "DECISION_REQUIRED" ? `${synthesis?.nextWave?.lanes?.length || 0} proposed next lanes` : `${planLanes.length} checked plan records`}</strong></summary>
         <div class="rail-packet">
@@ -569,9 +571,10 @@
             <p>{synthesis?.waveReview?.summary || "No synthesis summary was recorded."}</p>
             {#if synthesis?.waveReview?.quickChecks?.length}<ul>{#each synthesis.waveReview.quickChecks as check}<li class={String(check.status).toLowerCase()}><b>{check.status}</b><span>{check.check}</span></li>{/each}</ul>{/if}
           {:else}
+            {#if focus.status === "RESEARCH PAUSED"}<p>{project.researchPlan?.response?.operatorGuidance || project.researchPlan?.response?.summary || "The checked plan remains held."}</p>{/if}
             <ol>{#each planLanes as lane}<li><b>{lane.priority || "–"}</b><div><strong>{lane.taskId || "bounded lane"}</strong><p>{lane.question || lane.objective || lane.rationale}</p><small>{readiness(lane)} · {lane.profile || "sonnet-worker"}</small></div></li>{/each}</ol>
           {/if}
-          <label class="rail-note"><span>Operator note or revision direction</span><textarea rows="3" bind:value={decisionNote} placeholder="Optional, but useful when redirecting or requesting revision"></textarea></label>
+          {#if focus.status !== "RESEARCH PAUSED"}<label class="rail-note"><span>Operator note or revision direction</span><textarea rows="3" bind:value={decisionNote} placeholder="Optional, but useful when redirecting or requesting revision"></textarea></label>{/if}
         </div>
       </details>
     {/if}

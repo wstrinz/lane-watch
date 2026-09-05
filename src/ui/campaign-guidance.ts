@@ -1,10 +1,29 @@
 export type GuideAction = { key: string; label: string; style?: string; targetId?: string; target?: string; args?: Record<string, any> };
 export type GuideFocus = { title: string; detail: string; status: string; actions: GuideAction[] };
+const sentence=(value:string)=>/[.!?]$/.test(value.trim())?value.trim():value.trim()+'.';
 export function latestResearchRun(project: any): any {
   return [...(project?.researchRuns || [])].sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))[0];
 }
 export function receiptNeedsAttention(run: any): boolean {
   return run?.status === "awaiting_evidence" || (run?.status === "failed" && /Evidence receipt is not ready/i.test(run.error || ""));
+}
+/** A parked reviewed plan gets navigation, never an inferred retry/dispatch. */
+export function pausedResearchFocus(project:any):GuideFocus|null {
+  if(project?.phase!=='BLOCKED'||project.researchPlan?.status!=='block')return null;
+  if((project.researchRuns||[]).some((run:any)=>['launching','running','blocked','awaiting_evidence','evidence_ready'].includes(run.status)))return null;
+  const queue=project.workQueue?.error?null:project.workQueue;
+  const active=queue?.items?.find((item:any)=>item.status==='active');
+  const lanes=project.researchPlan.response?.lanes||[];
+  const allDrop=lanes.length>0&&lanes.every((lane:any)=>lane.action==='DROP');
+  return {
+    status:'RESEARCH PAUSED',title:'The research plan is parked',
+    detail:(allDrop?`The review recommends dropping all ${lanes.length} proposed lanes; the plan is held.`:'The checked plan is held until its prerequisites or direction change.')+
+      (active?` Recorded work in progress: ${active.title}.`:' Review the plan and its reasons before proposing another lane.'),
+    actions:[
+      ...(queue?[{key:'reveal',label:'View current work',target:'#campaign-work-queue',style:'primary-button'}]:[]),
+      {key:'inspect',label:'Inspect plan and reasons',style:queue?'outline-button':'primary-button'},
+    ],
+  };
 }
 export function executionFocus(project: any): GuideFocus | null {
   const run = latestResearchRun(project);
@@ -16,7 +35,7 @@ export function executionFocus(project: any): GuideFocus | null {
   };
   if (run?.status === "evidence_ready" && ["RESEARCH_READY", "RESEARCH_INTAKE"].includes(project.phase)) return {
     status: "RESULT READY", title: "Review the finished research",
-    detail: String(run.evidenceSummary?.verdict || run.evidence?.terminal_state || run.evidence?.verdict || run.evidenceSummary?.status || run.evidence?.status || "Receipt validated") + ". " + (project.researchPlan?.response?.lanes?.find((lane: any) => lane.taskId === run.taskId)?.question || run.taskId).replace(/[.!?]+$/, "") + ". Continue to a synthesis of this result; no new research is launched.",
+    detail: String(run.evidenceSummary?.verdict || run.evidence?.terminal_state || run.evidence?.verdict || run.evidenceSummary?.status || run.evidence?.status || "Receipt validated") + ". " + sentence(String(project.researchPlan?.response?.lanes?.find((lane: any) => lane.taskId === run.taskId)?.question || run.taskId)) + " Continue to a synthesis of this result; no new research is launched.",
     actions: [{ key: "research.evidence.return", targetId: run.id, label: "Continue to result review", style: "primary-button" }, inspect],
   };
   if (project.phase !== "RESEARCH_READY") return null;
