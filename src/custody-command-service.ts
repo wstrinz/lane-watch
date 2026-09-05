@@ -812,11 +812,11 @@ export class CustodyCommandService {
         ? {
           status: "FAILED",
           summary: Number(telemetry.measuredTokens || 0) > lease.budget.maxTokens
-            ? `Custody executor exceeded its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease budget and was stopped before landing.`
-            : `Custody executor approached its fixed ${lease.budget.maxTokens.toLocaleString()}-token lease ceiling and was stopped before an overrun.`,
-          stopReason: "The controller reserved cancellation headroom before the immutable token ceiling; reshape or resize the task before retrying.",
+            ? `The last reported token total exceeded the ${lease.budget.maxTokens.toLocaleString()}-token lease budget; the custody turn then reported interrupted.`
+            : "The custody turn reported interrupted after the token warning threshold.",
+          stopReason: "Final in-flight usage was not verified; interruption does not establish hard budget compliance. Repair runtime admission before another dispatch.",
           changedPaths: [],
-          checks: [{ id: "token-budget", status: "FAIL", detail: `Measured ${Number(telemetry.measuredTokens || 0).toLocaleString()} tokens against a ${lease.budget.maxTokens.toLocaleString()}-token ceiling.` }],
+          checks: [{ id: "token-budget", status: "FAIL", detail: `Last reported ${Number(telemetry.measuredTokens || 0).toLocaleString()} tokens against a ${lease.budget.maxTokens.toLocaleString()}-token ceiling; final consumption remains unverified.` }],
         }
       : turnStatus === "interrupted"
         ? {

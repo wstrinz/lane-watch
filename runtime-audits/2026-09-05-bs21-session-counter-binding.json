@@ -1,0 +1,63 @@
+{
+  "schema": "lane-watch-session-counter-binding/v1",
+  "observedAt": "2026-09-05T09:22:13.117Z",
+  "jobId": "81657050",
+  "sessionId": "81657050-7da7-458d-b858-128b99f9c79b",
+  "cliVersion": "2.1.258",
+  "stateSha256": "466873883b45fbaf4b87790fe5ec71b606594c33ced6238682c4eb8296ea576e",
+  "source": {
+    "sha256": "da3c27e975bbc00fc131404fecf5b96c994287ccc41aae735f53692e9fb998bc",
+    "bytes": 1917947,
+    "originalAuditPrefixBytes": 1916864,
+    "originalAuditPrefixSha256": "a42c5206b8b846d3d7f41f77aee3da587e8e34eb59d3a16ab1810d0cf03013cc"
+  },
+  "record": {
+    "offset": 1917210,
+    "recordBytes": 737,
+    "recordSha256": "0ae76ef6b7a67dab859ffef4af93ab0dde19cbaa14b8d3f8f6d8f7aa05dc567a",
+    "modelUsage": {
+      "claude-opus-5": {
+        "inputTokens": 246,
+        "outputTokens": 168498,
+        "thinkingTokens": 52573,
+        "cacheReadInputTokens": 20022024,
+        "cacheCreationInputTokens": 324802
+      },
+      "claude-sonnet-5": {
+        "inputTokens": 224551,
+        "outputTokens": 608143,
+        "thinkingTokens": 310455,
+        "cacheReadInputTokens": 178582632,
+        "cacheCreationInputTokens": 2111223
+      }
+    },
+    "startTime": 1788559080367,
+    "totalDuration": 39619996
+  },
+  "totals": {
+    "inputTokens": 224797,
+    "outputTokens": 776641,
+    "thinkingTokens": 363028,
+    "cacheReadInputTokens": 198604656,
+    "cacheCreationInputTokens": 2436025
+  },
+  "daemonReportedTokens": 776641,
+  "exactOutputMatch": true,
+  "transcriptUniqueOutputTokens": 386762,
+  "unreconciledOutputDifference": 389879,
+  "timeScope": {
+    "jobCreatedAt": "2026-09-04T21:57:59.202Z",
+    "jobFirstTerminalAt": "2026-09-05T00:58:16.045Z",
+    "sessionStartTime": "2026-09-04T21:58:00.367Z",
+    "sessionReportedDurationMilliseconds": 39619996
+  },
+  "elapsedSeconds": 0.030154499999999997,
+  "limitations": [
+    "An exact numerical identity for this terminal job does not establish the adapter implementation or a supported metric across jobs.",
+    "The cost-state record was appended after the original four-transcript audit; its exact bytes and offset are bound separately.",
+    "The session summary contains more output units than deduplicated assistant messages in the four transcripts. No unobserved request, child, compaction or billing explanation is asserted.",
+    "The persisted session start predates the daemon job; no launch-time usage baseline was established by this audit.",
+    "Thinking fields are reported separately; their inclusion or overlap with output fields is not assumed.",
+    "No historical receipt/ledger, cap, epoch, runtime admission or mathematical authority changed."
+  ]
+}

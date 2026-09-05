@@ -1,0 +1,8 @@
+{
+  "startedAt": "2026-09-05T09:24:03.021Z",
+  "endedAt": "2026-09-05T09:24:03.251Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"exactOutputMatch\":true,\"totals\":{\"inputTokens\":224797,\"outputTokens\":776641,\"thinkingTokens\":363028,\"cacheReadInputTokens\":198604656,\"cacheCreationInputTokens\":2436025},\"transcriptUniqueOutputTokens\":386762,\"unreconciledOutputDifference\":389879,\"timeScope\":{\"jobCreatedAt\":\"2026-09-04T21:57:59.202Z\",\"jobFirstTerminalAt\":\"2026-09-05T00:58:16.045Z\",\"sessionStartTime\":\"2026-09-04T21:58:00.367Z\",\"sessionStartMinusJobMilliseconds\":1165,\"sessionReportedDurationMilliseconds\":39619996},\"elapsedSeconds\":0.021573500000000002}\n",
+  "stderr": ""
+}
