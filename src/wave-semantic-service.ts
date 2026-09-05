@@ -1,4 +1,5 @@
 import { Database } from "bun:sqlite";
+import { EVIDENCE_REVIEW_GUIDANCE } from "./evidence-review-guidance";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { CodexAppServerClient } from "./codex";
@@ -184,6 +185,7 @@ export class WaveSemanticService {
         `A human supplied an external perspective intended to detect tunnel vision and reshape the campaign. The immutable bundle is at: ${bundlePath}`,
         `Its bound digest is ${bundleDigest}. Read the full input and the included synthesis, checked plan, and run history.`,
         "Assess the input seriously but adversarially: distinguish genuinely new constraints or ideas from already-covered work, check for conflicts with evidence, identify assumptions the campaign has overcommitted to, and preserve valuable progress.",
+        EVIDENCE_REVIEW_GUIDANCE,
         "The bundle includes the current shadow-mode charter, epoch allocation, progress ledger, and drift signals. Return strategyProposal as an explicit strategy diff: epoch objective, track weights summing to 1, metrics, work to park, and work to retire. Do not silently turn every packet bullet into a lane.",
         "Propose a reshaped next-wave objective and a small set of coherent falsifiable directions. Do not fabricate launch contracts or immutable commits; this is direction-setting before the normal Sol planning and human launch gates.",
         "Do not edit files, dispatch workers, merge, push, promote claims, or interrupt an active worker. Return only the structured redirect proposal for human review.",
