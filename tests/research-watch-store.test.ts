@@ -1,4 +1,5 @@
 import {expect,test,afterEach} from 'bun:test';
+import {Database} from 'bun:sqlite';
 import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {basename,join,resolve,sep} from 'node:path';
@@ -65,4 +66,19 @@ test('recovery validates ownership before stopping a mismatched native job',asyn
  fake.value.observe=async id=>({...(await observe(id))!,sessionId:'abc12345-1111-4000-8000-000000000000'});
  const result=await watchResearchRuntime(lease,fake.value,{observedTokens:80,recovered:true});
  expect(result).toMatchObject({status:'attention',reason:'identity-mismatch',observedTokens:80});expect(fake.stops).toEqual([]);
+});
+
+test('durable stop and terminal events survive an external audit sink that hangs',async()=>{
+ const path=dbPath(),store=new ResearchWatchStore(path),fake=port();let calls=0;
+ fake.value.record=()=>{calls++;return new Promise(()=>{});};
+ try {
+  const result=await runDurableResearchWatch(lease,store,fake.value);
+  expect(result).toMatchObject({status:'stopped',reason:'audit-unavailable',stopAttempts:1});
+  expect(calls).toBe(1);expect(result.auditWriteFailures).toHaveLength(3);
+  expect(store.snapshot(lease.sessionId).phase).toBe('terminal');
+  const reader=new Database(path,{readonly:true});try{
+   const events=reader.query('SELECT event_json FROM research_watch_events ORDER BY sequence').all() as {event_json:string}[];
+   expect(events.map(x=>JSON.parse(x.event_json).type)).toEqual(['monitor.claimed','watch.started','watch.stop-requested','watch.terminal']);
+  }finally{reader.close();}
+ }finally{store.close();}
 });

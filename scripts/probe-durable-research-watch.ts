@@ -1,13 +1,21 @@
 /** Model-free native crash/recovery probe. Never starts a research turn. */
-import {mkdir,readFile,writeFile} from 'node:fs/promises';
-import {resolve,join} from 'node:path';
-import {randomUUID} from 'node:crypto';
+import {mkdir,readFile,writeFile,access} from 'node:fs/promises';
+import {resolve,join,basename} from 'node:path';
+import {randomUUID,createHash} from 'node:crypto';
 import {ResearchWatchStore} from '../src/research-watch-store';
 import {nativeClaudeWatchPort} from '../src/native-claude-runtime-watch';
 import type {ResearchWatchLease} from '../src/research-runtime-watch';
 const executable='C:/nvm4w/nodejs/node_modules/@anthropic-ai/claude-code/bin/claude.exe';
 const claudeHome=process.env.CLAUDE_CONFIG_DIR||join(process.env.USERPROFILE!,'.claude');
 const root=process.cwd(),dir=resolve('tmp','durable-watch-probe-'+randomUUID());
+const reportName=process.argv[2]||`${new Date().toISOString().slice(0,10)}-durable-watch-crash-${randomUUID()}.json`;
+if(basename(reportName)!==reportName||!reportName.endsWith('.json'))throw Error('Report must be a JSON basename in runtime-audits');
+const reportPath=resolve('runtime-audits',reportName);
+try {await access(reportPath);throw Error('Refusing to overwrite existing probe evidence');}catch(error:any){if(error.code!=='ENOENT')throw error;}
+const sha=(bytes:Uint8Array|string)=>createHash('sha256').update(bytes).digest('hex');
+const sources=await Promise.all(['src/research-runtime-watch.ts','src/native-claude-runtime-watch.ts','src/bounded-research-watch-port.ts','src/research-watch-store.ts','src/durable-research-watch.ts','scripts/probe-durable-research-watch.ts','tests/fixtures/runtime-stop-probe.cjs'].map(async path=>{
+ const bytes=await readFile(path);return {path,sha256:sha(bytes),bytes:bytes.length,lfNormalizedSha256:sha(bytes.toString('utf8').replaceAll('\r\n','\n'))};
+}));
 await mkdir(dir,{recursive:true});
 const prefix=join(dir,'fixture'),leasePath=join(dir,'lease.json'),databasePath=join(dir,'watch.sqlite'),eventPath=join(dir,'events.jsonl');
 const normalize=(p:string)=>p.replaceAll('\\','/');
@@ -15,7 +23,7 @@ function quote(p:string){if(/["`$\r\n]/.test(p))throw Error('Unexpected probe pa
 async function eventually<T>(read:()=>Promise<T>,accept:(v:T)=>boolean,ms:number):Promise<T>{const end=Date.now()+ms;do{try{const value=await read();if(accept(value))return value;}catch{}await Bun.sleep(50);}while(Date.now()<end);throw Error('Bounded fixture observation did not arrive');}
 function alive(pid:number){try{process.kill(pid,0);return true;}catch(e:any){if(e.code==='ESRCH')return false;throw e;}}
 let first:any=null,second:any=null,store:ResearchWatchStore|null=null,lease:ResearchWatchLease|null=null;
-let report:any={modelsInvoked:0,fixtureSelfExitSeconds:15};
+let report:any={modelsInvoked:0,fixtureSelfExitSeconds:15,capturedAt:new Date().toISOString(),sources};
 try {
  const command=['node',resolve('tests/fixtures/runtime-stop-probe.cjs'),prefix].map(quote).join(' ');
  const launch=Bun.spawn([executable,'--bg','--name','Lane Watch finite crash-recovery fixture','--exec',command],{cwd:root,stdin:'ignore',stdout:'pipe',stderr:'pipe',windowsHide:true});
@@ -59,7 +67,7 @@ try {
  if(result.status!=='stopped'||result.reason!=='supervisor-recovery'||after.state!=='stopped'||saved.generation!==2||
     !report.originalBoundsUnchanged||saved.phase!=='terminal'||report.parentStillExists||report.childStillExists||ageMs>=12000)throw Error('Crash recovery did not prove the intended finite stop outcome');
  report.status='SUPPORTED';
- await writeFile(resolve('runtime-audits/2026-09-05-durable-watch-crash-probe.json'),JSON.stringify(report,null,2)+'\n');
+ await writeFile(reportPath,JSON.stringify(report,null,2)+'\n',{flag:'wx'});
  console.log(JSON.stringify(report));
 } catch(error) {
  report.status='INCONCLUSIVE';report.error=String(error);

@@ -1,0 +1,74 @@
+{
+  "modelsInvoked": 0,
+  "fixtureSelfExitSeconds": 15,
+  "capturedAt": "2026-09-05T06:31:34.982Z",
+  "sources": [
+    {
+      "path": "src/research-runtime-watch.ts",
+      "sha256": "a44c3e280bc68b6f532de6ddac887c124ce1602a473776a7d4e8dfcccbbac4bf",
+      "bytes": 7549,
+      "lfNormalizedSha256": "a44c3e280bc68b6f532de6ddac887c124ce1602a473776a7d4e8dfcccbbac4bf"
+    },
+    {
+      "path": "src/native-claude-runtime-watch.ts",
+      "sha256": "c931dffe6b58d3d2885211a00e04bc9f0cdb9eebeab0643c09923da39001863b",
+      "bytes": 2361,
+      "lfNormalizedSha256": "c931dffe6b58d3d2885211a00e04bc9f0cdb9eebeab0643c09923da39001863b"
+    },
+    {
+      "path": "src/bounded-research-watch-port.ts",
+      "sha256": "de4c2a0381f745e5d0121baa19ceb8a252ee914a4b7bb91ebb4247f41846b061",
+      "bytes": 2474,
+      "lfNormalizedSha256": "de4c2a0381f745e5d0121baa19ceb8a252ee914a4b7bb91ebb4247f41846b061"
+    },
+    {
+      "path": "src/research-watch-store.ts",
+      "sha256": "c568ea32ad3a59f550d66be418c54d9b50064946eaa902ac8d0247aab6685a88",
+      "bytes": 7692,
+      "lfNormalizedSha256": "c568ea32ad3a59f550d66be418c54d9b50064946eaa902ac8d0247aab6685a88"
+    },
+    {
+      "path": "src/durable-research-watch.ts",
+      "sha256": "9a47aa62efb49fe21c262fbb1fe8cd2db7d26c1b8e980a6a45ccc2239a6f8854",
+      "bytes": 1987,
+      "lfNormalizedSha256": "9a47aa62efb49fe21c262fbb1fe8cd2db7d26c1b8e980a6a45ccc2239a6f8854"
+    },
+    {
+      "path": "scripts/probe-durable-research-watch.ts",
+      "sha256": "846bb6a38a4d84f922c0b5e14cef2b50d70dd3d3b2079fc52d6df0304be10295",
+      "bytes": 7804,
+      "lfNormalizedSha256": "846bb6a38a4d84f922c0b5e14cef2b50d70dd3d3b2079fc52d6df0304be10295"
+    },
+    {
+      "path": "tests/fixtures/runtime-stop-probe.cjs",
+      "sha256": "de0715a857c700f2724a12145b02bd0436cee3d365d165b31b802400f6e9aaf2",
+      "bytes": 746,
+      "lfNormalizedSha256": "de0715a857c700f2724a12145b02bd0436cee3d365d165b31b802400f6e9aaf2"
+    }
+  ],
+  "jobId": "33e22be9",
+  "sessionId": "33e22be9-5479-4e6c-9b87-48732bfb1149",
+  "firstMonitorPid": 6256,
+  "firstMonitorExitCode": 143,
+  "beforeState": "working",
+  "afterState": "stopped",
+  "watchResult": {
+    "status": "stopped",
+    "reason": "supervisor-recovery",
+    "stopAttempts": 1,
+    "observedTokens": null
+  },
+  "beforeRecoveryGeneration": 1,
+  "afterRecoveryGeneration": 2,
+  "originalBoundsUnchanged": true,
+  "persistedPhase": "terminal",
+  "parentPid": 38624,
+  "childPid": 38456,
+  "parentStillExists": false,
+  "childStillExists": false,
+  "millisecondsSinceJobCreated": 3244,
+  "observedTokensBeforeRecovery": null,
+  "observedTokensAfterRecovery": null,
+  "probeDirectory": "C:\\Users\\wstri\\dev\\math-research\\infrastructure\\agent-observer\\tmp\\durable-watch-probe-cb64778e-cffc-4e4c-b887-396c4aa8cea0",
+  "status": "SUPPORTED"
+}

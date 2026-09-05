@@ -45,3 +45,14 @@ Next: bound hanging asynchronous I/O and develop actual launch/monitor supervisi
 
 
 The registry uses WAL/FULL synchronization and immutable lease fields in a separate database. An owner nonce and generation reject stale writers. An uncertain or reused owner PID conservatively blocks recovery; no monitor is killed by a guessed PID. This is neither a tamper-proof security boundary nor supervision of a live-but-hung owner. Replay the finite probe with bun scripts/probe-durable-research-watch.ts in the normal native runtime context. Preserve the original report before any changed-source replay.
+
+
+## 2026-09-05T06:33:34.891Z bounded asynchronous I/O checkpoint
+
+Q2's durable runner now bounds unresolved observation, audit, checkpoint, stop and polling calls while its event loop remains responsive. A timed-out operation is held closed: late results are discarded and no parallel retries accumulate. Durable stop/terminal events are still journaled when the external sink hangs. POSIX/WSL path comparisons preserve case; Windows drive paths retain their case-insensitive comparison. The runtime deadline is checked again after observation/checkpoint latency.
+
+Thirty-one focused tests pass (102 assertions across four files, with the new durable sink test rerun in its eight-test file), and TypeScript is clean. The changed sources passed a second finite native crash-recovery probe: exact job 33e22be9 / session 33e22be9-5479-4e6c-9b87-48732bfb1149, owned monitor 6256 deliberately exited, generation 1 to 2, unchanged lease, one stop, terminal native state and absent parent 38624 / child 38456 in 3,244 ms from creation. No model was invoked. The new report runtime-audits/2026-09-05-durable-watch-bounded-io-probe.json embeds exact raw and Git-normalized source hashes; the earlier crash report remains unchanged. The probe now refuses to overwrite evidence.
+
+Limit: a timeout does not cancel the underlying I/O. Synchronous/event-loop hangs, automatic monitor supervision and an atomic launch handshake remain unverified. A hung poll exits for external recovery, which is still manual in this component. The native CLI's current help advertises a print-mode dollar cap; that does not establish an enforceable aggregate token ceiling for the existing background lead/child topology. No resource cap or units have been changed. Live Lane Watch remains BLOCKED with idle coordinator, blocked plan, no pending actions and every research run returned_to_sol. The 50-minute heartbeat remains active.
+
+Default responsive-event-loop limits are 2 seconds for observation/audit/checkpoint/polling calls and 12 seconds for the stop call. These add latency and are not a hard research token cap. stopAttempts counts kernel attempts; a timed-out native stop is not submitted twice. Missing exact ownership still returns attention without a guessed stop.

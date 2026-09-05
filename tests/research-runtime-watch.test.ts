@@ -1,5 +1,5 @@
 import {expect,test} from 'bun:test';
-import {watchResearchRuntime,validateResearchWatchLease,type ResearchWatchLease,type ResearchWatchObservation} from '../src/research-runtime-watch';
+import {watchResearchRuntime,validateResearchWatchLease,observationMatchesLease,type ResearchWatchLease,type ResearchWatchObservation} from '../src/research-runtime-watch';
 const lease:ResearchWatchLease={jobId:'abc12345',sessionId:'abc12345-0000-4000-8000-000000000000',worktree:'C:/campaign/work',startedAt:'2026-09-05T00:00:00Z',deadlineAt:'2026-09-05T00:01:00Z',tokenCap:100,tokenMetric:'daemon-reported',pollMs:100,telemetryGraceMs:300};
 const observation=(changes:Partial<ResearchWatchObservation>={}):ResearchWatchObservation=>({jobId:lease.jobId,sessionId:lease.sessionId,worktree:lease.worktree,createdAt:lease.startedAt,state:'working',observedTokens:1,...changes});
 function harness(values:Array<ResearchWatchObservation|null>,stopWorks=true,start=Date.parse(lease.startedAt)) {
@@ -19,6 +19,22 @@ test('wall-clock rollback cannot extend the deadline',async()=>{const h=harness(
 test('natural completion after a stop request is not reported as confirmed cancellation',async()=>{const h=harness([observation({observedTokens:101}),observation({state:'done',observedTokens:101})],false);expect(await watchResearchRuntime(lease,h.port)).toMatchObject({status:'terminal',stopAttempts:1});});
 
 test('malformed observation fails ownership checks without throwing or stopping',async()=>{const h=harness([observation({worktree:undefined as any})]);expect(await watchResearchRuntime(lease,h.port)).toMatchObject({status:'attention',reason:'identity-mismatch'});expect(h.stops).toEqual([]);});
+
+test('path ownership respects POSIX case while accepting Windows drive spelling',()=>{
+ expect(observationMatchesLease(lease,observation({worktree:'c:\\CAMPAIGN\\work\\'}))).toBe(true);
+ const posix={...lease,worktree:'/home/research/Work'};
+ expect(observationMatchesLease(posix,observation({worktree:'/home/research/work'}))).toBe(false);
+ expect(observationMatchesLease(posix,observation({worktree:'/home/research/Work/'}))).toBe(true);
+ expect(observationMatchesLease(posix,observation({worktree:'/home/research\\Work'}))).toBe(false);
+});
+
+test('deadline is checked after a slow observation without another research polling cycle',async()=>{
+ const h=harness([observation()]);let now=Date.parse(lease.startedAt),reads=0;const original=h.port.observe;
+ h.port.now=()=>now;h.port.monotonicNow=()=>now;
+ h.port.observe=async()=>{reads++;now=Date.parse(lease.deadlineAt);return original();};
+ const wait=h.port.wait;h.port.wait=async ms=>{expect(h.stops).toHaveLength(1);await wait(ms);};
+ expect(await watchResearchRuntime(lease,h.port)).toMatchObject({status:'stopped',reason:'deadline'});expect(reads).toBe(2);
+});
 
 
 test('audit sink failure requests a bounded stop and returns unconfirmed events',async()=>{

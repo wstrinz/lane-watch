@@ -26,7 +26,10 @@ export interface ResearchWatchPort {
 }
 export type ResearchWatchResult = { status: 'terminal'|'stopped'|'attention'; reason: string; stopAttempts: number; observedTokens: number | null; auditWriteFailures?: ResearchWatchEvent[] };
 const TERMINAL = new Set(['done','stopped','failed','error','crashed','cancelled','canceled','complete','completed']);
-const normalizedPath = (p: string) => p.replaceAll('\\','/').replace(/\/+$/,'').toLowerCase();
+// Windows drive paths ignore case; a POSIX/WSL path must retain it.
+const normalizedPath = (p: string) => /^[a-z]:[\\/]/i.test(p)
+  ? p.replaceAll('\\','/').replace(/\/+$/,'').toLowerCase()
+  : p.replace(/\/+$/,'') || '/';
 export function validateResearchWatchLease(lease: ResearchWatchLease): void {
   if (!/^[0-9a-f]{8}$/i.test(lease.jobId) || !lease.sessionId.startsWith(lease.jobId+'-') || !/^[0-9a-f-]{36}$/i.test(lease.sessionId)) throw Error('Invalid exact job/session binding');
   if (!/^(?:[a-z]:[\\/]|\/)/i.test(lease.worktree)) throw Error('Worktree must be absolute');
@@ -61,9 +64,10 @@ export async function watchResearchRuntime(lease: ResearchWatchLease, port: Rese
   });
   await event('watch.started','Exact job bound; daemon-reported token threshold and deadline monitored.');
   for (;;) {
-    const now=watchNow();
+    let now=watchNow();
     let observed: ResearchWatchObservation|null=null;
     try { observed=await port.observe(lease.jobId); } catch { /* Missing telemetry is retried against the same identity. */ }
+    now=watchNow();
     if (!observed) {
       unknownSince ??=now;
       if (now-unknownSince>=lease.telemetryGraceMs) {
@@ -89,6 +93,7 @@ export async function watchResearchRuntime(lease: ResearchWatchLease, port: Rese
         auditWriteFailures.push({type:'watch.checkpoint',at:new Date(port.now()).toISOString(),jobId:lease.jobId,reason:'checkpoint-unavailable',observedTokens:tokens});
       }
     }
+    now=watchNow();
     if (TERMINAL.has(observed.state.toLowerCase())) {
       await event('watch.terminal',reason||'Worker was already terminal.');
       return finish(stopAttempts&&['stopped','cancelled','canceled'].includes(observed.state.toLowerCase())?'stopped':'terminal',reason||'already-terminal');
