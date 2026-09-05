@@ -26,15 +26,16 @@
  $: queue=project?.workQueue;
  $: remaining=queue?.items?.filter((i:any)=>i.status!=='done')||[];
  $: preview=remaining.filter((i:any)=>i.status==='active'||i.status==='ready').slice(0,3);
+ $: checkIns=queue?.heartbeat?.status==='paused'?'Overnight check-ins paused':queue?.heartbeat?.status==='active'?queue.cadenceMinutes+' min check-ins scheduled':queue?.cadenceMinutes+' min heartbeat plan';
  const order:Record<string,number>={active:0,ready:1,held:2,done:3};
  $: ordered=[...(queue?.items||[])].sort((a:any,b:any)=>order[a.status]-order[b.status]);
  $: if(openedProject&&project?.id!==openedProject)dialog?.close();
 </script>
 {#if queue}
  <details id="campaign-work-queue" class="campaign-work-queue" ontoggle={(event)=>expanded=event.currentTarget.open}>
-  <summary><span><strong>{queue.title}</strong><small>{queue.error || remaining.length+' items remaining · '+queue.cadenceMinutes+' min heartbeat plan'}</small></span><span>{expanded?'Close queue':'View queue'}</span></summary>
+  <summary><span><strong>{queue.title}</strong><small>{queue.error || remaining.length+' items remaining · '+checkIns}</small></span><span>{expanded?'Close queue':'View queue'}</span></summary>
   {#if !queue.error}
-   <p class="queue-context">Planned coordination until {new Date(queue.cutoffAt).toLocaleString()}. Queue status is recorded by the coordinator; launch and evidence decisions use the campaign controls above.</p>
+   <p class="queue-context">{#if queue.heartbeat?.status==='paused'}Check-ins are paused; the queue remains available.{:else}Planned coordination until {new Date(queue.cutoffAt).toLocaleString()}.{/if} {#if queue.heartbeat}Schedule last checked {new Date(queue.heartbeat.checkedAt).toLocaleString()}. {/if}Queue status is recorded by the coordinator; launch and evidence decisions use the campaign controls above.</p>
    <ol>{#each ordered as item (item.id)}<li class:done={item.status==='done'}><span class="queue-status">{item.status}</span><div><strong>{item.title}</strong><p>{item.detail}</p>{#if item.dependsOn.length}<small>Depends on {item.dependsOn.join(', ')}</small>{/if}{#if item.results?.length}<div class="queue-results">{#each item.results as result}<button onclick={()=>openResult(item.id,result)}>Read {result.title}</button>{/each}</div>{/if}</div><small>{item.kind}</small></li>{/each}</ol>
    <small class="queue-updated">Updated {new Date(queue.updatedAt).toLocaleString()} · planning context</small>
   {/if}

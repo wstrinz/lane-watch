@@ -3401,7 +3401,7 @@ function us() {
 		let t = "lane-watch-controller-v91";
 		sessionStorage.getItem(t) || (sessionStorage.setItem(t, "1"), location.reload());
 	};
-	return navigator.serviceWorker.addEventListener("controllerchange", t), navigator.serviceWorker.register("/sw.js?v=103", { updateViaCache: "none" }).then(async (e) => {
+	return navigator.serviceWorker.addEventListener("controllerchange", t), navigator.serviceWorker.register("/sw.js?v=104", { updateViaCache: "none" }).then(async (e) => {
 		e.waiting?.postMessage({ type: "SKIP_WAITING" }), await e.update(), await cs();
 	}).catch(() => os.set("error")), () => navigator.serviceWorker.removeEventListener("controllerchange", t);
 }
@@ -3945,20 +3945,20 @@ function Ys(e, t) {
 //#endregion
 //#region src/ui/CampaignWorkQueue.svelte
 Go();
-var Xs = /* @__PURE__ */ K("<small class=\"svelte-8k17j4\"> </small>"), Zs = /* @__PURE__ */ K("<button class=\"svelte-8k17j4\"> </button>"), Qs = /* @__PURE__ */ K("<div class=\"queue-results svelte-8k17j4\"></div>"), $s = /* @__PURE__ */ K("<li><span class=\"queue-status svelte-8k17j4\"> </span><div><strong> </strong><p class=\"svelte-8k17j4\"> </p><!><!></div><small class=\"svelte-8k17j4\"> </small></li>"), ec = /* @__PURE__ */ K("<p class=\"queue-context svelte-8k17j4\"> </p> <ol class=\"svelte-8k17j4\"></ol> <small class=\"queue-updated svelte-8k17j4\"> </small>", 1), tc = /* @__PURE__ */ K("<p class=\"queue-preview svelte-8k17j4\"> </p>"), nc = /* @__PURE__ */ K("<details id=\"campaign-work-queue\" class=\"campaign-work-queue svelte-8k17j4\"><summary class=\"svelte-8k17j4\"><span class=\"svelte-8k17j4\"><strong class=\"svelte-8k17j4\"> </strong><small class=\"svelte-8k17j4\"> </small></span><span class=\"svelte-8k17j4\"> </span></summary> <!></details> <!>", 1), rc = /* @__PURE__ */ K("<p role=\"status\">Reading the recorded result…</p>"), ic = /* @__PURE__ */ K("<p role=\"alert\"> </p>"), ac = /* @__PURE__ */ K("<pre class=\"result-source svelte-8k17j4\"> </pre>"), oc = /* @__PURE__ */ K("<details class=\"result-provenance svelte-8k17j4\"><summary class=\"svelte-8k17j4\">Source details · file hash verified</summary><p> </p><p> <br/> </p><p>This check verifies the recorded file. Research scope and acceptance are described in the document.</p><button class=\"svelte-8k17j4\"> </button></details> <!>", 1), sc = /* @__PURE__ */ K("<!> <dialog class=\"queue-result-dialog svelte-8k17j4\" aria-labelledby=\"queue-result-title\"><header class=\"svelte-8k17j4\"><div><small class=\"svelte-8k17j4\">SAVED CAMPAIGN RESULT</small><h2 id=\"queue-result-title\" class=\"svelte-8k17j4\"> </h2></div><button aria-label=\"Close result\" class=\"svelte-8k17j4\">Close</button></header> <div class=\"result-body svelte-8k17j4\"><!></div></dialog>", 1);
+var Xs = /* @__PURE__ */ K("<small class=\"svelte-8k17j4\"> </small>"), Zs = /* @__PURE__ */ K("<button class=\"svelte-8k17j4\"> </button>"), Qs = /* @__PURE__ */ K("<div class=\"queue-results svelte-8k17j4\"></div>"), $s = /* @__PURE__ */ K("<li><span class=\"queue-status svelte-8k17j4\"> </span><div><strong> </strong><p class=\"svelte-8k17j4\"> </p><!><!></div><small class=\"svelte-8k17j4\"> </small></li>"), ec = /* @__PURE__ */ K("<p class=\"queue-context svelte-8k17j4\"><!> <!>Queue status is recorded by the coordinator; launch and evidence decisions use the campaign controls above.</p> <ol class=\"svelte-8k17j4\"></ol> <small class=\"queue-updated svelte-8k17j4\"> </small>", 1), tc = /* @__PURE__ */ K("<p class=\"queue-preview svelte-8k17j4\"> </p>"), nc = /* @__PURE__ */ K("<details id=\"campaign-work-queue\" class=\"campaign-work-queue svelte-8k17j4\"><summary class=\"svelte-8k17j4\"><span class=\"svelte-8k17j4\"><strong class=\"svelte-8k17j4\"> </strong><small class=\"svelte-8k17j4\"> </small></span><span class=\"svelte-8k17j4\"> </span></summary> <!></details> <!>", 1), rc = /* @__PURE__ */ K("<p role=\"status\">Reading the recorded result…</p>"), ic = /* @__PURE__ */ K("<p role=\"alert\"> </p>"), ac = /* @__PURE__ */ K("<pre class=\"result-source svelte-8k17j4\"> </pre>"), oc = /* @__PURE__ */ K("<details class=\"result-provenance svelte-8k17j4\"><summary class=\"svelte-8k17j4\">Source details · file hash verified</summary><p> </p><p> <br/> </p><p>This check verifies the recorded file. Research scope and acceptance are described in the document.</p><button class=\"svelte-8k17j4\"> </button></details> <!>", 1), sc = /* @__PURE__ */ K("<!> <dialog class=\"queue-result-dialog svelte-8k17j4\" aria-labelledby=\"queue-result-title\"><header class=\"svelte-8k17j4\"><div><small class=\"svelte-8k17j4\">SAVED CAMPAIGN RESULT</small><h2 id=\"queue-result-title\" class=\"svelte-8k17j4\"> </h2></div><button aria-label=\"Close result\" class=\"svelte-8k17j4\">Close</button></header> <div class=\"result-body svelte-8k17j4\"><!></div></dialog>", 1);
 function cc(e, t) {
 	bt(t, !1);
-	let n = () => Kt(Wo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ I(), o = /* @__PURE__ */ I(), s = /* @__PURE__ */ I(), c = /* @__PURE__ */ I(), l = /* @__PURE__ */ I(), u = /* @__PURE__ */ I(!1), d = /* @__PURE__ */ I(), f = /* @__PURE__ */ I(null), p = /* @__PURE__ */ I(""), m = /* @__PURE__ */ I(""), h = /* @__PURE__ */ I(!1), g = /* @__PURE__ */ I(!1), _ = /* @__PURE__ */ I(""), v = null;
-	function y() {
-		v?.abort(), v = null, L(f, null), L(_, "");
+	let n = () => Kt(Wo, "$campaignState", r), [r, i] = qt(), a = /* @__PURE__ */ I(), o = /* @__PURE__ */ I(), s = /* @__PURE__ */ I(), c = /* @__PURE__ */ I(), l = /* @__PURE__ */ I(), u = /* @__PURE__ */ I(), d = /* @__PURE__ */ I(!1), f = /* @__PURE__ */ I(), p = /* @__PURE__ */ I(null), m = /* @__PURE__ */ I(""), h = /* @__PURE__ */ I(""), g = /* @__PURE__ */ I(!1), _ = /* @__PURE__ */ I(!1), v = /* @__PURE__ */ I(""), y = null;
+	function b() {
+		y?.abort(), y = null, L(p, null), L(v, "");
 	}
-	async function b(e, t) {
-		v?.abort();
+	async function x(e, t) {
+		y?.abort();
 		let n = new AbortController();
-		v = n, L(f, null), L(m, ""), L(p, t.title), L(h, !0), L(g, !1), L(_, U(a)?.id || ""), U(d).showModal();
+		y = n, L(p, null), L(h, ""), L(m, t.title), L(g, !0), L(_, !1), L(v, U(a)?.id || ""), U(f).showModal();
 		try {
 			let r = new URLSearchParams({
-				project: U(_),
+				project: U(v),
 				item: e,
 				result: t.id
 			}), i = await fetch("/api/queue-result?" + r, {
@@ -3966,15 +3966,15 @@ function cc(e, t) {
 				cache: "no-store"
 			}), a = await i.json();
 			if (!i.ok) throw Error(a.error || "Could not read result");
-			v === n && L(f, a);
+			y === n && L(p, a);
 		} catch (e) {
-			v === n && !n.signal.aborted && L(m, e instanceof Error ? e.message : "Could not read result");
+			y === n && !n.signal.aborted && L(h, e instanceof Error ? e.message : "Could not read result");
 		} finally {
-			v === n && L(h, !1);
+			y === n && L(g, !1);
 		}
 	}
-	Oo(() => v?.abort());
-	let x = {
+	Oo(() => y?.abort());
+	let S = {
 		active: 0,
 		ready: 1,
 		held: 2,
@@ -3989,22 +3989,38 @@ function cc(e, t) {
 	}), V(() => U(s), () => {
 		L(c, U(s).filter((e) => e.status === "active" || e.status === "ready").slice(0, 3));
 	}), V(() => U(o), () => {
-		L(l, [...U(o)?.items || []].sort((e, t) => x[e.status] - x[t.status]));
-	}), V(() => (U(_), U(a), U(d)), () => {
-		U(_) && U(a)?.id !== U(_) && U(d)?.close();
+		L(l, U(o)?.heartbeat?.status === "paused" ? "Overnight check-ins paused" : U(o)?.heartbeat?.status === "active" ? U(o).cadenceMinutes + " min check-ins scheduled" : U(o)?.cadenceMinutes + " min heartbeat plan");
+	}), V(() => U(o), () => {
+		L(u, [...U(o)?.items || []].sort((e, t) => S[e.status] - S[t.status]));
+	}), V(() => (U(v), U(a), U(f)), () => {
+		U(v) && U(a)?.id !== U(v) && U(f)?.close();
 	}), Br(), xo();
-	var S = sc(), C = z(S), w = (e) => {
-		var t = nc(), n = z(t), r = R(n), i = R(r), a = R(i), d = R(a, !0);
+	var C = sc(), w = z(C), T = (e) => {
+		var t = nc(), n = z(t), r = R(n), i = R(r), a = R(i), f = R(a, !0);
 		P(a);
-		var f = B(a), p = R(f, !0);
-		P(f), P(i);
-		var m = B(i), h = R(m, !0);
-		P(m), P(r);
-		var g = B(r, 2), _ = (e) => {
-			var t = ec(), n = z(t), r = R(n);
-			P(n);
-			var i = B(n, 2);
-			X(i, 5, () => U(l), (e) => e.id, (e, t) => {
+		var p = B(a), m = R(p, !0);
+		P(p), P(i);
+		var h = B(i), g = R(h, !0);
+		P(h), P(r);
+		var _ = B(r, 2), v = (e) => {
+			var t = ec(), n = z(t), r = R(n), i = (e) => {
+				q(e, la("Check-ins are paused; the queue remains available."));
+			}, a = (e) => {
+				var t = la();
+				H((e) => J(t, `Planned coordination until ${e ?? ""}.`), [() => (U(o), W(() => new Date(U(o).cutoffAt).toLocaleString()))]), q(e, t);
+			};
+			Y(r, (e) => {
+				U(o), W(() => U(o).heartbeat?.status === "paused") ? e(i) : e(a, -1);
+			});
+			var s = B(r, 2), c = (e) => {
+				var t = la();
+				H((e) => J(t, `Schedule last checked ${e ?? ""}.`), [() => (U(o), W(() => new Date(U(o).heartbeat.checkedAt).toLocaleString()))]), q(e, t);
+			};
+			Y(s, (e) => {
+				U(o), W(() => U(o).heartbeat) && e(c);
+			}), Ke(), P(n);
+			var l = B(n, 2);
+			X(l, 5, () => U(u), (e) => e.id, (e, t) => {
 				var n = $s();
 				let r;
 				var i = R(n), a = R(i, !0);
@@ -4024,7 +4040,7 @@ function cc(e, t) {
 					var n = Qs();
 					X(n, 5, () => (U(t), W(() => U(t).results)), ya, (e, n) => {
 						var r = Zs(), i = R(r);
-						P(r), H(() => J(i, `Read ${U(n), W(() => U(n).title) ?? ""}`)), G("click", r, () => b(U(t).id, U(n))), q(e, r);
+						P(r), H(() => J(i, `Read ${U(n), W(() => U(n).title) ?? ""}`)), G("click", r, () => x(U(t).id, U(n))), q(e, r);
 					}), P(n), q(e, n);
 				};
 				Y(p, (e) => {
@@ -4034,38 +4050,36 @@ function cc(e, t) {
 				P(h), P(n), H(() => {
 					r = Z(n, 1, "svelte-8k17j4", null, r, { done: U(t).status === "done" }), J(a, (U(t), W(() => U(t).status))), J(c, (U(t), W(() => U(t).title))), J(u, (U(t), W(() => U(t).detail))), J(g, (U(t), W(() => U(t).kind)));
 				}), q(e, n);
-			}), P(i);
-			var a = B(i, 2), s = R(a);
-			P(a), H((e, t) => {
-				J(r, `Planned coordination until ${e ?? ""}. Queue status is recorded by the coordinator; launch and evidence decisions use the campaign controls above.`), J(s, `Updated ${t ?? ""} · planning context`);
-			}, [() => (U(o), W(() => new Date(U(o).cutoffAt).toLocaleString())), () => (U(o), W(() => new Date(U(o).updatedAt).toLocaleString()))]), q(e, t);
+			}), P(l);
+			var d = B(l, 2), f = R(d);
+			P(d), H((e) => J(f, `Updated ${e ?? ""} · planning context`), [() => (U(o), W(() => new Date(U(o).updatedAt).toLocaleString()))]), q(e, t);
 		};
-		Y(g, (e) => {
-			U(o), W(() => !U(o).error) && e(_);
+		Y(_, (e) => {
+			U(o), W(() => !U(o).error) && e(v);
 		}), P(n);
-		var v = B(n, 2), y = (e) => {
+		var y = B(n, 2), b = (e) => {
 			var t = tc(), n = R(t);
 			P(t), H((e) => J(n, `Up next: ${e ?? ""}`), [() => (U(c), W(() => U(c).map((e) => e.title).join(" · ")))]), q(e, t);
 		};
-		Y(v, (e) => {
-			U(u), U(c), W(() => !U(u) && U(c).length) && e(y);
+		Y(y, (e) => {
+			U(d), U(c), W(() => !U(d) && U(c).length) && e(b);
 		}), H(() => {
-			J(d, (U(o), W(() => U(o).title))), J(p, (U(o), U(s), W(() => U(o).error || U(s).length + " items remaining · " + U(o).cadenceMinutes + " min heartbeat plan"))), J(h, U(u) ? "Close queue" : "View queue");
-		}), Qi("toggle", n, (e) => L(u, e.currentTarget.open)), q(e, t);
+			J(f, (U(o), W(() => U(o).title))), J(m, (U(o), U(s), U(l), W(() => U(o).error || U(s).length + " items remaining · " + U(l)))), J(g, U(d) ? "Close queue" : "View queue");
+		}), Qi("toggle", n, (e) => L(d, e.currentTarget.open)), q(e, t);
 	};
-	Y(C, (e) => {
-		U(o) && e(w);
+	Y(w, (e) => {
+		U(o) && e(T);
 	});
-	var T = B(C, 2), E = R(T), D = R(E), O = B(R(D)), k = R(O, !0);
-	P(O), P(D);
-	var A = B(D);
-	P(E);
-	var j = B(E, 2), ee = R(j), M = (e) => {
+	var E = B(w, 2), D = R(E), O = R(D), k = B(R(O)), A = R(k, !0);
+	P(k), P(O);
+	var j = B(O);
+	P(D);
+	var ee = B(D, 2), M = R(ee), N = (e) => {
 		q(e, rc());
-	}, N = (e) => {
-		var t = ic(), n = R(t, !0);
-		P(t), H(() => J(n, U(m))), q(e, t);
 	}, te = (e) => {
+		var t = ic(), n = R(t, !0);
+		P(t), H(() => J(n, U(h))), q(e, t);
+	}, ne = (e) => {
 		var t = oc(), n = z(t), r = B(R(n)), i = R(r, !0);
 		P(r);
 		var a = B(r), o = R(a), s = B(o, 2);
@@ -4074,23 +4088,23 @@ function cc(e, t) {
 		P(c), P(n);
 		var u = B(n, 2), d = (e) => {
 			var t = ac(), n = R(t, !0);
-			P(t), H(() => J(n, (U(f), W(() => U(f).content)))), q(e, t);
-		}, p = (e) => {
+			P(t), H(() => J(n, (U(p), W(() => U(p).content)))), q(e, t);
+		}, f = (e) => {
 			Ys(e, { get content() {
-				return U(f), W(() => U(f).content);
+				return U(p), W(() => U(p).content);
 			} });
 		};
 		Y(u, (e) => {
-			U(g) ? e(d) : e(p, -1);
+			U(_) ? e(d) : e(f, -1);
 		}), H(() => {
-			J(i, (U(f), W(() => U(f).path))), J(o, `Commit ${U(f), W(() => U(f).revision) ?? ""}`), J(s, `SHA-256 ${U(f), W(() => U(f).sha256) ?? ""}`), J(l, U(g) ? "Return to reading view" : "View Markdown source");
-		}), G("click", c, () => L(g, !U(g))), q(e, t);
+			J(i, (U(p), W(() => U(p).path))), J(o, `Commit ${U(p), W(() => U(p).revision) ?? ""}`), J(s, `SHA-256 ${U(p), W(() => U(p).sha256) ?? ""}`), J(l, U(_) ? "Return to reading view" : "View Markdown source");
+		}), G("click", c, () => L(_, !U(_))), q(e, t);
 	};
-	Y(ee, (e) => {
-		U(h) ? e(M) : U(m) ? e(N, 1) : U(f) && e(te, 2);
-	}), P(j), P(T), vo(T, (e) => L(d, e), () => U(d)), H(() => {
-		J(k, U(p)), Q(j, "aria-busy", U(h));
-	}), Qi("close", T, y), G("click", A, () => U(d).close()), q(e, S), xt(), i();
+	Y(M, (e) => {
+		U(g) ? e(N) : U(h) ? e(te, 1) : U(p) && e(ne, 2);
+	}), P(ee), P(E), vo(E, (e) => L(f, e), () => U(f)), H(() => {
+		J(A, U(m)), Q(ee, "aria-busy", U(g));
+	}), Qi("close", E, b), G("click", j, () => U(f).close()), q(e, C), xt(), i();
 }
 //#endregion
 //#region src/ui/ResearchLaunchAttempts.svelte

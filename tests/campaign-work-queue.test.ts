@@ -4,3 +4,9 @@ const q={schema:'lane-watch-work-queue/v1',title:'Queue',updatedAt:'2026-09-05T0
 test('queue projection preserves literal text and ignores attempted authority fields',()=>{const parsed=parseCampaignWorkQueue(JSON.stringify({...q,authority:'dispatch',actions:['launch'],items:[{...q.items[0],title:'<script>launch()</script>',action:'dispatch'}]}))!;expect(parsed.authority).toBe('planning-only');expect(parsed.items[0].title).toContain('<script>');expect(parsed).not.toHaveProperty('actions');expect(parsed.items[0]).not.toHaveProperty('action');});
 test('invalid or cyclic dependencies produce an attention state without runnable items',()=>{for(const items of [[{...q.items[0],dependsOn:['missing']}],[{...q.items[0],dependsOn:['b']},{...q.items[0],id:'b',dependsOn:['a']}],[q.items[0],q.items[0]]]){const parsed=parseCampaignWorkQueue(JSON.stringify({...q,items}))!;expect(parsed.error).toBeTruthy();expect(parsed.items).toEqual([]);}});
 test('absent queue is optional; oversized and unsupported input fail visibly',()=>{expect(parseCampaignWorkQueue()).toBeNull();expect(parseCampaignWorkQueue('x'.repeat(64001))?.error).toBeTruthy();expect(parseCampaignWorkQueue(JSON.stringify({...q,schema:'other'}))?.error).toBeTruthy();});
+test('recorded heartbeat status has no scheduling or launch authority',()=>{
+ const parsed=parseCampaignWorkQueue(JSON.stringify({...q,heartbeat:{status:'paused',checkedAt:q.updatedAt,action:'pause-automation',launch:true}}))!;
+ expect(parsed.heartbeat).toEqual({status:'paused',checkedAt:q.updatedAt});expect(parsed.authority).toBe('planning-only');
+ expect(parsed.items).toEqual(q.items as any);expect(parseCampaignWorkQueue(JSON.stringify(q))?.heartbeat).toBeUndefined();
+ for(const heartbeat of [{status:'running',checkedAt:q.updatedAt},{status:'paused',checkedAt:'invalid'},{status:'active'},null])expect(parseCampaignWorkQueue(JSON.stringify({...q,heartbeat}))?.error).toBeTruthy();
+});

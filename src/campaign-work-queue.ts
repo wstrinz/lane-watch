@@ -1,6 +1,6 @@
 export interface CampaignQueueResult { id: string; title: string; path: string; revision: string; sha256: string; }
 export interface CampaignQueueItem { id: string; title: string; status: 'ready'|'active'|'held'|'done'; kind: 'campaign'|'tooling'|'handoff'; detail: string; dependsOn: string[]; results?: CampaignQueueResult[]; }
-export interface CampaignWorkQueue { title: string; updatedAt: string; cutoffAt: string; cadenceMinutes: number; items: CampaignQueueItem[]; authority: 'planning-only'; error?: string; }
+export interface CampaignWorkQueue { title: string; updatedAt: string; cutoffAt: string; cadenceMinutes: number; heartbeat?: { status: 'active'|'paused'; checkedAt: string }; items: CampaignQueueItem[]; authority: 'planning-only'; error?: string; }
 /** Bounded, declarative planning context. Never consumed by dispatch or authority code. */
 export function parseCampaignWorkQueue(content?: string): CampaignWorkQueue | null {
  if (!content) return null;
@@ -28,7 +28,12 @@ export function parseCampaignWorkQueue(content?: string): CampaignWorkQueue | nu
   const visit=(id:string)=>{if(visiting.has(id))throw Error('Cyclic queue dependency');if(visited.has(id))return;visiting.add(id);items.find(i=>i.id===id)!.dependsOn.forEach(visit);visiting.delete(id);visited.add(id);};
   items.forEach(i=>visit(i.id));
   if(!Number.isInteger(q.cadenceMinutes)||q.cadenceMinutes<1||q.cadenceMinutes>1440||!Number.isFinite(Date.parse(q.updatedAt))||!Number.isFinite(Date.parse(q.cutoffAt)))throw Error('Invalid queue timing');
-  return {title:str(q.title,160),updatedAt:q.updatedAt,cutoffAt:q.cutoffAt,cadenceMinutes:q.cadenceMinutes,items,authority:'planning-only'};
+  let heartbeat: CampaignWorkQueue['heartbeat'];
+  if(q.heartbeat!==undefined){
+   if(!q.heartbeat||!['active','paused'].includes(q.heartbeat.status)||typeof q.heartbeat.checkedAt!=='string'||q.heartbeat.checkedAt.length>40||!Number.isFinite(Date.parse(q.heartbeat.checkedAt)))throw Error('Invalid recorded heartbeat status');
+   heartbeat={status:q.heartbeat.status,checkedAt:q.heartbeat.checkedAt};
+  }
+  return {title:str(q.title,160),updatedAt:q.updatedAt,cutoffAt:q.cutoffAt,cadenceMinutes:q.cadenceMinutes,...(heartbeat?{heartbeat}:{}),items,authority:'planning-only'};
  }catch(error){return {title:'Work queue needs attention',updatedAt:'',cutoffAt:'',cadenceMinutes:0,items:[],authority:'planning-only',error:error instanceof Error?error.message:'Invalid queue'};}
 }
 
