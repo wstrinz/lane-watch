@@ -64,7 +64,7 @@ export function registerPwa(): () => void {
     location.reload();
   };
   navigator.serviceWorker.addEventListener("controllerchange", controllerChanged);
-  navigator.serviceWorker.register("/sw.js?v=104", { updateViaCache: "none" }).then(async (registration) => {
+  navigator.serviceWorker.register("/sw.js?v=105", { updateViaCache: "none" }).then(async (registration) => {
     registration.waiting?.postMessage({ type: "SKIP_WAITING" });
     await registration.update();
     await refreshAlertState();
