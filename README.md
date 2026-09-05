@@ -9,6 +9,30 @@ recovery; and a separate lease-gated Terra custody executor.
 The ongoing domain extraction and authority boundaries are recorded in
 [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
+## Campaign play
+
+The campaign home presents a next move, actual activity, recent completed
+results, and a bounded autopilot entry point. Ready moves honor queue
+dependencies; queue labels do not imply that a worker is running. The collapsed
+campaign library retains evidence, history, scheduling, recovery, and settings.
+Result cards use the existing hash-verified document reader.
+
+“Explore this move” opens a Sol, Terra, or Astra consultation in the attached
+Codex conversation. It sends a version-checked `coordinator.message.send` action
+with an explicit adviser model and read-only turn settings. Advice refuses to
+steer a working coordinator and does not alter its saved model. Shared context
+is not an independent review. Advice does not approve evidence or launch research.
+
+Research autopilot still uses the existing checked loop and resource gates.
+Selecting a queue move supplies adviser context; it does not select or authorize
+a research dispatch contract. Turning advice into a reviewed successor contract
+and smoother decision-to-decision progress remain the next integration steps.
+
+`tests/campaign-adviser.test.ts` checks the server turn boundary;
+`e2e/campaign-play.pw.ts` covers desktop/mobile navigation, verified result
+reading, and a mocked adviser request. The browser test does not spend model
+tokens or launch research.
+
 ## Data model
 
 Lane Watch combines the durable coordinator ledgers declared by
