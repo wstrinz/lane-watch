@@ -53,7 +53,11 @@ export function registerPwa(): () => void {
     alertState.set("unsupported");
     return () => undefined;
   }
+  // The initial page already fetched current assets. Taking control for the
+  // first time must not reload it and discard a click or an open drawer.
+  const controlledOnLoad = Boolean(navigator.serviceWorker.controller);
   const controllerChanged = () => {
+    if (!controlledOnLoad) return;
     const reloadKey = "lane-watch-controller-v91";
     if (sessionStorage.getItem(reloadKey)) return;
     sessionStorage.setItem(reloadKey, "1");
