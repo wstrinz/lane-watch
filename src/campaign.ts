@@ -1,4 +1,4 @@
-import { assertLocalResearchRuntime } from "./local-research-runtime-policy";
+import { assertLocalResearchRuntime, assertCustodyRuntime } from "./local-research-runtime-policy";
 import { Database } from "bun:sqlite";
 import { mkdir, rename } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -890,6 +890,7 @@ export class CampaignControl {
     private readonly manifestPath: string,
     private readonly codex: CodexAppServerClient,
     private readonly researchLauncher: ResearchLauncher,
+    custodyRuntimePreflight: () => void,
   ) {
     this.bundleRoot = join(dataDir, "synthesis-bundles");
     this.database = new Database(join(dataDir, "observer.sqlite"), { create: true });
@@ -1020,7 +1021,7 @@ export class CampaignControl {
       notifyChanged: () => this.changeListener?.(),
       advanceAutopilot: (projectId) => { void this.autopilot.advance(projectId); },
       now,
-    });
+    }, custodyRuntimePreflight);
     this.codexApprovals = new CodexApprovalService(this.database, this.codex, {
       handleCustody: (request) => this.custodyCommands.handleServerRequest(request),
       recordEvent: (projectId, aggregateType, aggregateId, eventType, payload) => this.recordEvent(projectId, aggregateType, aggregateId, eventType, payload),
@@ -1149,9 +1150,10 @@ export class CampaignControl {
     manifestPath: string,
     codex = new CodexAppServerClient(),
     researchLauncher: ResearchLauncher = Object.assign(launchLocalResearch, { preflight: assertLocalResearchRuntime }),
+    custodyRuntimePreflight: () => void = assertCustodyRuntime,
   ): Promise<CampaignControl> {
     await mkdir(dataDir, { recursive: true });
-    const control = new CampaignControl(dataDir, manifestPath, codex, researchLauncher);
+    const control = new CampaignControl(dataDir, manifestPath, codex, researchLauncher, custodyRuntimePreflight);
     await control.startup.initialize();
     return control;
   }

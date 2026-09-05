@@ -73,6 +73,12 @@
     const suffix = count > 1 ? ` · 1 of ${count}` : "";
     const inspect = { key: "reveal", label: "Inspect custody queue", target: "#custody-service", style: "outline-button" };
     const lease = item.activeLease;
+    if (value.custody?.runtimeAdmission?.ready === false
+      && !["running", "finalizing", "awaiting_review"].includes(lease?.status || "")
+      && !["assigned", "verifying"].includes(item.status)) return {
+      status: "CUSTODY LAUNCH HELD", title: "Repair the steward's runtime limits",
+      detail: value.custody.runtimeAdmission.reason, actions: [inspect],
+    };
     if (!lease && item.inputReadiness?.ready === false) return {
       status: "INPUTS REQUIRED", title: item.task, detail: item.inputReadiness.reason,
       actions: [inspect],

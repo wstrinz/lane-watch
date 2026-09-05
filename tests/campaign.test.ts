@@ -782,7 +782,8 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   successorEpochDatabase.close();
   expect(project.strategy.workspace.charterHistory.map((item: any) => item.revision)).toEqual([2, 1]);
   expect(project.custody).toMatchObject({
-    mode: "bounded-autopilot-ready",
+    mode: "launch-held",
+    runtimeAdmission: { ready: false, code: "RUNTIME_UNVERIFIED" },
     executorConnected: true,
     counts: { proposed: 1, ready: 0, blocking: 0 },
     items: [{ task: "Archive completed repair receipts", status: "proposed", strategicTrack: "decision", capability: "archive", contractComplete: true, eligibleToReady: true }],
@@ -871,7 +872,7 @@ test("an independent Sol strategy review creates a human-gated charter revision 
   expect(project.custody).toMatchObject({
     executorConnected: true,
     counts: { ready: 1, active: 0 },
-    protocol: { mode: "bounded-autopilot-execution", executorConnected: true, counts: { verified: 1 }, leases: [{ id: prepared.result.leaseId, status: "verified", verification: { ok: true } }] },
+    protocol: { mode: "launch-held", executorConnected: true, counts: { verified: 1 }, leases: [{ id: prepared.result.leaseId, status: "verified", verification: { ok: true } }] },
   });
   expect(project.phase).toBe(originalPhase);
   expect(project.coordinator.attached).toBe(false);
@@ -985,7 +986,7 @@ test("an explicit operator can authorize one frozen custody repair beyond the au
   expect(await waitForAction(control, "demo", "custody.item.promote")).toMatchObject({ status: "completed", result: { status: "ready", operatorGenerationApproval: true } });
   project = (control.snapshot() as any).projects[0];
   expect(project.custody.items.find((item: any) => item.id === "operator-repair")).toMatchObject({
-    status: "ready", automaticGenerationAllowed: false, operatorGenerationApproval: true, generationAllowed: true, executorEligible: true,
+    status: "ready", automaticGenerationAllowed: false, operatorGenerationApproval: true, generationAllowed: true, contractEligible: true, executorEligible: false,
   });
   await control.enqueueAction({
     projectId: "demo", type: "custody.lease.prepare", targetId: "operator-repair",
@@ -1013,7 +1014,8 @@ test("an exact custody lease runs one isolated Terra steward and lands only afte
   const baseCommit = git(projectRoot, "rev-parse", "HEAD");
   const codex = new FakeCodex();
   codex.nextTurnId = "turn_custody";
-  const control = await CampaignControl.create(dataDir, join(hub, "projects.json"), codex as any);
+  // This fixture uses a model-free fake executor. Production admission remains held.
+  const control = await CampaignControl.create(dataDir, join(hub, "projects.json"), codex as any, undefined, () => {});
   await control.observe(observer([]));
   const database = new Database(join(dataDir, "observer.sqlite"));
   const itemId = "custody-index-repair";

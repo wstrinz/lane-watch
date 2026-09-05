@@ -1,5 +1,6 @@
 import { custodyTokenCap, deriveCustodyServiceState, type CustodyAcceptanceContract, type CustodyCapability, type CustodyStatus, type CustodyUrgency, type CustodyWorkItem } from "./custody";
 import type { CustodyExecutionReceipt } from "./custody-executor";
+import { CUSTODY_RUNTIME_ADMISSION } from "./local-research-runtime-policy";
 import type { CustodyLeaseEnvelope, CustodyProtocolReceipt } from "./custody-protocol";
 import { deriveResourceState, normalizeResourcePolicy, type ResourceCandidate, type ResourceUsage } from "./resources";
 import { deriveResourceCalibration } from "./resource-calibration";
@@ -371,10 +372,14 @@ export class CampaignDomainReader {
     const activeByItem = new Map(leases.filter((lease) => activeStatuses.includes(lease.status)).map((lease) => [lease.itemId, lease]));
     return {
       ...service,
-      items: service.items.map((item: any) => ({ ...item, lineageCost: lineageCosts.get(item.id), activeLease: activeByItem.get(item.id) || null })),
+      mode: "launch-held",
+      runtimeAdmission: CUSTODY_RUNTIME_ADMISSION,
+      executorEligible: 0,
+      adapters: service.adapters.map((adapter: Record<string, any>) => ({ ...adapter, status: "held" })),
+      items: service.items.map((item: any) => ({ ...item, contractEligible: item.executorEligible, executorEligible: false, lineageCost: lineageCosts.get(item.id), activeLease: activeByItem.get(item.id) || null })),
       protocol: {
         schema: "campaign-custody-adapter-protocol/v1",
-        mode: "bounded-autopilot-execution",
+        mode: "launch-held",
         executorConnected: true,
         leaseVersion: "campaign-custody-lease/v1",
         receiptVersion: "campaign-custody-protocol-receipt/v1",
@@ -570,11 +575,11 @@ export class CampaignDomainReader {
         tokenCap: custodyTokenCap(item.effortClass),
         priority: item.blocksResearch ? 1 : item.urgency === "NOW" ? 2 : 5,
         blocking: Boolean(item.blocksResearch),
-        ready: Boolean(custody.executorConnected && item.contractComplete && item.generationAllowed),
+        ready: Boolean(custody.runtimeAdmission?.ready !== false && custody.executorConnected && item.contractComplete && item.generationAllowed),
         gateRequired: true,
         committed: Boolean(item.activeLease && ["confirmed", "running", "finalizing", "awaiting_review"].includes(item.activeLease.status)),
         expectedDelta: item.acceptance?.receiptType || "Bounded custody receipt",
-        reason: "A separate exact lease confirmation and receipt landing gate isolate this work from research execution.",
+        reason: custody.runtimeAdmission?.ready === false ? custody.runtimeAdmission.reason : "A separate exact lease confirmation and receipt landing gate isolate this work from research execution.",
       });
     }
     const activeReview = strategy.workspace?.activeReview;

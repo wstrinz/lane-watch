@@ -10,6 +10,7 @@ import { buildCustodyExecutionReceipt, custodyExecutorPrompt, custodyExecutorRep
 import { createCustodyLease, protocolDigest, simulateCustodyProtocol, verifyCustodyProtocolReceipt, type CustodyLeaseEnvelope, type CustodyProtocolReceipt } from "./custody-protocol";
 import { runGit } from "./git";
 import { verifyCustodyInputs } from "./custody-inputs";
+import { assertCustodyRuntime } from "./local-research-runtime-policy";
 
 interface CustodyItemRow {
   item_id: string;
@@ -85,6 +86,7 @@ export class CustodyCommandService {
     private readonly codex: CodexAppServerClient,
     private readonly bundleRoot: string,
     private readonly port: CustodyCommandPort,
+    private readonly runtimePreflight: () => void = assertCustodyRuntime,
   ) {}
 
   async recoverExecutions(): Promise<void> {
@@ -387,6 +389,9 @@ export class CustodyCommandService {
     if (!lease?.workspace || lease.adapter.executionMode !== "isolated-worktree") throw new Error("Custody lease has no isolated execution workspace");
     if (String(args.leaseDigest || "") !== row.lease_digest || lease.leaseDigest !== row.lease_digest) throw new Error("Dispatch digest does not match the confirmed custody lease");
     if (Date.parse(row.expires_at) <= Date.now()) throw new Error("The confirmed custody lease expired before dispatch");
+    // Refuse before source verification, worktree creation, thread/turn start,
+    // or any lease mutation. A reservation is not runtime enforcement.
+    this.runtimePreflight();
     const strategy = this.domains.strategySnapshot(projectId);
     const custodySlots = Math.max(0, Number(strategy.charter?.resourcePolicy?.slots?.custody ?? 1));
     await verifyCustodyInputs(lease.workspace.repositoryRoot, lease.contract.acceptance.inputManifest);

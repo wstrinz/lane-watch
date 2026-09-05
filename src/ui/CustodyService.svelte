@@ -208,7 +208,7 @@
     </summary>
     <div class="custody-body">
       <div class="custody-boundary">
-        <div><span>ADAPTER</span><strong>Terra local steward</strong><small>{custody.executorConnected ? "ready on demand · isolated worktree" : "simulation only"}</small></div>
+        <div><span>ADAPTER</span><strong>Terra local steward</strong><small>{custody.runtimeAdmission?.ready === false ? "new launches held · runtime limits unverified" : custody.executorConnected ? "ready on demand · isolated worktree" : "simulation only"}</small></div>
         <p>Terra may repair small mechanical or mathematical mistakes only inside the listed paths and acceptance checks. It cannot choose direction, spawn children, promote claims, merge, or push.</p>
         <div><span>AUTOPILOT RULE</span><strong>Land verified custody</strong><small>active loop may dispatch · only exact landable receipts integrate</small></div>
       </div>
@@ -272,7 +272,8 @@
                   {:else if item.activeLease.status === "prepared"}
                     <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.confirm")}>{working === `${item.activeLease.id}:lease.confirm` ? "Confirming…" : "Confirm exact lease"}</button>
                   {:else if item.activeLease.status === "confirmed"}
-                    <button class="primary-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.dispatch")}>{working === `${item.activeLease.id}:lease.dispatch` ? "Starting…" : "Dispatch Terra steward"}</button>
+                    {#if custody.runtimeAdmission?.ready === false}<small role="status">{custody.runtimeAdmission.reason}</small>{/if}
+                    <button class="primary-button compact" disabled={Boolean(working) || custody.runtimeAdmission?.ready === false} onclick={() => transition(item, "lease.dispatch")}>{custody.runtimeAdmission?.ready === false ? "Custody launch held" : working === `${item.activeLease.id}:lease.dispatch` ? "Starting…" : "Dispatch Terra steward"}</button>
                   {:else if ["running", "finalizing"].includes(item.activeLease.status) && Date.now() - Date.parse(item.activeLease.updatedAt || item.activeLease.startedAt || "") >= 60_000}
                     <button class="outline-button compact" disabled={Boolean(working)} onclick={() => transition(item, "lease.reconcile")}>{working === `${item.activeLease.id}:lease.reconcile` ? "Reconciling…" : "Recheck interrupted steward"}</button>
                   {:else if item.activeLease.status === "simulated"}

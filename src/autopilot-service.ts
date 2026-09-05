@@ -142,6 +142,11 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   }
   if (!item) return null;
   const lease = item.activeLease;
+  if (custody?.runtimeAdmission?.ready === false
+    && !["running", "finalizing", "awaiting_review"].includes(lease?.status || "")
+    && !["assigned", "verifying"].includes(item.status)) return {
+    kind: "attention", message: custody.runtimeAdmission.reason || "Custody runtime enforcement is not ready.",
+  };
   if (!occupied && item.inputReadiness?.ready === false) return {
     kind: "attention", message: `${item.task}: ${item.inputReadiness.reason}`,
   };
@@ -163,7 +168,9 @@ export function nextCustodyAutopilotStep(custody: Record<string, any> | null | u
   }
   if (item.status === "ready" && !lease) return { kind: "action", type: "custody.lease.prepare", targetId: item.id, key: `custody:${item.id}:prepare` };
   if (lease?.status === "prepared") return { kind: "action", type: "custody.lease.confirm", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, key: `custody:${item.id}:confirm:${lease.id}` };
-  if (lease?.status === "confirmed") return { kind: "action", type: "custody.lease.dispatch", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, key: `custody:${item.id}:dispatch:${lease.id}` };
+  if (lease?.status === "confirmed") {
+    return { kind: "action", type: "custody.lease.dispatch", targetId: lease.id, args: { leaseDigest: lease.leaseDigest }, key: `custody:${item.id}:dispatch:${lease.id}` };
+  }
   if (["running", "finalizing"].includes(String(lease?.status || "")) || item.status === "assigned") {
     const stale = lease?.id && Date.now() - Date.parse(lease.updatedAt || lease.startedAt || item.updatedAt || "") >= 60_000;
     return stale
