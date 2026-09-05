@@ -1,5 +1,13 @@
 import {expect,test} from '@playwright/test';
 const url='http://127.0.0.1:4317/projects/cfg23';
+test.beforeEach(async({page})=>{
+ await page.route('**/api/events?**',route=>route.fulfill({contentType:'text/event-stream',body:': fixture\n\n'}));
+ await page.route('**/api/control?**',async route=>{
+  const response=await route.fetch();const body=await response.json(); for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
+  for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
+  await route.fulfill({response,json:body});
+ });
+});
 for(const width of [1440,390])test(`campaign play is actionable without opening the machinery at ${width}`,async({page})=>{
  await page.setViewportSize({width,height:1000});const errors:string[]=[],mutations:string[]=[];
  page.on('pageerror',e=>errors.push(e.message));
@@ -23,7 +31,7 @@ test('autopilot routes to the ready proposal without leaking adviser connection 
  await page.route('**/api/events?**',route=>route.fulfill({status:200,contentType:'text/event-stream',body:': fixture\n\n'}));
  await page.route('**/api/actions',()=>{throw Error('Navigation must not mutate campaign state');});
  await page.route('**/api/control?**',async route=>{
-  const response=await route.fetch();const body=await response.json();
+  const response=await route.fetch();const body=await response.json(); for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
   for(const p of body.projects||[])if(p.id==='cfg23'){
    p.canStartLoop=false;p.loop={status:'stopped'};
    p.externalInputs=[{id:'newer',title:'A later saved review',status:'applied'}, {id:'ready',title:'Review the symmetry checkpoint',status:'drafted',response:{summary:'A bounded proof review',decision:'READY_FOR_GATE',newDirections:[]}}];

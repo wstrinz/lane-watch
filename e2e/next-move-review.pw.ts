@@ -1,12 +1,20 @@
 import {expect,test} from '@playwright/test';
 const url='http://127.0.0.1:4317/projects/cfg23';
+test.beforeEach(async({page})=>{
+ await page.route('**/api/events?**',route=>route.fulfill({contentType:'text/event-stream',body:': fixture\n\n'}));
+ await page.route('**/api/control?**',async route=>{
+  const response=await route.fetch();const body=await response.json(); for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
+  for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
+  await route.fulfill({response,json:body});
+ });
+});
 
 for(const mode of ['context-only','stage-directions'])test(`advice becomes a durable proposal before ${mode}`,async({page})=>{
   await page.setViewportSize({width:mode==='context-only'?390:1440,height:1000});
   const requests:any[]=[];
   let proposal:any=null;
   await page.route('**/api/control?**',async route=>{
-    const response=await route.fetch();const body=await response.json();
+    const response=await route.fetch();const body=await response.json(); for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
     for(const project of body.projects||[])if(project.id==='cfg23')project.externalInputs=proposal?[proposal]:[];
     await route.fulfill({response,json:body});
   });
@@ -45,7 +53,7 @@ for(const mode of ['context-only','stage-directions'])test(`advice becomes a dur
   expect(requests[1]).toMatchObject({type:'campaign.redirect.apply',targetId:'proposal-1',args:{mode}});
   if(mode==='context-only')await expect(dialog.getByText('Retained as context; its questions were not staged.')).toBeVisible();
   else{
-    await page.getByRole('button',{name:'Review the research plan'}).click();
+    await page.getByRole('button',{name:'Inspect planning requirements'}).click();
     await expect(page.locator('#campaign-library')).toHaveAttribute('open','');
     await expect(page.locator('#process-history')).toHaveAttribute('open','');
   }
@@ -53,7 +61,7 @@ for(const mode of ['context-only','stage-directions'])test(`advice becomes a dur
 
 test('a failed submission preserves the operator draft and source',async({page})=>{
   await page.route('**/api/control?**',async route=>{
-    const response=await route.fetch();const body=await response.json();
+    const response=await route.fetch();const body=await response.json(); for(const p of body.projects||[]){p.researchRequests=[];p.researchPlan=null;}
     for(const project of body.projects||[])if(project.id==='cfg23')project.externalInputs=[];
     await route.fulfill({response,json:body});
   });

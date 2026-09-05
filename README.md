@@ -33,6 +33,13 @@ The operator can keep it as context or stage all proposed questions for checked
 plan review. Staging may reopen the current plan; launch approval remains separate.
 The copied reply is commentary, not a verified research receipt.
 
+After staging questions, the main card offers **Prepare review plan** and then
+shows preparation or review status. Read-only planning can proceed from BLOCKED
+when the wave is aligned, new proposed questions exist, and no research,
+reserved schedule, or coordinator turn is active. The frozen review bundle
+retains the prior blocked plan. This transition does not reset resources or
+grant execution authority.
+
 `tests/campaign-adviser.test.ts` checks the server turn boundary;
 `e2e/campaign-play.pw.ts` covers desktop/mobile navigation, verified result
 reading, and a mocked adviser request. The browser test does not spend model

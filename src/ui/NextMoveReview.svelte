@@ -2,6 +2,7 @@
   import {campaignState} from './campaign-state';
   import {settleCampaignAction, type CampaignProject} from './campaign-actions';
   import ResultDocument from './ResultDocument.svelte';
+  import ReviewPlanStep from './ReviewPlanStep.svelte';
   let dialog:HTMLDialogElement;
   let openedProject='',selected='',title='',direction='',excerpt='',source='',busy=false,error='',notice='';
   let composing=false;
@@ -92,7 +93,7 @@
         </div>
       {:else if input.status==='applied'}
         <p>{input.applicationMode==='context-only'?'Retained as context; its questions were not staged.':'Questions entered the planning process; this is not launch approval.'}</p>
-        {#if input.applicationMode!=='context-only'}<button class="primary" onclick={openPlan}>Review the research plan →</button>{/if}
+        {#if input.applicationMode!=='context-only'}<ReviewPlanStep oninspect={openPlan}/>{/if}
       {/if}
     {:else}<p>No saved proposals yet. Explore a move and choose “Shape next moves” on a completed adviser reply.</p>{/if}
     {#if notice}<p role="status">{notice}</p>{/if}

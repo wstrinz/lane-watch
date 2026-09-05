@@ -84,7 +84,8 @@ export class ResearchPlanningService {
     const wave = this.port.latestWave(projectId);
     if (!wave) throw new Error("No wave is available for research review");
     const revising = project.current_phase === "REVISING";
-    if (!revising && project.current_phase !== "RESEARCH_REVIEW") {
+    const recoveringBlocked = project.current_phase === "BLOCKED";
+    if (!revising && !recoveringBlocked && project.current_phase !== "RESEARCH_REVIEW") {
       throw new Error("Starting research review requires RESEARCH_REVIEW or REVISING");
     }
     const queuedStatus = revising ? "revision_requested" : "proposed";
@@ -94,11 +95,18 @@ export class ResearchPlanningService {
       ORDER BY created_at, request_id
     `).all({ $project: projectId, $wave: wave.wave_id, $status: queuedStatus }) as ResearchRequestRow[];
     if (!proposed.length) throw new Error("No queued research requests are available to review");
-    if (!this.coordinators.get(projectId)) throw new Error("Attach a Sol coordinator before checking the lane plan");
+    const attached = this.coordinators.get(projectId);
+    if (!attached) throw new Error("Attach a Sol coordinator before checking the lane plan");
+    if (["working", "active", "running"].includes(attached.status.toLowerCase())) throw new Error("Wait for the current coordinator turn before preparing a review plan");
+    if (recoveringBlocked) {
+      const active = this.database.query("SELECT COUNT(*) AS count FROM campaign_research_runs WHERE project_id = $project AND status IN ('launching','running','blocked','awaiting_evidence','evidence_ready')").get({$project:projectId}) as {count:number};
+      const reserved = this.database.query("SELECT COUNT(*) AS count FROM campaign_wave_schedules WHERE project_id = $project AND status IN ('confirmed','dispatching','running')").get({$project:projectId}) as {count:number};
+      if (active.count || reserved.count) throw new Error("Settle existing research and reserved schedules before preparing a replacement plan");
+    }
     const coordinator = await this.coordinators.writable(projectId);
     const synthesis = this.database.query("SELECT response_json FROM campaign_syntheses WHERE wave_id = $wave")
       .get({ $wave: wave.wave_id }) as { response_json: string } | null;
-    const previousPlan = revising
+    const previousPlan = revising || recoveringBlocked
       ? this.database.query("SELECT response_json FROM campaign_research_plans WHERE wave_id = $wave")
         .get({ $wave: wave.wave_id }) as { response_json: string } | null
       : null;
@@ -127,6 +135,7 @@ export class ResearchPlanningService {
       strategy: this.port.strategyBundleContext(projectId),
       synthesis: synthesis ? parseJson(synthesis.response_json, {}) : null,
       externalRedirects: this.port.redirectContext(projectId),
+      ...(recoveringBlocked ? { blockedPlan: previousPlan ? parseJson(previousPlan.response_json, {}) : null } : {}),
       revision: revising ? {
         operatorDirection: revisionDecision?.note || "Address every blocker and warning in the previous checked plan.",
         previousPlan: previousPlan ? parseJson(previousPlan.response_json, {}) : null,
@@ -165,6 +174,7 @@ export class ResearchPlanningService {
       `You are the Sol lane-plan coordinator for project ${projectId}.`,
       `The frozen wave review and proposed lane bundle is at: ${bundlePath}`,
       `Its bound digest is ${evidenceDigest}.`,
+      ...(recoveringBlocked ? ["This is a read-only replacement plan for newly proposed questions in a blocked campaign. Preserve existing execution holds and budget exhaustion. Planning does not reset budgets or authorize launch. Do not revive blocked or excluded historical requests."] : []),
       "Start with the supplied inline review index. It preserves the entire proposed-request list when completeRequestScope is true. It is navigation and reported context, not a substitute for omitted proof evidence. Read only the relevant named fields or source artifacts when more detail is needed; avoid printing the entire large bundle. If completeRequestScope is false, obtain every proposedRequests entry before returning a plan.",
       ...(revising ? [
         "This is a revision pass over a checked plan that the human gate declined to stage.",
