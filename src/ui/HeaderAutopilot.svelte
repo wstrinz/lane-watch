@@ -7,16 +7,7 @@
   let feedback = "";
 
   function openControl(): void {
-    const resourceBlocked = project?.loopStart?.code === "EPOCH_BUDGET";
-    if (resourceBlocked) {
-      for (const selector of ["#strategy-workspaces", "#strategy-workspace"]) {
-        const element = document.querySelector(selector);
-        if (element instanceof HTMLDetailsElement) element.open = true;
-      }
-      requestAnimationFrame(() => document.querySelector("#strategy-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-      return;
-    }
-    document.querySelector("#loop-control, #next-action")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector("#next-action")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   async function toggle(): Promise<void> {
@@ -38,8 +29,8 @@
   $: running = loop?.status === "running";
   $: resumable = ["paused", "attention"].includes(loop?.status || "") && Boolean(loop?.canResume || loop?.status === "paused");
   $: toggleAction = running ? "loop.pause" : resumable ? "loop.resume" : project?.canStartLoop ? "loop.start" : "";
-  $: state = running ? "ON" : resumable ? "PAUSED" : project?.canStartLoop ? "READY" : "BLOCKED";
-  $: label = working ? "Working…" : running ? "Pause" : resumable ? "Resume" : project?.canStartLoop ? "Start" : "Manage blocker";
+  $: state = running ? "ON" : resumable ? "PAUSED" : project?.canStartLoop ? "READY" : "OFF";
+  $: label = working ? "Working…" : running ? "Pause" : resumable ? "Resume" : project?.canStartLoop ? "Start" : "View next step";
   $: title = feedback || (toggleAction ? `${label} one-loop autopilot` : project?.loopStart?.blocker || "Open the current campaign gate");
 </script>
 

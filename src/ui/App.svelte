@@ -34,7 +34,7 @@
     <p class="eyebrow">CAMPAIGN CONTROL</p>
     <h1>Lane Watch</h1>
   </a>
-  <HeaderAutopilot />
+  <span class="topbar-context">Research campaigns</span>
   <div class="connection-wrap">
     {#if $campaignState.access}<span class="access-identity" title={`${$campaignState.access.projects.includes("*") ? "Read all projects" : `Read ${$campaignState.access.projects.join(", ")}`} · ${$campaignState.access.mutableProjects.includes("*") ? "change all projects" : `change ${$campaignState.access.mutableProjects.join(", ") || "none"}`}`}><b>{$campaignState.access.role}</b>{$campaignState.access.identity}</span>{/if}
     <button class="refresh-button" class:refreshing={$campaignState.connection === "refreshing"} disabled={$campaignState.connection === "refreshing" || $campaignState.access?.canMutate === false} aria-label="Refresh all campaign and lane states" title={$campaignState.access?.canMutate === false ? "Viewer access is read-only" : "Refresh all campaign and lane states"} onclick={() => refreshAll().catch(() => undefined)}>↻</button>
@@ -51,32 +51,33 @@
     </section>
   {:else}
     <CampaignProcessTracker />
-    <ProgramCompass />
-    <ActiveLaneStrip />
     <PrimaryActionRail />
-    <details class="autopilot-ledger">
-      <summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary>
-      <LoopControl />
-    </details>
+    <ActiveLaneStrip />
     <OperatorGate />
 
     <section class="workspace-switchboard" aria-label="Campaign detail drawers">
-    <header><div><p class="eyebrow">CAMPAIGN DETAIL</p><h2>Context stays close without crowding the controls</h2></div><span>Open only what you need</span></header>
+    <header><div><p class="eyebrow">CAMPAIGN DETAIL</p><h2>Explore the campaign</h2></div><span>Evidence, direction, and background</span></header>
     <details id="campaign-context" class="workspace-group">
-      <summary><span><small>OBJECTIVE & INPUTS</small><strong>Campaign grounding, interpretation, and packet inbox</strong></span><b>Open drawer</b></summary>
+      <summary><span><small>OBJECTIVE & INPUTS</small><strong>Objective, background, and new inputs</strong></span><b>Open drawer</b></summary>
       <div class="workspace-group-body">
+        <ProgramCompass />
         <PacketInbox />
         <CampaignInterpretation />
       </div>
     </details>
     <details id="process-history" class="workspace-group">
-      <summary><span><small>PROCESS MAP & HISTORY</small><strong>Full branching map, event replay, and campaign epochs</strong></span><b>Open drawer</b></summary>
+      <summary><span><small>PROCESS MAP & HISTORY</small><strong>History and automation</strong></span><b>Open drawer</b></summary>
       <div class="workspace-group-body">
+    <details class="autopilot-ledger">
+      <summary><span><small>AUTOPILOT DETAIL</small><strong>Step ledger, frozen schedule, and advanced controls</strong></span><b>Expand</b></summary>
+      <HeaderAutopilot />
+      <LoopControl />
+    </details>
         <CampaignFlow />
       </div>
     </details>
     <details id="evidence-workspace" class="workspace-group">
-      <summary><span><small>WAVE & EVIDENCE</small><strong>Accounting, custody, and observed workers</strong></span><b>Open workspace</b></summary>
+      <summary><span><small>WAVE & EVIDENCE</small><strong>Results, receipts, and workers</strong></span><b>Open workspace</b></summary>
       <div class="workspace-group-body">
         <WaveAccounting />
         <CustodyService />
@@ -87,7 +88,7 @@
       </div>
     </details>
     <details id="strategy-workspaces" class="workspace-group">
-      <summary><span><small>STRATEGY & BRANCHES</small><strong>Portfolio, resources, independent review, and redirects</strong></span><b>Open workspace</b></summary>
+      <summary><span><small>STRATEGY & BRANCHES</small><strong>Direction, budget, and alternatives</strong></span><b>Open workspace</b></summary>
       <div class="workspace-group-body">
         <StrategyOverview />
         <ResourceEconomy />
@@ -96,7 +97,7 @@
       </div>
     </details>
     <details id="system-workspace" class="workspace-group">
-      <summary><span><small>SYSTEM & COORDINATION</small><strong>Future-run settings, access, quotas, and Sol console</strong></span><b>Open workspace</b></summary>
+      <summary><span><small>SYSTEM & COORDINATION</small><strong>Settings and coordinator</strong></span><b>Open workspace</b></summary>
       <div class="workspace-group-body">
         <CampaignSettings />
         <CoordinatorConsole />

@@ -462,7 +462,8 @@ export class ResearchExecutionService {
   }
 
   async returnEvidence(projectId: string, runId: string, actor: string): Promise<Record<string, unknown>> {
-    if (this.port.project(projectId).current_phase !== "RESEARCH_INTAKE") throw new Error("Returning research evidence requires RESEARCH_INTAKE");
+    const intakePhase = this.port.project(projectId).current_phase;
+    if (!["RESEARCH_INTAKE", "RESEARCH_READY"].includes(intakePhase)) throw new Error("Returning research evidence requires an intake boundary");
     const run = this.database.query("SELECT * FROM campaign_research_runs WHERE run_id = $run AND project_id = $project")
       .get({ $run: runId, $project: projectId }) as ResearchRunRow | null;
     if (!run || run.status !== "evidence_ready" || !run.evidence_sha256) throw new Error("Select a research run with a validated evidence receipt");
@@ -485,6 +486,12 @@ export class ResearchExecutionService {
       this.port.validateTerminalReceipt(receipt, candidate.task_id);
       return { run: candidate, receipt };
     });
+    if (intakePhase === "RESEARCH_READY") {
+      const active = this.database.query("SELECT COUNT(*) AS count FROM campaign_research_runs WHERE project_id = $project AND status IN ('launching','running','blocked')").get({ $project: projectId }) as { count: number };
+      assertRecoveredIntake(schedule?.status || "", scheduleMembers.some(member => member.run_id === runId), active.count);
+      this.port.touchProject(projectId, "RESEARCH_INTAKE");
+      this.port.recordEvent(projectId, "research_run", runId, "research.receipt.intake-restored", { actor, scheduleId: schedule?.schedule_id, evidenceSha256: run.evidence_sha256, priorPhase: intakePhase, dispatched: false });
+    }
     let coordinator = this.port.coordinator(projectId);
     if (!coordinator) throw new Error("Attach a Sol coordinator before returning research evidence");
     coordinator = await this.port.writableCoordinator(projectId);
@@ -620,4 +627,8 @@ export class ResearchExecutionService {
       evidenceSha256: run.evidence_sha256,
     };
   }
+}
+
+export function assertRecoveredIntake(scheduleStatus: string, sameRun: boolean, activeRuns: number): void {
+  if (!["landed", "failed"].includes(scheduleStatus) || !sameRun || activeRuns > 0) throw new Error("Recovered intake requires the original settled schedule and no active research; a new launch reservation cannot be replaced.");
 }

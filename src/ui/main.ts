@@ -8,3 +8,5 @@ import "./active-lanes.css";
 import "./program-compass.css";
 
 mount(App, { target: document.querySelector("#app")! });
+
+import "./campaign-guide.css";

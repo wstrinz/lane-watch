@@ -57,6 +57,8 @@
         <div class="authority"><strong>ADVISORY ONLY</strong><span>Simulation cannot dispatch</span></div>
       </header>
 
+      <p class="resource-enforcement-note"><strong>Runtime limit gap.</strong> The local research launcher currently does not forward the schedule’s token and timeout reservations to the worker runtime. These values are planning limits, not enforced stop guarantees. Repair that adapter before authorizing more local research.</p>
+
       <section class="budget" aria-label="Epoch token budget">
         <div class="budget-heading"><strong>{compact(ledger.knownTokens + ledger.committedTokens)} measured + committed</strong><span>{compact(ledger.schedulableTokens)} still schedulable · {compact(ledger.reserveTokens)} held for redirects</span></div>
         <div class="budget-meter"><i class="known" style={`width:${knownWidth}%`}></i><i class="committed" style={`left:${knownWidth}%;width:${committedWidth}%`}></i><i class="reserve" style={`right:0;width:${reserveWidth}%`}></i></div>

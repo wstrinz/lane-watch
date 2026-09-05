@@ -1,56 +1,17 @@
 <script lang="ts">
   import { campaignState } from "./campaign-state";
-  import type { CampaignProject } from "./campaign-actions";
-
-  const stages = [
-    { id: "plan", short: "Plan", label: "Shape the wave" },
-    { id: "launch", short: "Launch", label: "Confirm bounds" },
-    { id: "run", short: "Run", label: "Bounded research" },
-    { id: "land", short: "Land", label: "Evidence intake" },
-    { id: "decide", short: "Decide", label: "Synthesize & steer" },
-  ];
-
-  const stageByPhase: Record<string, string> = {
-    PLANNING: "plan", RESEARCH_REVIEW: "plan", REVISING: "plan", NEXT_WAVE_READY: "plan",
-    RESEARCH_READY: "launch", RESEARCH_RUNNING: "run", RUNNING: "run",
-    RESEARCH_INTAKE: "land", RECONCILING: "land", SYNTHESIS_READY: "land", SYNTHESIZING: "land",
-    DECISION_REQUIRED: "decide", BLOCKED: "decide",
-  };
-
-  const nextByPhase: Record<string, string> = {
-    PLANNING: "Prepare a bounded plan", RESEARCH_REVIEW: "Resolve the checked plan gate", REVISING: "Recheck the revised plan",
-    RESEARCH_READY: "Resolve launch resources and confirm the schedule", RESEARCH_RUNNING: "Wait for the bounded wave to settle",
-    RESEARCH_INTAKE: "Accept and reconcile landed evidence", RECONCILING: "Close the evidence boundary",
-    SYNTHESIS_READY: "Freeze the synthesis bundle", SYNTHESIZING: "Wait for synthesis",
-    DECISION_REQUIRED: "Choose the next campaign direction", NEXT_WAVE_READY: "Shape the next wave", BLOCKED: "Resolve the recorded blocker",
-  };
-
-  let project: CampaignProject | null = null;
-  $: project = ($campaignState.control?.projects?.find((candidate) => candidate.id === $campaignState.selectedProject) as CampaignProject | undefined) || null;
-  $: currentId = stageByPhase[project?.phase || ""] || "plan";
-  $: currentIndex = Math.max(0, stages.findIndex((stage) => stage.id === currentId));
-  $: activeRuns = project?.researchRuns?.filter((run: any) => ["launching", "running", "blocked"].includes(run.status)).length || 0;
-  $: settledSteps = project?.loop?.steps?.filter((step: any) => step.status === "completed").length || 0;
-  $: totalSteps = project?.loop?.steps?.length || 0;
+  import { latestResearchRun, receiptNeedsAttention } from "./campaign-guidance";
+  const stages = ["Plan", "Launch", "Run", "Review", "Decide"];
+  const phases: Record<string, number> = { PLANNING: 0, RESEARCH_REVIEW: 0, REVISING: 0, NEXT_WAVE_READY: 0, RESEARCH_READY: 1, RESEARCH_RUNNING: 2, RUNNING: 2, RESEARCH_INTAKE: 3, RECONCILING: 3, SYNTHESIS_READY: 3, SYNTHESIZING: 3, DECISION_REQUIRED: 4, BLOCKED: 4 };
+  $: project = $campaignState.control?.projects?.find(p => p.id === $campaignState.selectedProject);
+  $: run = latestResearchRun(project);
+  $: current = receiptNeedsAttention(run) || run?.status === "evidence_ready" ? 3 : phases[project?.phase || ""] ?? 0;
+  $: budget = project?.resources?.ledger;
 </script>
-
 {#if project}
-  <section class="process-tracker" id="process-tracker" aria-label="Campaign process tracker">
-    <header>
-      <div><p class="eyebrow">CAMPAIGN PROCESS</p><h2>{nextByPhase[project.phase] || "Track the next bounded move"}</h2></div>
-      <span><b>{project.phase.replaceAll("_", " ")}</b>{activeRuns ? `${activeRuns} active lane${activeRuns === 1 ? "" : "s"}` : totalSteps ? `${settledSteps}/${totalSteps} loop steps settled` : "No active execution"}</span>
-    </header>
-    <ol>
-      {#each stages as stage, index}
-        <li class:current={stage.id === currentId} class:passed={index < currentIndex}>
-          <span>{index + 1}</span>
-          <div><strong>{stage.short}</strong><small>{stage.label}</small></div>
-        </li>
-      {/each}
-    </ol>
-    <footer>
-      <span><b>NOW</b>{stages[currentIndex].label}</span>
-      <span><b>CAMPAIGN</b>{project.strategy?.workspace?.activeReview?.response?.proposal?.epochLabel || project.strategy?.epoch?.label || project.role}</span>
-    </footer>
+  <section class="campaign-summary" id="process-tracker" aria-label="Campaign progress">
+    <div class="campaign-summary-heading"><div><p class="eyebrow">{project.id} · CAMPAIGN</p><h2>{project.strategy?.epoch?.label || project.role}</h2></div><span class="campaign-mode">{project.loop?.status === "running" ? "Automation on" : "Guided mode"}</span></div>
+    <ol aria-label="Campaign stages">{#each stages as stage, index}<li class:current={index === current} class:passed={index < current} aria-current={index === current ? "step" : undefined}><span>{index + 1}</span>{stage}</li>{/each}</ol>
+    {#if budget && budget.schedulableTokens === 0}<p class="campaign-budget-note">New research is paused: {Number(budget.knownTokens).toLocaleString()} recorded tokens against the {Number(budget.epochTokenBudget).toLocaleString()} epoch budget. Existing results can still be reviewed.</p>{/if}
   </section>
 {/if}

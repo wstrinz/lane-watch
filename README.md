@@ -499,3 +499,29 @@ superseding the old plan and unconfirmed schedules. Confirmed schedules and
 unsettled research prevent this transition. The strategy workspace can reconcile
 an exact recorded review turn after a lost completion notification, without
 starting another agent or accepting interrupted commentary as a proposal.
+
+## Guided campaign page and terminal receipt recovery
+
+The main campaign page presents a compact stage indicator and one next-action
+card. The compass, full automation controls, process ledger, and specialist
+workspaces remain available in expandable context sections. Schedule preparation
+and dispatch call their own commands; they do not require resuming an old loop.
+An exhausted launch budget does not prevent receipt intake.
+
+A valid terminal verdict with invalid artifact custody is awaiting_evidence,
+not a failed research launch. Existing failed imports carrying a receipt error
+are rechecked against the same job identity; they can recover without another
+worker. artifact_paths supports the existing path-to-hash map or a directory
+allowlist accompanied by a task-relative artifact_hashes_file. Referenced files
+must have exact SHA-256 entries and stay inside the task directory. A wildcard
+alone never passes validation.
+
+Known runtime gap found on September 5 UTC: launchLocalResearch passes task,
+profile, packet and base to local_agent_coord.ps1, but does not forward
+ResearchLaunchSpec.tokenBudget or timeoutMinutes. The BS21 pilot recorded
+776,641 tokens against an 80,000-token reservation. Reservations must not be
+represented as enforced runtime ceilings. The resource workspace explicitly
+shows this limitation. No larger budget, retry, or new research is authorized
+by receipt recovery; fix and verify worker-runtime enforcement before further
+local research. Custody and semantic authority remain separate from execution
+status; an inconclusive result does not change the accepted denominator.

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { campaignState, refreshAll, selectProject } from "./campaign-state";
   import { settleCampaignAction, type CampaignProject as Project } from "./campaign-actions";
+  import { executionFocus } from "./campaign-guidance";
   import { custodyHasBudgetUpgrade } from "../custody";
   import { custodyNeedsReshape, custodyReshapeChildren } from "./custody-reshape";
 
@@ -250,6 +251,8 @@
   }
 
   function focusFor(value: any): RailFocus {
+    const execution = executionFocus(value);
+    if (execution) return execution;
     if ((value.externalInputs || []).some((input: any) => input.status === "drafted" && input.response?.decision === "READY_FOR_GATE")) return {
       status: "DIRECTION REVIEW READY", title: "Review the revised research direction",
       detail: "A checked redirect may replace the current experiment or its dependencies. Review it before retrying custody for the old plan.",
@@ -327,16 +330,8 @@
       return { status: "PLAN INPUT READY", title: "Ask Sol to shape the wave", detail: `${currentRequests(value).filter((request: any) => request.status === "proposed").length} candidate lane records are ready for dependency, staffing, resource, and breadth checks.`, actions: [{ key: "research.review.start", label: "Check & shape lane plan", style: "primary-button" }] };
     }
     if (value.phase === "RESEARCH_READY") {
-      const custodyBlockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
-      if (custodyBlockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, custodyBlockers), custodyBlockers);
-      const schedule = value.researchSchedule;
-      if (schedule?.status === "proposed") return { status: "HUMAN LAUNCH GATE", title: `Confirm ${schedule.members?.length || 0} checked lane${schedule.members?.length === 1 ? "" : "s"}`, detail: "This reserves the exact immutable schedule digest but launches nothing. Autopilot can dispatch only after this human boundary is recorded.", actions: [{ key: "research.schedule.confirm", targetId: schedule.id, args: { scheduleDigest: schedule.digest }, label: "Confirm checked wave", style: "primary-button" }] };
-      if (schedule?.status === "confirmed") return { status: "READY TO DISPATCH", title: "Launch the confirmed bounded wave", detail: "The human reservation is recorded. Resuming autopilot launches only the confirmed members and keeps their evidence together for batch intake.", actions: [{ key: "loop.resume", label: "Resume & dispatch", style: "primary-button" }] };
-      if (value.loop?.resumeBlocker) return { status: "PLAN REPAIR NEEDED", title: "Repair the checked launch frontier", detail: compact(value.loop.resumeBlocker), actions: [
-        { key: "reveal", label: "Inspect process & plan", target: "#process-history", style: "primary-button" },
-        { key: "reveal", label: "Review strategy context", target: "#strategy-workspaces", style: "outline-button" },
-      ] };
-      return { status: "LAUNCH PREPARATION", title: "Freeze the dependency-safe retry schedule", detail: "The failed attempt is preserved. Rechecking autopilot will create a fresh immutable schedule for the same checked mathematical contract, without launching it.", actions: [{ key: "loop.resume", label: "Prepare checked schedule", style: "primary-button" }] };
+      const blockers = (value.custody?.items || []).filter((item: any) => item.blocksResearch && !["complete", "parked"].includes(item.status));
+      if (blockers.length) return custodyBlockerFocus(value, custodyFocusItem(value, blockers), blockers);
     }
     if (value.phase === "RESEARCH_RUNNING") {
       const runs = (value.researchRuns || []).filter((run: any) => ["launching", "running", "blocked"].includes(run.status));
@@ -471,7 +466,8 @@
         }
       }
       if (item.key === "research.failure.requeue" && result.project.phase === "RESEARCH_READY") {
-        await settleCampaignAction({ projectId: project.id, type: "loop.resume", scope: "primary-rail-retry", pollLimit: 80 });
+        // Retry staging does not resume an unrelated or stopped autopilot loop.
+        // The next render offers the actual resource or schedule boundary.
       }
       if (item.key === "synthesis.review" && item.args?.decision === "research" && result.project.phase === "RESEARCH_REVIEW") {
         await settleCampaignAction({ projectId: project.id, type: "research.review.start", scope: "primary-rail", pollLimit: 160 });
@@ -551,12 +547,8 @@
       <div class="rail-kicker"><span>{project.id}</span><strong>{phaseLabels[project.phase] || project.phase?.toLowerCase().replaceAll("_", " ")}</strong><i>{focus.status}</i></div>
       <h2>{focus.title}</h2>
       <p>{focus.detail}</p>
-      {#if direction}<div class="rail-direction"><span>CURRENT GROUNDING</span><strong>{compact(direction, 360)}</strong></div>{/if}
-      {#if project.controlState?.observation}
-        <div class="rail-observation"><span>OBSERVED ACTIVITY · NON-AUTHORITATIVE</span><strong>{phaseLabels[project.controlState.observation.phase] || project.controlState.observation.phase?.toLowerCase().replaceAll("_", " ")} · {project.controlState.observation.active} active</strong></div>
-      {/if}
       <details class="rail-hint">
-        <summary><span>WHY THIS MATTERS</span><strong>Plain-language hint + mathematical connection</strong></summary>
+        <summary>Why this step · context and technical details</summary>
         <div>
           <p><b>What this state means.</b> {project.phase === "RESEARCH_READY" ? "The research question and resource cap are fixed, but no worker may run until the exact schedule is confirmed." : project.phase === "RESEARCH_INTAKE" ? "A worker boundary has settled; Lane Watch is deciding whether there is valid evidence to accept or an infrastructure attempt to retry." : "This is the next authority boundary in the campaign loop; observation alone cannot cross it."}</p>
           <p><b>Mathematical connection.</b> {compact(project.researchSchedule?.members?.[0]?.expectedDelta || project.researchPlan?.response?.lanes?.[0]?.evidenceExpected || direction || project.role, 420)}</p>

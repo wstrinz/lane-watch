@@ -122,7 +122,7 @@ export function assertTerminalResearchReceipt(receipt: Record<string, any>, task
   }
 }
 
-async function validateReceiptArtifacts(
+export async function validateReceiptArtifacts(
   worktree: string,
   evidencePath: string,
   receipt: Record<string, any>,
@@ -130,7 +130,23 @@ async function validateReceiptArtifacts(
   const normalizedEvidence = evidencePath.replace(/\\/g, "/");
   const allowedRoot = normalizedEvidence.replace(/\/[^/]+$/, "");
   if (!allowedRoot || allowedRoot === normalizedEvidence) throw new Error("Evidence receipt path has no bounded task directory");
-  const artifacts = receipt.artifact_paths && typeof receipt.artifact_paths === "object" ? receipt.artifact_paths as Record<string, unknown> : {};
+  let artifacts: Record<string, unknown> = {};
+  if (Array.isArray(receipt.artifact_paths)) {
+    // A directory allowlist is not a digest map. Some producers bind a separate
+    // manifest whose file names are relative to the task directory.
+    const manifestPath = String(receipt.artifact_hashes_file || "").replace(/\\/g, "/");
+    if (!manifestPath || manifestPath.includes("*") || manifestPath.split("/").includes("..")) throw new Error("Receipt artifact allowlist requires a bounded artifact_hashes_file");
+    const manifestAbsolute = resolve(worktree, allowedRoot, manifestPath);
+    if (!within(resolve(worktree, allowedRoot), manifestAbsolute)) throw new Error("Receipt hash manifest escapes the task directory");
+    const manifest = JSON.parse((await readFile(manifestAbsolute, "utf8")).replace(/^\uFEFF/, ""));
+    if (!manifest.files || Array.isArray(manifest.files) || typeof manifest.files !== "object" || !Object.keys(manifest.files).length) throw new Error("Receipt hash manifest requires a nonempty files map");
+    for (const [path, value] of Object.entries(manifest.files)) {
+      if (path.split(/[\\/]/).includes("..") || path.includes("*")) throw new Error("Receipt manifest contains an unsafe artifact path");
+      artifacts[allowedRoot + "/" + path] = (value as any)?.sha256;
+    }
+  } else if (receipt.artifact_paths && typeof receipt.artifact_paths === "object") {
+    artifacts = receipt.artifact_paths;
+  }
   const hashModeMismatches: string[] = [];
   for (const [path, expected] of Object.entries(artifacts)) {
     const normalized = path.replace(/\\/g, "/");
@@ -318,7 +334,8 @@ export class ObservationSyncService {
   private async syncResearchRuns(projectId: string, lanes: LaneSnapshot[]): Promise<void> {
     const runs = this.database.query(`
       SELECT * FROM campaign_research_runs
-      WHERE project_id = $project AND status IN ('launching', 'running', 'blocked', 'awaiting_evidence', 'evidence_ready')
+      WHERE project_id = $project AND (status IN ('launching', 'running', 'blocked', 'awaiting_evidence', 'evidence_ready')
+        OR (status = 'failed' AND error LIKE '%Evidence receipt is not ready%'))
       ORDER BY created_at
     `).all({ $project: projectId }) as ResearchRunRow[];
     if (!runs.length) return;
@@ -347,6 +364,8 @@ export class ObservationSyncService {
             const content = await readFile(evidencePath, "utf8");
             const receipt = JSON.parse(content.replace(/^\uFEFF/, ""));
             assertTerminalResearchReceipt(receipt, run.task_id);
+            // Completed research with a custody defect belongs at intake, not retry.
+            if (terminal) status = "awaiting_evidence";
             await validateReceiptArtifacts(run.worktree, run.evidence_path, receipt);
             if (!terminal && !(await committedWorktreeFileMatches(run.worktree, run.evidence_path))) {
               await freezeCompletedResearchEvidence(run.worktree, run.evidence_path, receipt, run.task_id);
@@ -409,7 +428,7 @@ export class ObservationSyncService {
     if (!active?.count) {
       const wave = this.waves.latest(projectId);
       const schedule = wave ? this.schedules.latest(projectId, wave.wave_id) : null;
-      if (schedule && ["dispatching", "running", "attention", "landed"].includes(schedule.status)) {
+      if (schedule && ["dispatching", "running", "attention", "landed", "failed"].includes(schedule.status)) {
         const members = this.schedules.members(schedule.schedule_id);
         if (members.length && members.every((member) => !["reserved", "launching", "running", "blocked"].includes(member.status))) {
           this.schedules.transitionSchedule(schedule.schedule_id, members.every((member) => member.status === "failed") ? "failed" : "landed", this.port.now());
