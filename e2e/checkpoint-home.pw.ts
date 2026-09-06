@@ -5,7 +5,14 @@ test('held campaign offers useful mobile actions before setup details',async({pa
  await page.goto('http://127.0.0.1:4317/projects/cfg23');
  const read=page.getByRole('button',{name:'Read the symmetry note',exact:false});
  await expect(read).toBeVisible();
- const bounds=await read.boundingBox();expect(bounds!.y+bounds!.height).toBeLessThan(844);
+ const polish=page.getByRole('button',{name:'Polish the checkpoint'});
+ const bounds=await polish.boundingBox();expect(bounds!.y+bounds!.height).toBeLessThan(844);
+ await polish.click();
+ await expect(page.getByLabel('Anything to focus on?')).toHaveValue(/Produce usable publication draft text/);
+ await page.keyboard.press('Escape');
+ await page.getByRole('button',{name:'Plan what comes next'}).click();
+ await expect(page.getByLabel('Anything to focus on?')).toHaveValue(/Prepare a concrete next-wave comparison/);
+ await page.keyboard.press('Escape');
  await expect(page.locator('.execution-details')).not.toHaveAttribute('open','');
  await page.screenshot({path:'test-results/checkpoint-home-mobile.png',fullPage:true});
  await read.click();await expect(page.locator('.queue-result-dialog')).toBeVisible();
