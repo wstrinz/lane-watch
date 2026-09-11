@@ -43,6 +43,7 @@ export class CampaignStartupService {
   private projectCount = 0;
   private interruptedActionCount = 0;
   private interruptedResearchLaunchCount = 0;
+  private registeredProjectIds = new Set<string>();
 
   constructor(
     private readonly database: Database,
@@ -54,6 +55,13 @@ export class CampaignStartupService {
   initialize(): Promise<CampaignStartupReport> {
     this.initialization ??= this.initializeOnce();
     return this.initialization.then(() => this.snapshot());
+  }
+
+  /** Re-reads project definitions without replaying one-time crash recovery. */
+  async reconcileProjects(): Promise<CampaignStartupReport> {
+    await this.initialize();
+    this.projectCount = await this.loadProjects();
+    return this.snapshot();
   }
 
   /**
@@ -116,7 +124,10 @@ export class CampaignStartupService {
         VALUES ($id, $role, $root, $now)
         ON CONFLICT(project_id) DO UPDATE SET role = excluded.role, root_path = excluded.root_path
       `).run({ $id: id, $role: project.role, $root: project.root, $now: this.clock() });
-      this.port.ensureStrategyFoundation(project.id);
+      if (!this.registeredProjectIds.has(project.id)) {
+        this.port.ensureStrategyFoundation(project.id);
+        this.registeredProjectIds.add(project.id);
+      }
       count += 1;
     }
     return count;

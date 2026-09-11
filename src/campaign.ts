@@ -1317,6 +1317,9 @@ export class CampaignControl {
   async coordinatorConversation(projectId: string): Promise<Record<string, unknown>> {
     return this.coordinatorSessions.conversation(projectId);
   }
+  async reconcileProjects(): Promise<void> {
+    await this.startup.reconcileProjects();
+  }
   async observe(observer: ObserverSnapshot): Promise<void> {
     this.latestObserver = observer;
     for (const project of this.projects.values()) {

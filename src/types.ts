@@ -83,6 +83,7 @@ export interface ObserverSnapshot {
     project: string;
     host: HostKind;
     path: string;
+    kind?: "canonical" | "coordinator-checkout";
     available: boolean;
   }>;
 }

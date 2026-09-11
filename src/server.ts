@@ -54,7 +54,11 @@ const securityHeaders = {
 
 const collector = new AgentCollector();
 await collector.initialize();
-const manifestProjects = ((JSON.parse(await readFile(collector.manifestPath, "utf8")) as { projects?: Array<Record<string, any>> }).projects || []);
+async function readManifestProjects(): Promise<Array<Record<string, any>>> {
+  const manifest = JSON.parse((await readFile(collector.manifestPath, "utf8")).replace(/^\uFEFF/, "")) as { projects?: Array<Record<string, any>> };
+  return manifest.projects || [];
+}
+let manifestProjects = await readManifestProjects();
 const push = await PushService.create(DATA_ROOT);
 const campaign = await CampaignControl.create(DATA_ROOT, collector.manifestPath);
 const campaignReads = new CampaignReadService(campaign, DATA_ROOT);
@@ -172,6 +176,8 @@ async function refresh(forceRemote = false): Promise<ObserverSnapshot> {
   if (refreshing) return snapshot;
   refreshing = true;
   try {
+    await campaign.reconcileProjects();
+    manifestProjects = await readManifestProjects();
     const next = await collector.collect({ forceRemote });
     await campaign.observe(next);
     const nextDigest = JSON.stringify(next.lanes);

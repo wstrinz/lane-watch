@@ -95,4 +95,25 @@ describe("CampaignStartupService", () => {
     expect(item.resumes()).toBe(0);
     item.database.close();
   });
+
+  test("reconciles newly added projects without replaying startup recovery", async () => {
+    const item = harness();
+    await item.service.initialize();
+    writeFileSync(item.manifestPath, JSON.stringify({
+      projects: [
+        { id: "alpha", role: "Updated alpha", path: "../alpha", local_agent_coordinator: "tools/coord.ps1" },
+        { id: "gamma", role: "Gamma role", path: "../gamma", local_agent_coordinator: "tools/coord.ps1" },
+      ],
+    }));
+
+    const report = await item.service.reconcileProjects();
+
+    expect(report.projectCount).toBe(2);
+    expect(item.order.filter((step) => step === "recover-actions")).toHaveLength(1);
+    expect(item.order.filter((step) => step === "foundation:alpha")).toHaveLength(1);
+    expect(item.order.filter((step) => step === "foundation:gamma")).toHaveLength(1);
+    expect(item.projects.at(-1)?.id).toBe("gamma");
+    expect(item.database.query("SELECT role FROM campaign_projects WHERE project_id = 'gamma'").get()).toEqual({ role: "Gamma role" });
+    item.database.close();
+  });
 });
